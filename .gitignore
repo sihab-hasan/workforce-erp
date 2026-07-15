@@ -31,4 +31,3 @@ dist-ssr
 
 # typescript
 *.tsbuildinfo
-infra/*

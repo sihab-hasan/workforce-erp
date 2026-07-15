@@ -2,6 +2,7 @@
   "name": "workforce-erp",
   "version": "0.0.1",
   "private": true,
+  "license": "UNLICENSED",
   "scripts": {
     "build": "turbo build",
     "clean": "powershell -ExecutionPolicy Bypass -File ./infra/scripts/clean.ps1",

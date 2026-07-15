@@ -4,7 +4,7 @@
 
 - The repo is currently frontend-first; no `apps/api` exists yet.
 - Agent/context files live at the repo root inside `.agents` instead of being duplicated in each app.
-- Root `package.json` keeps only the currently needed workspace commands: `dev`, `build`, `lint`, `typecheck`, `format`, and `format:check`.
+- Root `package.json` keeps the currently needed workspace commands: `dev`, `build`, `lint`, `typecheck`, `format`, `format:check`, `setup`, `clean`, and `stop`.
 - Live deployment scripts and database backup/restore scripts are intentionally absent because the repo has no backend/database/runtime target yet.
 - GitHub deployment is represented only by a verification and handoff scaffold, not by provider-specific release automation.
 - Local app ports are fixed as:

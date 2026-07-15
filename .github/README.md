@@ -20,6 +20,7 @@ Project overview, workspace details, and shared commands are documented in the [
 - `CODEOWNERS` assigns project-wide ownership to `@sihab-hasan`, `@abidhasan176`, `@mashru04`, and `@Monjur-A-Maula`.
 - `@sihab-hasan` is the repo owner and team lead.
 - The repository is public for visibility, but it is not open source and remains `UNLICENSED`.
+- The default integration branch is `develop`.
 - `workflows/ci.yml` no longer references an API test job because `apps/api` is not in this workspace yet.
 - The active app folders in this workspace are `apps/web`, `apps/client`, and `apps/admin`.
 - `.github/labeler.yml` maps changed files to PR labels for `apps/*`, `packages/*`, `docs`, `infra`, `ci`, and dependency manifest changes.

@@ -1,13 +1,17 @@
 # Pull Request
 
+Target branch: `develop`
+
 ## Summary
 
 Describe the change and the user or system impact.
 
 ## Testing
 
+- [ ] `pnpm format:check`
 - [ ] `pnpm lint`
 - [ ] `pnpm typecheck`
+- [ ] `pnpm build`
 - [ ] Relevant app or package tests
 
 ## Screenshots

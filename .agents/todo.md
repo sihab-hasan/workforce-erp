@@ -18,7 +18,8 @@
 
 After meaningful repo changes, run:
 
-1. `pnpm typecheck`
-2. `pnpm lint`
-3. `pnpm build`
-4. `pnpm format`
+1. `pnpm format`
+2. `pnpm format:check`
+3. `pnpm lint`
+4. `pnpm typecheck`
+5. `pnpm build`
