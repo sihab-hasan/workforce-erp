@@ -2,7 +2,7 @@
 
 ## Near-term
 
-- Add real UI/content to the placeholder pages in `apps/web`, `apps/client`, and `apps/admin`
+- Add real UI/content to the placeholder pages in `apps/web`, `apps/portal`, and `apps/admin`
 - Decide the first shared business modules to move into `packages/`
 - Add consistent navigation/layout structure across all frontend apps
 - Review whether `packages/api-client` needs a stronger contract before the API app is added

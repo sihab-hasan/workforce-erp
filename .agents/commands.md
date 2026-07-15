@@ -16,5 +16,5 @@
 ## Single-app dev
 
 - Web: `pnpm --filter @workforce-erp/web dev`
-- Client: `pnpm --filter @workforce-erp/client dev`
+- Portal: `pnpm --filter @workforce-erp/portal dev`
 - Admin: `pnpm --filter @workforce-erp/admin dev`

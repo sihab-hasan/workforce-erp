@@ -25,7 +25,7 @@ Project overview, workspace details, and shared commands are documented in the [
 - The default integration branch is `develop`.
 - The repository currently follows a PR-based workflow centered on `develop`, with CI checks and branch protection expected there.
 - `workflows/ci.yml` no longer references an API test job because `apps/api` is not in this workspace yet.
-- The active app folders in this workspace are `apps/web`, `apps/client`, and `apps/admin`.
+- The active app folders in this workspace are `apps/web`, `apps/portal`, and `apps/admin`.
 - `.github/labeler.yml` maps changed files to PR labels for `apps/*`, `packages/*`, `docs`, `infra`, `ci`, and dependency manifest changes.
 - `workflows/deploy.yml` is a scaffold, not a live deployment pipeline.
 - CI and deployment verification run the standard checks: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, and `pnpm build`.

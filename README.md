@@ -7,7 +7,7 @@ This repository is public for visibility, but it is not open source and remains 
 ## Current workspace
 
 - `apps/web`: public-facing web app on port `5173`
-- `apps/client`: client portal on port `5174`
+- `apps/portal`: tenant portal on port `5174`
 - `apps/admin`: admin app on port `5175`
 - `packages/ui`: shared UI components and styles
 - `packages/config/*`: shared ESLint and TypeScript configuration packages

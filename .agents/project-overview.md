@@ -8,7 +8,7 @@ The current workspace focuses on frontend foundations with three Vite + React ap
 ## Applications
 
 - `apps/web`: public app on port `5173`
-- `apps/client`: client portal on port `5174`
+- `apps/portal`: tenant portal on port `5174`
 - `apps/admin`: admin app on port `5175`
 
 ## Shared packages

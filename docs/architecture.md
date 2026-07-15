@@ -8,7 +8,7 @@ It currently contains three Vite + React applications and a set of shared intern
 ## Application layer
 
 - `apps/web`: public-facing app on port `5173`
-- `apps/client`: client portal on port `5174`
+- `apps/portal`: tenant portal on port `5174`
 - `apps/admin`: admin-facing app on port `5175`
 
 ## Shared package layer

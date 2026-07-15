@@ -14,7 +14,7 @@
 ## Current verified ports
 
 - `5173`: web
-- `5174`: client
+- `5174`: portal
 - `5175`: admin
 
 ## Good first checks after changes

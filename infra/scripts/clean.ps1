@@ -48,7 +48,7 @@ $Targets = @(
   (Join-Path $RootDir ".turbo"),
   (Join-Path $RootDir "node_modules"),
   (Join-Path $RootDir "apps\web\dist"),
-  (Join-Path $RootDir "apps\client\dist"),
+  (Join-Path $RootDir "apps\portal\dist"),
   (Join-Path $RootDir "apps\admin\dist")
 )
 

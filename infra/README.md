@@ -69,7 +69,7 @@ Purpose:
 Current ports:
 
 - `5173`: web
-- `5174`: client
+- `5174`: portal
 - `5175`: admin
 
 ## Notes

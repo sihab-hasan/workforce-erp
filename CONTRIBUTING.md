@@ -15,7 +15,7 @@ This repository is public for visibility, but it is not open source and remains 
 ## Project structure
 
 - `apps/web`: public-facing web app on port `5173`
-- `apps/client`: client portal on port `5174`
+- `apps/portal`: tenant portal on port `5174`
 - `apps/admin`: admin app on port `5175`
 - `packages/ui`: shared UI components and styles
 - `packages/constants`: shared constants
@@ -107,7 +107,7 @@ git checkout -b feature/short-description
 
 Examples:
 
-- `feature/client-invoice-summary`
+- `feature/portal-invoice-summary`
 - `fix/admin-auth-redirect`
 - `docs/update-contributing-guide`
 
@@ -167,7 +167,7 @@ Examples:
 
 - `git commit -m "Fix admin login redirect"`
 - `git commit -m "Update contributing guide"`
-- `git commit -m "Add invoice summary card to client dashboard"`
+- `git commit -m "Add invoice summary card to portal dashboard"`
 
 ### 11. Push your branch
 

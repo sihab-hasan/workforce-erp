@@ -14,7 +14,7 @@ This folder contains lightweight context files for coding agents working in the 
 
 This repository is currently a frontend-focused monorepo.
 There is no `apps/api` app yet.
-The active apps are `apps/web`, `apps/client`, and `apps/admin`.
+The active apps are `apps/web`, `apps/portal`, and `apps/admin`.
 GitHub Actions currently cover CI plus a deploy scaffold.
 
 ## Recommended read order

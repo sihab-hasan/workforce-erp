@@ -14,7 +14,7 @@ rm -rf \
   "$ROOT_DIR/.turbo" \
   "$ROOT_DIR/node_modules" \
   "$ROOT_DIR/apps/web/dist" \
-  "$ROOT_DIR/apps/client/dist" \
+  "$ROOT_DIR/apps/portal/dist" \
   "$ROOT_DIR/apps/admin/dist"
 
 find "$ROOT_DIR/packages" -type d \( -name dist -o -name node_modules \) -prune -exec rm -rf {} +

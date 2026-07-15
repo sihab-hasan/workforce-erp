@@ -9,7 +9,7 @@
 - GitHub deployment is represented only by a verification and handoff scaffold, not by provider-specific release automation.
 - Local app ports are fixed as:
   - `5173` for `apps/web`
-  - `5174` for `apps/client`
+  - `5174` for `apps/portal`
   - `5175` for `apps/admin`
 
 ## Revisit later
