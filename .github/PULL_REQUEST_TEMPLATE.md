@@ -6,6 +6,16 @@ Target branch: `develop`
 
 Describe the change and the user or system impact.
 
+## Linked issue
+
+Reference the related issue when applicable.
+
+Examples:
+
+- `Closes #12`
+- `Fixes #12`
+- `Resolves #12`
+
 ## Testing
 
 - [ ] `pnpm format:check`
@@ -13,6 +23,14 @@ Describe the change and the user or system impact.
 - [ ] `pnpm typecheck`
 - [ ] `pnpm build`
 - [ ] Relevant app or package tests
+
+## Risk
+
+Describe any rollout, regression, or dependency risk if relevant.
+
+## Rollback plan
+
+Explain how this change can be reverted or backed out if needed.
 
 ## Screenshots
 
