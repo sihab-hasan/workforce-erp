@@ -173,6 +173,28 @@ importers:
         specifier: ~6
         version: 6.0.3
 
+  packages/auth-client:
+    dependencies:
+      react:
+        specifier: ^19.2.6
+        version: 19.2.7
+    devDependencies:
+      "@types/react":
+        specifier: ^19
+        version: 19.2.17
+      "@workforce-erp/eslint-config":
+        specifier: workspace:*
+        version: link:../config/eslint-config
+      "@workforce-erp/typescript-config":
+        specifier: workspace:*
+        version: link:../config/typescript-config
+      eslint:
+        specifier: ^10
+        version: 10.7.0(jiti@2.7.0)
+      typescript:
+        specifier: ~6
+        version: 6.0.3
+
   packages/config/eslint-config:
     dependencies:
       "@eslint/js":
@@ -201,6 +223,28 @@ importers:
 
   packages/constants:
     devDependencies:
+      "@workforce-erp/eslint-config":
+        specifier: workspace:*
+        version: link:../config/eslint-config
+      "@workforce-erp/typescript-config":
+        specifier: workspace:*
+        version: link:../config/typescript-config
+      eslint:
+        specifier: ^10
+        version: 10.7.0(jiti@2.7.0)
+      typescript:
+        specifier: ~6
+        version: 6.0.3
+
+  packages/permissions:
+    dependencies:
+      react:
+        specifier: ^19.2.6
+        version: 19.2.7
+    devDependencies:
+      "@types/react":
+        specifier: ^19
+        version: 19.2.17
       "@workforce-erp/eslint-config":
         specifier: workspace:*
         version: link:../config/eslint-config
