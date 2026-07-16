@@ -1,0 +1,20 @@
+@keyframes marketing-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marketing-marquee-track {
+  animation: marketing-marquee 26s linear infinite;
+  will-change: transform;
+}
+
+.marketing-marquee:hover .marketing-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-marquee-track {
+    animation: none;
+  }
+}

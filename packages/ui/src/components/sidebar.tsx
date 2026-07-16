@@ -5,9 +5,9 @@ import { mergeProps } from "@base-ui/react/merge-props"
 import { useRender } from "@base-ui/react/use-render"
 import { cva, type VariantProps } from "class-variance-authority"
 
-import { useIsMobile } from "@workforce-erp/ui/hooks/use-mobile"
 import { cn } from "@workforce-erp/ui/lib/utils"
 import { Button } from "@workforce-erp/ui/components/button"
+import { useIsMobile } from "@workforce-erp/ui/hooks/use-mobile"
 import { Input } from "@workforce-erp/ui/components/input"
 import { Separator } from "@workforce-erp/ui/components/separator"
 import {

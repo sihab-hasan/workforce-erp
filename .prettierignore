@@ -5,3 +5,4 @@ node_modules/
 .turbo/
 coverage/
 .pnpm-store/
+**/skills/

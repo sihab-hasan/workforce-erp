@@ -16,16 +16,17 @@
     "@workforce-erp/ui": "workspace:*",
     "lucide-react": "^1.24.0",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "react-router-dom": "^7.18.1"
   },
   "devDependencies": {
-    "@workforce-erp/eslint-config": "workspace:*",
-    "@workforce-erp/typescript-config": "workspace:*",
     "@tailwindcss/vite": "^4",
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6",
+    "@workforce-erp/eslint-config": "workspace:*",
+    "@workforce-erp/typescript-config": "workspace:*",
     "eslint": "^10",
     "typescript": "~6",
     "vite": "^8"
