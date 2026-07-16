@@ -13,10 +13,12 @@ It currently contains three Vite + React applications and a set of shared intern
 
 ## Shared package layer
 
-- `packages/ui`: shared components and styling primitives
+- `packages/ui`: shared components, styling primitives, and package-level shadcn/ui setup
 - `packages/config/*`: shared ESLint and TypeScript configuration packages
 - `packages/constants`: shared constants and route helpers
-- `packages/api-client`: current placeholder for shared API access logic
+- `packages/api-client`: shared API client foundation plus OpenAPI and codegen scaffolding
+- `packages/auth-client`: shared auth context, hooks, session helpers, and route guards
+- `packages/permissions`: shared permission checks, hooks, and guard components
 - `packages/types`: shared TypeScript contracts
 - `packages/utils`: utility functions and helpers
 
@@ -40,5 +42,4 @@ It currently contains three Vite + React applications and a set of shared intern
 Likely future additions:
 
 - `apps/api`
-- stronger shared auth/data packages
 - environment-specific runtime documentation
