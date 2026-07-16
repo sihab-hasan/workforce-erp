@@ -17,6 +17,7 @@ dist-ssr
 
 # turbo
 .turbo
+.pnpm-store/
 
 # Editor directories and files
 .vscode/*
@@ -32,3 +33,6 @@ dist-ssr
 # typescript
 *.tsbuildinfo
 .agents/
+
+skills-lock.json
+/skills
