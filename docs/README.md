@@ -4,14 +4,18 @@ This folder holds longer-lived project documentation that goes beyond the quick-
 
 ## Suggested read order
 
-1. `architecture.md`
-2. `conventions.md`
-3. `roadmap.md`
+1. `project-overview.md`
+2. `architecture.md`
+3. `conventions.md`
+4. `workflow-notes.md`
+5. `roadmap.md`
 
 ## Scope
 
 - architecture and repo structure
+- product and repository overview
 - coding and workspace conventions
+- practical engineering workflow
 - medium-term roadmap items
 
 ## Also useful

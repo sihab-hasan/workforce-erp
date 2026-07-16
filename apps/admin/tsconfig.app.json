@@ -4,8 +4,29 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "paths": {
       "@/*": ["./src/*"],
-      "@workforce-erp/ui/*": ["../../packages/ui/src/*"]
+      "@workforce-erp/api-client": ["../../packages/api-client/src/index.ts"],
+      "@workforce-erp/api-client/*": ["../../packages/api-client/src/*"],
+      "@workforce-erp/auth-client": ["../../packages/auth-client/src/index.ts"],
+      "@workforce-erp/auth-client/*": ["../../packages/auth-client/src/*"],
+      "@workforce-erp/constants": ["../../packages/constants/src/index.ts"],
+      "@workforce-erp/constants/*": ["../../packages/constants/src/*"],
+      "@workforce-erp/permissions": ["../../packages/permissions/src/index.ts"],
+      "@workforce-erp/permissions/*": ["../../packages/permissions/src/*"],
+      "@workforce-erp/types": ["../../packages/types/src/index.ts"],
+      "@workforce-erp/types/*": ["../../packages/types/src/*"],
+      "@workforce-erp/ui/*": ["../../packages/ui/src/*"],
+      "@workforce-erp/utils": ["../../packages/utils/src/index.ts"],
+      "@workforce-erp/utils/*": ["../../packages/utils/src/*"]
     }
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "../../packages/api-client/src",
+    "../../packages/auth-client/src",
+    "../../packages/constants/src",
+    "../../packages/permissions/src",
+    "../../packages/types/src",
+    "../../packages/ui/src",
+    "../../packages/utils/src"
+  ]
 }

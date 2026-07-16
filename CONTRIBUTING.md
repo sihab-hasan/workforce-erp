@@ -21,7 +21,7 @@ This repository is public for visibility, but it is not open source and remains 
 - `packages/constants`: shared constants
 - `packages/types`: shared TypeScript contracts
 - `packages/utils`: shared utilities
-- `packages/api-client`: shared API client placeholder
+- `packages/api-client`: shared API client foundation and OpenAPI/codegen lane
 - `packages/config/*`: shared ESLint and TypeScript config
 - `docs/`: longer-lived project documentation
 - `infra/`: local helper scripts and infra-related files

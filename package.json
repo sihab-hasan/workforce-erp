@@ -13,7 +13,8 @@
     "format:packages": "turbo format",
     "setup": "powershell -ExecutionPolicy Bypass -File ./infra/scripts/setup.ps1",
     "stop": "powershell -ExecutionPolicy Bypass -File ./infra/scripts/stop.ps1",
-    "typecheck": "turbo typecheck"
+    "typecheck": "turbo typecheck",
+    "validate": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm build && pnpm format"
   },
   "devDependencies": {
     "prettier": "^3.8.3",

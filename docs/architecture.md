@@ -2,8 +2,9 @@
 
 ## Current shape
 
-The repository is a frontend-first `pnpm` monorepo using Turborepo.
-It currently contains three Vite + React applications and a set of shared internal packages.
+The repository is a full-stack `pnpm` monorepo using Turborepo.
+The checked-in runtime currently contains three Vite + React applications, a set of shared internal
+packages, and a canonical backend lane at `apps/api`.
 
 ## Application layer
 
@@ -34,12 +35,12 @@ It currently contains three Vite + React applications and a set of shared intern
 
 ## Current boundaries
 
-- No backend app exists yet
-- No database runtime is currently part of this workspace
+- The checked-in working tree currently contains frontend applications and shared packages
+- `apps/api` is the canonical Laravel API location, even though the backend working tree is not
+  present yet
 
 ## Future expansion
 
 Likely future additions:
 
-- `apps/api`
 - environment-specific runtime documentation
