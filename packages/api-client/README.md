@@ -14,6 +14,13 @@ configuration object. That makes the package real but still early in its impleme
 - `src/generated/` is reserved for generated client output.
 - `src/http/` is reserved for shared transport helpers.
 
+## Workspace notes
+
+- `openapi/workforce-api.yaml` is the current OpenAPI source artifact in the package.
+- `src/codegen/openapi.config.ts` is the current codegen placeholder.
+- `src/generated/` is reserved for generated client output.
+- `src/http/` is reserved for shared transport helpers.
+
 ## Intended use
 
 This package is the canonical typed client boundary that frontend apps should use to talk to the API
