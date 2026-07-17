@@ -1,0 +1,45 @@
+name: Frontend validation
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Format, lint, and typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Format check
+        run: pnpm exec prettier --check apps/admin apps/portal apps/web packages
+
+      - name: Lint
+        run: pnpm turbo run lint --filter=@workforce-erp/admin... --filter=@workforce-erp/portal... --filter=@workforce-erp/web...
+
+      - name: Typecheck
+        run: pnpm turbo run typecheck --filter=@workforce-erp/admin... --filter=@workforce-erp/portal... --filter=@workforce-erp/web...
+
+  build:
+    name: Build frontend applications
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: quality
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Build
+        run: pnpm turbo run build --filter=@workforce-erp/admin... --filter=@workforce-erp/portal... --filter=@workforce-erp/web...

@@ -6,11 +6,14 @@ Project overview, workspace details, and shared commands are documented in the [
 
 ## Structure
 
-- `workflows/ci.yml`: format, lint, typecheck, and build validation for the current workspace
+- `workflows/ci.yml`: pull request, push, and manual entry point for all validation
+- `workflows/frontend.yml`: reusable frontend format, lint, typecheck, and build validation
+- `workflows/api.yml`: reusable Laravel API format and test validation
 - `workflows/labeler.yml`: runs pull request labeling
 - `labeler.yml`: label rules based on changed files
 - `workflows/deploy.yml`: separate-check deployment scaffold with manual handoff for the current apps
-- `actions/setup-node-pnpm/action.yml`: shared setup for Node and pnpm
+- `actions/setup-node-pnpm/action.yml`: shared setup for Node.js and pnpm
+- `actions/setup-php-composer/action.yml`: shared setup for PHP and Composer
 - `CODEOWNERS`: review routing for the project owners
 - `PULL_REQUEST_TEMPLATE.md`: pull request hygiene checklist
 - `ISSUE_TEMPLATE/`: issue intake templates
@@ -24,11 +27,12 @@ Project overview, workspace details, and shared commands are documented in the [
 - The repository is public for visibility, but it is not open source and remains `UNLICENSED`.
 - The default integration branch is `develop`.
 - The repository currently follows a PR-based workflow centered on `develop`, with CI checks and branch protection expected there.
-- `workflows/ci.yml` no longer references an API test job because `apps/api` is not in this workspace yet.
-- The active app folders in this workspace are `apps/web`, `apps/portal`, and `apps/admin`.
+- `workflows/ci.yml` delegates validation to the frontend and API reusable workflows.
+- The active app folders are `apps/web`, `apps/portal`, `apps/admin`, and `apps/api`.
 - `.github/labeler.yml` maps changed files to PR labels for `apps/*`, `packages/*`, `docs`, `infra`, `ci`, and dependency manifest changes.
 - `workflows/deploy.yml` is a scaffold, not a live deployment pipeline.
-- CI and deployment verification run the standard checks: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, and `pnpm build`.
+- Frontend validation checks formatting, linting, type safety, and builds for the three React applications and their workspace dependencies.
+- API validation checks Laravel formatting and runs the API test suite.
 
 ## Deployment status
 
