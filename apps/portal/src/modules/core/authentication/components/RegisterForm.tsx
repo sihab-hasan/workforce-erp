@@ -53,7 +53,7 @@ export function RegisterForm({ className, onSuccess }: RegisterFormProps) {
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="register-full-name">Full name</Label>
         <div className="relative">
-          <User className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+          <User className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="register-full-name"
             type="text"
@@ -72,7 +72,7 @@ export function RegisterForm({ className, onSuccess }: RegisterFormProps) {
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="register-email">Work email</Label>
         <div className="relative">
-          <Mail className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+          <Mail className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="register-email"
             type="email"
@@ -91,7 +91,7 @@ export function RegisterForm({ className, onSuccess }: RegisterFormProps) {
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="register-password">Password</Label>
         <div className="relative">
-          <Lock className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+          <Lock className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="register-password"
             type={showPassword ? "text" : "password"}
@@ -108,7 +108,7 @@ export function RegisterForm({ className, onSuccess }: RegisterFormProps) {
             id="register-toggle-password"
             aria-label={showPassword ? "Hide password" : "Show password"}
             onClick={() => setShowPassword((v) => !v)}
-            className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 -translate-y-1/2 transition-colors"
+            className="absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
             tabIndex={-1}
             disabled={isLoading}
           >
@@ -119,12 +119,18 @@ export function RegisterForm({ className, onSuccess }: RegisterFormProps) {
             )}
           </button>
         </div>
-        <p className="text-muted-foreground text-xs">Must be at least 8 characters.</p>
+        <p className="text-xs text-muted-foreground">
+          Must be at least 8 characters.
+        </p>
       </div>
 
       {/* Inline error */}
       {error && (
-        <p id="register-error" role="alert" className="text-destructive -mt-1 text-sm">
+        <p
+          id="register-error"
+          role="alert"
+          className="-mt-1 text-sm text-destructive"
+        >
           {error}
         </p>
       )}

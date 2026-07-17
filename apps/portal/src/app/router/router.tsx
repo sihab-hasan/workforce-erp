@@ -45,7 +45,8 @@ export function PortalRouter() {
   }, [])
 
   const route =
-    allRoutes.find((candidate) => candidate.path === path) ?? fallbackPortalRoute
+    allRoutes.find((candidate) => candidate.path === path) ??
+    fallbackPortalRoute
 
   // Auth routes (login, forgot-password, etc.) render without the portal shell
   if (route.isAuthRoute) {

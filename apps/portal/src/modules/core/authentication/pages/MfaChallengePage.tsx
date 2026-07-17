@@ -1,7 +1,10 @@
 import { useState } from "react"
 import { Loader2, ShieldCheck } from "lucide-react"
 
-import { AUTH_PATHS, navigateTo } from "@/modules/core/authentication/navigation.ts"
+import {
+  AUTH_PATHS,
+  navigateTo,
+} from "@/modules/core/authentication/navigation.ts"
 import { AuthCard } from "@/modules/core/authentication/components/AuthCard.tsx"
 import { MfaChallengeForm } from "@/modules/core/authentication/components/MfaChallengeForm.tsx"
 
@@ -26,7 +29,7 @@ export default function MfaChallengePage() {
         <a
           href={`#${AUTH_PATHS.login}`}
           id="mfa-back-to-login-link"
-          className="text-primary font-medium underline-offset-4 hover:underline"
+          className="font-medium text-primary underline-offset-4 hover:underline"
         >
           ← Back to sign in
         </a>
@@ -34,17 +37,17 @@ export default function MfaChallengePage() {
     >
       <MfaChallengeForm onSuccess={() => navigateTo("/")} />
 
-      <div className="text-muted-foreground mt-4 text-center text-sm">
+      <div className="mt-4 text-center text-sm text-muted-foreground">
         Didn&apos;t receive a code?{" "}
         {resent ? (
-          <span className="text-primary font-medium">Sent ✓</span>
+          <span className="font-medium text-primary">Sent ✓</span>
         ) : (
           <button
             id="mfa-resend-code-button"
             type="button"
             onClick={handleResend}
             disabled={isResending}
-            className="text-primary font-medium underline-offset-4 hover:underline disabled:opacity-50"
+            className="font-medium text-primary underline-offset-4 hover:underline disabled:opacity-50"
           >
             {isResending ? (
               <span className="inline-flex items-center gap-1">

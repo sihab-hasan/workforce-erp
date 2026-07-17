@@ -20,7 +20,7 @@ export default function RegisterPage() {
           <a
             href={`#${AUTH_PATHS.login}`}
             id="go-to-login-link"
-            className="text-primary font-medium underline-offset-4 hover:underline"
+            className="font-medium text-primary underline-offset-4 hover:underline"
           >
             Sign in
           </a>
@@ -31,9 +31,9 @@ export default function RegisterPage() {
 
       {/* Divider */}
       <div className="relative my-2 flex items-center gap-3">
-        <div className="bg-border h-px flex-1" />
-        <span className="text-muted-foreground text-xs">or</span>
-        <div className="bg-border h-px flex-1" />
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-xs text-muted-foreground">or</span>
+        <div className="h-px flex-1 bg-border" />
       </div>
 
       <SocialLoginButtons action="Sign up" />

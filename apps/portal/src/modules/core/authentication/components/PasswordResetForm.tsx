@@ -11,7 +11,10 @@ export interface PasswordResetFormProps {
   onSuccess?: () => void
 }
 
-export function PasswordResetForm({ className, onSuccess }: PasswordResetFormProps) {
+export function PasswordResetForm({
+  className,
+  onSuccess,
+}: PasswordResetFormProps) {
   const [password, setPassword] = useState("")
   const [confirm, setConfirm] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -77,7 +80,7 @@ export function PasswordResetForm({ className, onSuccess }: PasswordResetFormPro
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="reset-password">New password</Label>
         <div className="relative">
-          <Lock className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+          <Lock className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="reset-password"
             type={showPassword ? "text" : "password"}
@@ -94,18 +97,22 @@ export function PasswordResetForm({ className, onSuccess }: PasswordResetFormPro
             id="reset-toggle-password"
             aria-label={showPassword ? "Hide password" : "Show password"}
             onClick={() => setShowPassword((v) => !v)}
-            className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 -translate-y-1/2 transition-colors"
+            className="absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
             tabIndex={-1}
             disabled={isLoading}
           >
-            {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            {showPassword ? (
+              <EyeOff className="size-4" />
+            ) : (
+              <Eye className="size-4" />
+            )}
           </button>
         </div>
 
         {/* Strength bar */}
         {password.length > 0 && (
           <div className="flex items-center gap-2">
-            <div className="bg-border flex h-1 flex-1 gap-0.5 overflow-hidden rounded-full">
+            <div className="flex h-1 flex-1 gap-0.5 overflow-hidden rounded-full bg-border">
               {[1, 2, 3, 4].map((step) => (
                 <div
                   key={step}
@@ -116,7 +123,7 @@ export function PasswordResetForm({ className, onSuccess }: PasswordResetFormPro
                 />
               ))}
             </div>
-            <span className="text-muted-foreground w-10 text-right text-xs">
+            <span className="w-10 text-right text-xs text-muted-foreground">
               {strengthLabel}
             </span>
           </div>
@@ -127,7 +134,7 @@ export function PasswordResetForm({ className, onSuccess }: PasswordResetFormPro
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="reset-password-confirm">Confirm password</Label>
         <div className="relative">
-          <Lock className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+          <Lock className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="reset-password-confirm"
             type={showConfirm ? "text" : "password"}
@@ -138,24 +145,36 @@ export function PasswordResetForm({ className, onSuccess }: PasswordResetFormPro
             className="px-8"
             aria-required="true"
             disabled={isLoading}
-            aria-invalid={confirm.length > 0 && confirm !== password ? true : undefined}
+            aria-invalid={
+              confirm.length > 0 && confirm !== password ? true : undefined
+            }
           />
           <button
             type="button"
             id="reset-toggle-confirm"
-            aria-label={showConfirm ? "Hide confirm password" : "Show confirm password"}
+            aria-label={
+              showConfirm ? "Hide confirm password" : "Show confirm password"
+            }
             onClick={() => setShowConfirm((v) => !v)}
-            className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 -translate-y-1/2 transition-colors"
+            className="absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
             tabIndex={-1}
             disabled={isLoading}
           >
-            {showConfirm ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            {showConfirm ? (
+              <EyeOff className="size-4" />
+            ) : (
+              <Eye className="size-4" />
+            )}
           </button>
         </div>
       </div>
 
       {error && (
-        <p id="reset-password-error" role="alert" className="text-destructive -mt-1 text-sm">
+        <p
+          id="reset-password-error"
+          role="alert"
+          className="-mt-1 text-sm text-destructive"
+        >
           {error}
         </p>
       )}

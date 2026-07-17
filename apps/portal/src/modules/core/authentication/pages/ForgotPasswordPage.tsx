@@ -14,7 +14,7 @@ export default function ForgotPasswordPage() {
         <a
           href={`#${AUTH_PATHS.login}`}
           id="back-to-login-link"
-          className="text-primary font-medium underline-offset-4 hover:underline"
+          className="font-medium text-primary underline-offset-4 hover:underline"
         >
           ← Back to sign in
         </a>

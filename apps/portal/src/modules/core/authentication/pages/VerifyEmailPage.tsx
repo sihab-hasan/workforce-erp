@@ -30,7 +30,7 @@ export default function VerifyEmailPage() {
         <a
           href={`#${AUTH_PATHS.login}`}
           id="verify-back-to-login-link"
-          className="text-primary font-medium underline-offset-4 hover:underline"
+          className="font-medium text-primary underline-offset-4 hover:underline"
         >
           ← Back to sign in
         </a>
@@ -40,10 +40,10 @@ export default function VerifyEmailPage() {
         id="verify-email-content"
         className="flex flex-col items-center gap-5 py-2 text-center"
       >
-        <p className="text-muted-foreground text-sm leading-relaxed">
+        <p className="text-sm leading-relaxed text-muted-foreground">
           Click the link in the email to activate your account. The link will
           expire in&nbsp;
-          <span className="text-foreground font-medium">24 hours</span>.
+          <span className="font-medium text-foreground">24 hours</span>.
         </p>
 
         <Button
@@ -55,17 +55,17 @@ export default function VerifyEmailPage() {
           Open sign in
         </Button>
 
-        <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
+        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <span>Didn&apos;t receive it?</span>
           {resent ? (
-            <span className="text-primary font-medium">Sent ✓</span>
+            <span className="font-medium text-primary">Sent ✓</span>
           ) : (
             <button
               id="verify-email-resend-button"
               type="button"
               onClick={handleResend}
               disabled={isResending}
-              className="text-primary font-medium underline-offset-4 hover:underline disabled:opacity-50"
+              className="font-medium text-primary underline-offset-4 hover:underline disabled:opacity-50"
             >
               {isResending ? (
                 <span className="inline-flex items-center gap-1">

@@ -28,22 +28,22 @@ export function AuthCard({
   return (
     <main
       className={cn(
-        "bg-background flex min-h-svh flex-col items-center justify-center px-4 py-12",
+        "flex min-h-svh flex-col items-center justify-center bg-background px-4 py-12",
         className
       )}
     >
       {/* Card */}
-      <div className="bg-card ring-border/60 w-full max-w-sm rounded-2xl px-8 py-10 ring-1 shadow-xl">
+      <div className="w-full max-w-sm rounded-2xl bg-card px-8 py-10 shadow-xl ring-1 ring-border/60">
         {/* Brand mark */}
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
-          <div className="bg-primary/10 text-primary flex size-12 items-center justify-center rounded-xl">
+          <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
             {icon ?? <Building2 className="size-6" />}
           </div>
           <div className="flex flex-col gap-1">
-            <h1 className="font-heading text-foreground text-xl font-semibold tracking-tight">
+            <h1 className="font-heading text-xl font-semibold tracking-tight text-foreground">
               {heading}
             </h1>
-            <p className="text-muted-foreground text-sm">{subheading}</p>
+            <p className="text-sm text-muted-foreground">{subheading}</p>
           </div>
         </div>
 
@@ -52,14 +52,14 @@ export function AuthCard({
 
         {/* Optional footer inside card */}
         {footer && (
-          <div className="text-muted-foreground mt-6 text-center text-sm">
+          <div className="mt-6 text-center text-sm text-muted-foreground">
             {footer}
           </div>
         )}
       </div>
 
       {/* Legal line */}
-      <p className="text-muted-foreground mt-6 text-center text-xs">
+      <p className="mt-6 text-center text-xs text-muted-foreground">
         © {new Date().getFullYear()} Workforce ERP. All rights reserved.
       </p>
     </main>

@@ -17,7 +17,7 @@ export default function ResetPasswordPage() {
         <a
           href={`#${AUTH_PATHS.login}`}
           id="reset-back-to-login-link"
-          className="text-primary font-medium underline-offset-4 hover:underline"
+          className="font-medium text-primary underline-offset-4 hover:underline"
         >
           ← Back to sign in
         </a>

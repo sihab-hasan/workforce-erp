@@ -12,14 +12,18 @@ export interface MfaChallengeFormProps {
   onSuccess?: () => void
 }
 
-export function MfaChallengeForm({ className, onSuccess }: MfaChallengeFormProps) {
+export function MfaChallengeForm({
+  className,
+  onSuccess,
+}: MfaChallengeFormProps) {
   const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(""))
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const code = digits.join("")
-  const isComplete = code.length === CODE_LENGTH && digits.every((d) => d !== "")
+  const isComplete =
+    code.length === CODE_LENGTH && digits.every((d) => d !== "")
 
   function updateDigit(index: number, value: string) {
     // Accept only a single digit
@@ -35,7 +39,10 @@ export function MfaChallengeForm({ className, onSuccess }: MfaChallengeFormProps
     }
   }
 
-  function handleKeyDown(index: number, e: React.KeyboardEvent<HTMLInputElement>) {
+  function handleKeyDown(
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) {
     if (e.key === "Backspace" && !digits[index] && index > 0) {
       inputRefs.current[index - 1]?.focus()
     }
@@ -43,7 +50,10 @@ export function MfaChallengeForm({ className, onSuccess }: MfaChallengeFormProps
 
   function handlePaste(e: React.ClipboardEvent<HTMLInputElement>) {
     e.preventDefault()
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, CODE_LENGTH)
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, CODE_LENGTH)
     const next = [...digits]
     pasted.split("").forEach((char, i) => {
       next[i] = char
@@ -79,7 +89,11 @@ export function MfaChallengeForm({ className, onSuccess }: MfaChallengeFormProps
       noValidate
     >
       {/* 6-digit OTP grid */}
-      <div className="flex w-full justify-center gap-2" role="group" aria-label="One-time code">
+      <div
+        className="flex w-full justify-center gap-2"
+        role="group"
+        aria-label="One-time code"
+      >
         {digits.map((digit, i) => (
           <Input
             key={i}
@@ -103,7 +117,7 @@ export function MfaChallengeForm({ className, onSuccess }: MfaChallengeFormProps
       </div>
 
       {error && (
-        <p id="mfa-error" role="alert" className="text-destructive text-sm">
+        <p id="mfa-error" role="alert" className="text-sm text-destructive">
           {error}
         </p>
       )}

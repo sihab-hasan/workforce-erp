@@ -48,7 +48,7 @@ export function LoginForm({ className, onSuccess }: LoginFormProps) {
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="login-email">Email address</Label>
         <div className="relative">
-          <Mail className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+          <Mail className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="login-email"
             type="email"
@@ -70,13 +70,13 @@ export function LoginForm({ className, onSuccess }: LoginFormProps) {
           <a
             href={`#${AUTH_PATHS.forgotPassword}`}
             id="forgot-password-link"
-            className="text-muted-foreground hover:text-primary text-xs underline-offset-4 transition-colors hover:underline"
+            className="text-xs text-muted-foreground underline-offset-4 transition-colors hover:text-primary hover:underline"
           >
             Forgot password?
           </a>
         </div>
         <div className="relative">
-          <Lock className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+          <Lock className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="login-password"
             type={showPassword ? "text" : "password"}
@@ -93,7 +93,7 @@ export function LoginForm({ className, onSuccess }: LoginFormProps) {
             id="toggle-password-visibility"
             aria-label={showPassword ? "Hide password" : "Show password"}
             onClick={() => setShowPassword((v) => !v)}
-            className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2.5 -translate-y-1/2 transition-colors"
+            className="absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
             tabIndex={-1}
             disabled={isLoading}
           >
@@ -111,7 +111,7 @@ export function LoginForm({ className, onSuccess }: LoginFormProps) {
         <p
           id="login-error"
           role="alert"
-          className="text-destructive -mt-1 text-sm"
+          className="-mt-1 text-sm text-destructive"
         >
           {error}
         </p>

@@ -12,7 +12,10 @@ export interface ForgotPasswordFormProps {
   onSuccess?: () => void
 }
 
-export function ForgotPasswordForm({ className, onSuccess }: ForgotPasswordFormProps) {
+export function ForgotPasswordForm({
+  className,
+  onSuccess,
+}: ForgotPasswordFormProps) {
   const [email, setEmail] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [sent, setSent] = useState(false)
@@ -45,13 +48,15 @@ export function ForgotPasswordForm({ className, onSuccess }: ForgotPasswordFormP
           className
         )}
       >
-        <div className="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-full">
+        <div className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Mail className="size-5" />
         </div>
         <div className="flex flex-col gap-1">
-          <p className="text-foreground text-sm font-medium">Check your inbox</p>
-          <p className="text-muted-foreground text-xs leading-relaxed">
-            If <span className="text-foreground font-medium">{email}</span> is
+          <p className="text-sm font-medium text-foreground">
+            Check your inbox
+          </p>
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            If <span className="font-medium text-foreground">{email}</span> is
             registered, you&apos;ll receive a reset link shortly.
           </p>
         </div>
@@ -61,7 +66,9 @@ export function ForgotPasswordForm({ className, onSuccess }: ForgotPasswordFormP
           id="forgot-password-go-to-reset"
           size="lg"
           className="w-full"
-          onClick={() => { window.location.hash = AUTH_PATHS.resetPassword }}
+          onClick={() => {
+            window.location.hash = AUTH_PATHS.resetPassword
+          }}
         >
           Set new password →
         </Button>
@@ -70,7 +77,7 @@ export function ForgotPasswordForm({ className, onSuccess }: ForgotPasswordFormP
           id="forgot-password-try-again"
           type="button"
           onClick={() => setSent(false)}
-          className="text-muted-foreground hover:text-foreground text-xs underline-offset-4 hover:underline"
+          className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
         >
           Try a different email
         </button>
@@ -88,7 +95,7 @@ export function ForgotPasswordForm({ className, onSuccess }: ForgotPasswordFormP
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="forgot-email">Email address</Label>
         <div className="relative">
-          <Mail className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
+          <Mail className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="forgot-email"
             type="email"
@@ -104,7 +111,11 @@ export function ForgotPasswordForm({ className, onSuccess }: ForgotPasswordFormP
       </div>
 
       {error && (
-        <p id="forgot-password-error" role="alert" className="text-destructive -mt-1 text-sm">
+        <p
+          id="forgot-password-error"
+          role="alert"
+          className="-mt-1 text-sm text-destructive"
+        >
           {error}
         </p>
       )}
