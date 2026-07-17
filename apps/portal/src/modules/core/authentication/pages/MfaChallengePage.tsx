@@ -1,14 +1,13 @@
 import { useState } from "react"
 import { Loader2, ShieldCheck } from "lucide-react"
+import { Link, useNavigate } from "react-router-dom"
 
-import {
-  AUTH_PATHS,
-  navigateTo,
-} from "@/modules/core/authentication/navigation.ts"
+import { AUTH_PATHS } from "@/modules/core/authentication/navigation.ts"
 import { AuthCard } from "@/modules/core/authentication/components/AuthCard.tsx"
 import { MfaChallengeForm } from "@/modules/core/authentication/components/MfaChallengeForm.tsx"
 
 export default function MfaChallengePage() {
+  const navigate = useNavigate()
   const [isResending, setIsResending] = useState(false)
   const [resent, setResent] = useState(false)
 
@@ -26,16 +25,16 @@ export default function MfaChallengePage() {
       heading="Two-factor authentication"
       subheading="Enter the 6-digit code from your authenticator app"
       footer={
-        <a
-          href={`#${AUTH_PATHS.login}`}
+        <Link
+          to={AUTH_PATHS.login}
           id="mfa-back-to-login-link"
           className="font-medium text-primary underline-offset-4 hover:underline"
         >
           ← Back to sign in
-        </a>
+        </Link>
       }
     >
-      <MfaChallengeForm onSuccess={() => navigateTo("/")} />
+      <MfaChallengeForm onSuccess={() => navigate("/")} />
 
       <div className="mt-4 text-center text-sm text-muted-foreground">
         Didn&apos;t receive a code?{" "}

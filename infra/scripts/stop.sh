@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-PORTS=(5173 5174 5175)
+PORTS=(5173 5174 5175 8000)
 STOPPED=0
 
 for PORT in "${PORTS[@]}"; do
@@ -27,5 +27,5 @@ for PORT in "${PORTS[@]}"; do
 done
 
 if [[ "$STOPPED" -eq 0 ]]; then
-  echo "No dev servers were listening on ports 5173-5175."
+  echo "No dev servers were listening on ports 5173-5175 or 8000."
 fi

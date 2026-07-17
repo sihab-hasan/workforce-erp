@@ -1,5 +1,8 @@
 import { ArrowRight } from "lucide-react"
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
+
+import { apiClient } from "@/lib/api"
 
 import { Container } from "./container"
 
@@ -8,7 +11,13 @@ const announcements = [
   "⚡ Automate your business workflows with Workforce ERP.",
 ]
 
-function AnnouncementList({ hidden = false }: { hidden?: boolean }) {
+function ApiStatusAnnouncement({
+  status,
+  hidden = false,
+}: {
+  status: string
+  hidden?: boolean
+}) {
   return (
     <div
       className="flex shrink-0 items-center"
@@ -25,11 +34,26 @@ function AnnouncementList({ hidden = false }: { hidden?: boolean }) {
           </span>
         </span>
       ))}
+      <span className="inline-flex items-center text-xs whitespace-nowrap sm:text-sm">
+        <span className="mx-6 sm:mx-8">Web API status: {status}</span>
+        <span className="opacity-40" aria-hidden="true">
+          •
+        </span>
+      </span>
     </div>
   )
 }
 
 export default function SiteTopbar() {
+  const [apiStatus, setApiStatus] = useState("Connecting...")
+
+  useEffect(() => {
+    apiClient
+      .getHealth()
+      .then((payload) => setApiStatus(`${payload.status} · ${payload.service}`))
+      .catch(() => setApiStatus("API unavailable"))
+  }, [])
+
   return (
     <div className="w-full overflow-hidden border-b border-primary-foreground/15 bg-primary text-primary-foreground">
       <Container className="flex h-10 items-center gap-3">
@@ -39,11 +63,11 @@ export default function SiteTopbar() {
 
         <div
           className="marketing-marquee min-w-0 flex-1 overflow-hidden"
-          aria-label={announcements.join(" ")}
+          aria-label={`${announcements.join(" ")} Web API status: ${apiStatus}`}
         >
           <div className="marketing-marquee-track flex w-max items-center">
-            <AnnouncementList />
-            <AnnouncementList hidden />
+            <ApiStatusAnnouncement status={apiStatus} />
+            <ApiStatusAnnouncement status={apiStatus} hidden />
           </div>
         </div>
 

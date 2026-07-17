@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom"
+
 import type { PortalRoute } from "@/app/config/routes.config.ts"
 
 type PortalSidebarProps = {
@@ -38,14 +40,14 @@ export function PortalSidebar({ currentPath, routes }: PortalSidebarProps) {
                 const isActive = route.path === currentPath
 
                 return (
-                  <a
+                  <Link
                     key={route.key}
                     className={`flex items-start gap-3 rounded-2xl px-3 py-3 transition ${
                       isActive
                         ? "bg-slate-950 text-white shadow-lg dark:bg-white dark:text-slate-950"
                         : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-900"
                     }`}
-                    href={`#${route.path}`}
+                    to={route.path}
                   >
                     <Icon className="mt-0.5 size-4 shrink-0" />
                     <span className="space-y-1">
@@ -62,7 +64,7 @@ export function PortalSidebar({ currentPath, routes }: PortalSidebarProps) {
                         {route.description}
                       </span>
                     </span>
-                  </a>
+                  </Link>
                 )
               })}
             </div>

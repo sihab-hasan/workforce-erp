@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Loader2, Mail } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 import { Button } from "@workforce-erp/ui/components/button"
 import { Input } from "@workforce-erp/ui/components/input"
@@ -16,6 +17,7 @@ export function ForgotPasswordForm({
   className,
   onSuccess,
 }: ForgotPasswordFormProps) {
+  const navigate = useNavigate()
   const [email, setEmail] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [sent, setSent] = useState(false)
@@ -66,9 +68,7 @@ export function ForgotPasswordForm({
           id="forgot-password-go-to-reset"
           size="lg"
           className="w-full"
-          onClick={() => {
-            window.location.hash = AUTH_PATHS.resetPassword
-          }}
+          onClick={() => navigate(AUTH_PATHS.resetPassword)}
         >
           Set new password →
         </Button>

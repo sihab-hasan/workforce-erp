@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react"
+import { Link } from "react-router-dom"
 
 import { Button } from "@workforce-erp/ui/components/button"
 import { Input } from "@workforce-erp/ui/components/input"
@@ -67,13 +68,13 @@ export function LoginForm({ className, onSuccess }: LoginFormProps) {
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
           <Label htmlFor="login-password">Password</Label>
-          <a
-            href={`#${AUTH_PATHS.forgotPassword}`}
+          <Link
+            to={AUTH_PATHS.forgotPassword}
             id="forgot-password-link"
             className="text-xs text-muted-foreground underline-offset-4 transition-colors hover:text-primary hover:underline"
           >
             Forgot password?
-          </a>
+          </Link>
         </div>
         <div className="relative">
           <Lock className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />

@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom"
+
 import type { PortalRoute } from "@/app/config/routes.config.ts"
 
 type MobileNavigationProps = {
@@ -19,18 +21,18 @@ export function MobileNavigation({
           const isActive = route.path === currentPath
 
           return (
-            <a
+            <Link
               key={route.key}
               className={`flex flex-col items-center gap-1 rounded-2xl px-2 py-2 text-center text-xs font-medium ${
                 isActive
                   ? "bg-slate-950 text-white dark:bg-white dark:text-slate-950"
                   : "text-slate-500 dark:text-slate-400"
               }`}
-              href={`#${route.path}`}
+              to={route.path}
             >
               <Icon className="size-4" />
               <span>{route.title}</span>
-            </a>
+            </Link>
           )
         })}
       </div>
