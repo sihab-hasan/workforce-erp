@@ -1,0 +1,2 @@
+/** Designations navigation.ts: generated architecture placeholder. */
+export {}

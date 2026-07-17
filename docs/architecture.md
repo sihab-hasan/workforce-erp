@@ -2,21 +2,24 @@
 
 ## Current shape
 
-The repository is a frontend-first `pnpm` monorepo using Turborepo.
-It currently contains three Vite + React applications and a set of shared internal packages.
+The repository is a full-stack `pnpm` monorepo using Turborepo.
+The checked-in runtime currently contains three Vite + React applications, a set of shared internal
+packages, and a canonical backend lane at `apps/api`.
 
 ## Application layer
 
 - `apps/web`: public-facing app on port `5173`
-- `apps/client`: client portal on port `5174`
+- `apps/portal`: tenant portal on port `5174`
 - `apps/admin`: admin-facing app on port `5175`
 
 ## Shared package layer
 
-- `packages/ui`: shared components and styling primitives
+- `packages/ui`: shared components, styling primitives, and package-level shadcn/ui setup
 - `packages/config/*`: shared ESLint and TypeScript configuration packages
 - `packages/constants`: shared constants and route helpers
-- `packages/api-client`: current placeholder for shared API access logic
+- `packages/api-client`: shared API client foundation plus OpenAPI and codegen scaffolding
+- `packages/auth-client`: shared auth context, hooks, session helpers, and route guards
+- `packages/permissions`: shared permission checks, hooks, and guard components
 - `packages/types`: shared TypeScript contracts
 - `packages/utils`: utility functions and helpers
 
@@ -32,13 +35,12 @@ It currently contains three Vite + React applications and a set of shared intern
 
 ## Current boundaries
 
-- No backend app exists yet
-- No database runtime is currently part of this workspace
+- The checked-in working tree currently contains frontend applications and shared packages
+- `apps/api` is the canonical Laravel API location, even though the backend working tree is not
+  present yet
 
 ## Future expansion
 
 Likely future additions:
 
-- `apps/api`
-- stronger shared auth/data packages
 - environment-specific runtime documentation

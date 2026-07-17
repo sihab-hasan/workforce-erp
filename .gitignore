@@ -14,9 +14,11 @@ dist-ssr
 
 # env files (can opt-in for committing if needed)
 .env*
+!apps/api/.env.example
 
 # turbo
 .turbo
+.pnpm-store/
 
 # Editor directories and files
 .vscode/*
@@ -31,3 +33,8 @@ dist-ssr
 
 # typescript
 *.tsbuildinfo
+.agents/
+
+skills-lock.json
+/skills
+design-guide.md

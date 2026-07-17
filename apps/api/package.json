@@ -1,0 +1,22 @@
+{
+  "$schema": "https://www.schemastore.org/package.json",
+  "name": "@workforce-erp/api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "vite build",
+    "dev": "php artisan serve --host=127.0.0.1 --port=8000",
+    "lint": "php vendor/bin/pint --test",
+    "test": "php artisan test"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "axios": "^1.11.0",
+    "concurrently": "^9.0.1",
+    "laravel-vite-plugin": "^2.0.0",
+    "tailwindcss": "^4.0.0",
+    "vite": "^7.0.7"
+  }
+}

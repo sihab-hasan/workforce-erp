@@ -1,0 +1,31 @@
+{
+  "name": "@workforce-erp/auth-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./provider": "./src/provider/AuthProvider.tsx",
+    "./hooks": "./src/hooks/index.ts",
+    "./guards": "./src/guards/index.ts",
+    "./session": "./src/session/session.ts",
+    "./storage": "./src/storage/token-storage.ts",
+    "./types": "./src/types/auth.types.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.2.6"
+  },
+  "devDependencies": {
+    "@workforce-erp/eslint-config": "workspace:*",
+    "@workforce-erp/typescript-config": "workspace:*",
+    "@types/react": "^19",
+    "eslint": "^10",
+    "typescript": "~6"
+  },
+  "license": "UNLICENSED"
+}

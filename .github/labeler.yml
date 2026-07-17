@@ -1,7 +1,7 @@
 frontend:
   - changed-files:
       - any-glob-to-any-file: "apps/web/**"
-      - any-glob-to-any-file: "apps/client/**"
+      - any-glob-to-any-file: "apps/portal/**"
       - any-glob-to-any-file: "apps/admin/**"
       - any-glob-to-any-file: "packages/ui/**"
 
@@ -9,9 +9,9 @@ admin:
   - changed-files:
       - any-glob-to-any-file: "apps/admin/**"
 
-client:
+portal:
   - changed-files:
-      - any-glob-to-any-file: "apps/client/**"
+      - any-glob-to-any-file: "apps/portal/**"
 
 web:
   - changed-files:

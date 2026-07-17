@@ -1,0 +1,42 @@
+import { UserPlus } from "lucide-react"
+import { Link, useNavigate } from "react-router-dom"
+
+import { AUTH_PATHS } from "@/modules/core/authentication/navigation.ts"
+import { AuthCard } from "@/modules/core/authentication/components/AuthCard.tsx"
+import { RegisterForm } from "@/modules/core/authentication/components/RegisterForm.tsx"
+import { SocialLoginButtons } from "@/modules/core/authentication/components/SocialLoginButtons.tsx"
+
+export default function RegisterPage() {
+  const navigate = useNavigate()
+
+  return (
+    <AuthCard
+      icon={<UserPlus className="size-6" />}
+      heading="Create your account"
+      subheading="Join your team on Workforce ERP"
+      footer={
+        <>
+          Already have an account?{" "}
+          <Link
+            to={AUTH_PATHS.login}
+            id="go-to-login-link"
+            className="font-medium text-primary underline-offset-4 hover:underline"
+          >
+            Sign in
+          </Link>
+        </>
+      }
+    >
+      <RegisterForm onSuccess={() => navigate(AUTH_PATHS.verifyEmail)} />
+
+      {/* Divider */}
+      <div className="relative my-2 flex items-center gap-3">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-xs text-muted-foreground">or</span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
+      <SocialLoginButtons action="Sign up" />
+    </AuthCard>
+  )
+}

@@ -7,12 +7,14 @@ This repository is public for visibility, but it is not open source and remains 
 ## Current workspace
 
 - `apps/web`: public-facing web app on port `5173`
-- `apps/client`: client portal on port `5174`
+- `apps/portal`: tenant portal on port `5174`
 - `apps/admin`: admin app on port `5175`
-- `packages/ui`: shared UI components and styles
+- `packages/ui`: shared UI components, styles, and package-level shadcn/ui registry setup
 - `packages/config/*`: shared ESLint and TypeScript configuration packages
 - `packages/constants`: shared constants
-- `packages/api-client`: shared API client placeholder
+- `packages/api-client`: shared API client foundation and OpenAPI/codegen scaffolding
+- `packages/auth-client`: shared frontend auth provider, hooks, guards, and token storage helpers
+- `packages/permissions`: shared permission checks, hooks, and guard components
 - `packages/types`: shared TypeScript contracts
 - `packages/utils`: shared utilities
 
@@ -51,6 +53,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full fork-to-merge workflow.
 ## Notes
 
 - There is no backend app in this workspace yet.
+- Generated API-client inputs and scaffolding currently live under `packages/api-client/openapi` and `packages/api-client/src/codegen`.
 - The workspace globs live in [pnpm-workspace.yaml](./pnpm-workspace.yaml).
 - Longer-lived project documentation lives in [`docs/`](./docs/README.md).
 - Contribution workflow and pull request expectations live in [`CONTRIBUTING.md`](./CONTRIBUTING.md).

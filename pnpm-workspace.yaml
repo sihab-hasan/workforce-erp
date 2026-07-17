@@ -1,5 +1,8 @@
 packages:
-  - "apps/*"
+  - "apps/admin"
+  - "apps/api"
+  - "apps/portal"
+  - "apps/web"
   - "packages/*"
   - "packages/config/*"
 

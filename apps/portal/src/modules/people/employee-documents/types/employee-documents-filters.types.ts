@@ -1,0 +1,2 @@
+/** employee-documents-filters.types.ts: generated architecture placeholder. */
+export {}

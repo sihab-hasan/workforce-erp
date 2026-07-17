@@ -1,24 +1,36 @@
-# Agent Workspace
+# Workforce ERP Agent System
 
-This folder contains lightweight context files for coding agents working in the `workforce-erp` monorepo.
+Repository-local operating guidance for AI-assisted software engineering in the Workforce ERP
+monorepo.
 
-## Files
+## Current repository state as of 2026-07-16
 
-- `project-overview.md`: repo structure, stack, and current scope
-- `commands.md`: verified day-to-day commands for setup, dev, validation, and stopping local servers
-- `workflow-notes.md`: practical conventions for working safely in this workspace
-- `decisions.md`: current repo-level decisions and future revisit points
-- `todo.md`: near-term and later work items
+- Checked-in frontend apps: `apps/web`, `apps/portal`, and `apps/admin`
+- Canonical backend lane: `apps/api` for the Laravel API
+- Shared packages: `api-client`, `auth-client`, `permissions`, `types`, `ui`, `utils`,
+  `constants`, and `config/*`
+- Active CI validation: `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, and `pnpm build`
+- MCP workspace configuration lives in `.vscode/mcp.json`
 
-## Current scope
+## Directory map
 
-This repository is currently a frontend-focused monorepo.
-There is no `apps/api` app yet.
-The active apps are `apps/web`, `apps/client`, and `apps/admin`.
-GitHub Actions currently cover CI plus a deploy scaffold.
+- `agents/` — specialist agent charters
+- `rules/` — mandatory engineering standards
+- `context/` — repository-specific architecture and operating context
+- `workflows/` — end-to-end task procedures
+- `playbooks/` — situation-specific technical guidance
+- `checklists/` — completion and review gates
+- `templates/` — reusable planning and documentation templates
+- `governance/` — ownership, risk, and change-control guidance
+- `scoped/` — app/package-specific `AGENTS.md` files to copy into the repository
+- `memory/` — durable decision and issue records
+- `mcp/` — MCP configuration, permissions, security, inventory, and operating governance
+- `examples/` — sample plans and deliverables
 
-## Recommended read order
+## Operating rule
 
-1. `project-overview.md`
-2. `commands.md`
-3. `workflow-notes.md`
+Any architectural, security, API, release, testing, or ownership change that invalidates these
+instructions must update this directory in the same pull request.
+
+When backend code is added under `apps/api`, update the related `.agents` commands, workflows,
+scoped instructions, and MCP notes in the same change so the kit stays truthful.
