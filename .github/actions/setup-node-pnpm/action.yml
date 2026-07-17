@@ -1,12 +1,7 @@
-name: Setup workspace
-
-description: Configure PHP, Composer, pnpm, and Node.js, then install workspace dependencies.
+name: Setup Node.js and pnpm
+description: Configure Node.js and pnpm, then install workspace dependencies.
 
 inputs:
-  php-version:
-    description: PHP version to use
-    required: false
-    default: "8.2"
   node-version:
     description: Node.js version to use
     required: false
@@ -19,16 +14,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: ${{ inputs.php-version }}
-        coverage: none
-
-    - name: Install API dependencies
-      shell: bash
-      run: composer --working-dir=apps/api install --no-interaction --no-progress --prefer-dist
-
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:

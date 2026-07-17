@@ -16,39 +16,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  quality:
-    name: Format, Lint, and Typecheck
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+  frontend:
+    name: Frontend
+    uses: ./.github/workflows/frontend.yml
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup workspace
-        uses: ./.github/actions/setup-node-pnpm
-
-      - name: Format check
-        run: pnpm format:check
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-  build:
-    name: Build workspace
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    needs: quality
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup workspace
-        uses: ./.github/actions/setup-node-pnpm
-
-      - name: Build
-        run: pnpm build
+  api:
+    name: API
+    uses: ./.github/workflows/api.yml
