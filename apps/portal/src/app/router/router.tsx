@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import {
+  authRoutes,
   defaultPortalRoute,
   fallbackPortalRoute,
   portalRoutes,
@@ -22,6 +23,8 @@ function getCurrentPath() {
   return normalizePath(window.location.hash)
 }
 
+const allRoutes = [...portalRoutes, ...authRoutes]
+
 export function PortalRouter() {
   const [path, setPath] = useState(getCurrentPath)
 
@@ -42,8 +45,14 @@ export function PortalRouter() {
   }, [])
 
   const route =
-    portalRoutes.find((candidate) => candidate.path === path) ??
+    allRoutes.find((candidate) => candidate.path === path) ??
     fallbackPortalRoute
+
+  // Auth routes (login, forgot-password, etc.) render without the portal shell
+  if (route.isAuthRoute) {
+    const AuthPage = route.component
+    return <AuthPage />
+  }
 
   return <PortalLayout route={route} />
 }

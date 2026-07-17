@@ -5,11 +5,18 @@ import {
   Clock3,
   FileText,
   Home,
+  KeyRound,
   LayoutGrid,
   Receipt,
   ShieldAlert,
   Users,
 } from "lucide-react"
+import ForgotPasswordPage from "@/modules/core/authentication/pages/ForgotPasswordPage.tsx"
+import LoginPage from "@/modules/core/authentication/pages/LoginPage.tsx"
+import MfaChallengePage from "@/modules/core/authentication/pages/MfaChallengePage.tsx"
+import RegisterPage from "@/modules/core/authentication/pages/RegisterPage.tsx"
+import ResetPasswordPage from "@/modules/core/authentication/pages/ResetPasswordPage.tsx"
+import VerifyEmailPage from "@/modules/core/authentication/pages/VerifyEmailPage.tsx"
 import ForbiddenPage from "@/app/pages/ForbiddenPage.tsx"
 import MaintenancePage from "@/app/pages/MaintenancePage.tsx"
 import NotFoundPage from "@/app/pages/NotFoundPage.tsx"
@@ -33,6 +40,8 @@ export type PortalRoute = {
   section: string
   icon: Icon
   component: ComponentType
+  /** When true, the route renders without the portal shell layout */
+  isAuthRoute?: boolean
 }
 
 export const portalRoutes: PortalRoute[] = [
@@ -157,3 +166,67 @@ export const fallbackPortalRoute: PortalRoute = {
   icon: AlertTriangle,
   component: NotFoundPage,
 }
+
+/** Auth routes render fullscreen — no sidebar or portal shell. */
+export const authRoutes: PortalRoute[] = [
+  {
+    key: "login",
+    title: "Sign In",
+    description: "Authenticate to access the portal",
+    path: "/auth/login",
+    section: "Auth",
+    icon: KeyRound,
+    component: LoginPage,
+    isAuthRoute: true,
+  },
+  {
+    key: "register",
+    title: "Create Account",
+    description: "Register a new portal account",
+    path: "/auth/register",
+    section: "Auth",
+    icon: KeyRound,
+    component: RegisterPage,
+    isAuthRoute: true,
+  },
+  {
+    key: "forgot-password",
+    title: "Forgot Password",
+    description: "Request a password reset link",
+    path: "/auth/forgot-password",
+    section: "Auth",
+    icon: KeyRound,
+    component: ForgotPasswordPage,
+    isAuthRoute: true,
+  },
+  {
+    key: "reset-password",
+    title: "Reset Password",
+    description: "Set a new account password",
+    path: "/auth/reset-password",
+    section: "Auth",
+    icon: KeyRound,
+    component: ResetPasswordPage,
+    isAuthRoute: true,
+  },
+  {
+    key: "verify-email",
+    title: "Verify Email",
+    description: "Confirm your email address",
+    path: "/auth/verify-email",
+    section: "Auth",
+    icon: KeyRound,
+    component: VerifyEmailPage,
+    isAuthRoute: true,
+  },
+  {
+    key: "mfa",
+    title: "Two-Factor Authentication",
+    description: "Enter your one-time authentication code",
+    path: "/auth/mfa",
+    section: "Auth",
+    icon: KeyRound,
+    component: MfaChallengePage,
+    isAuthRoute: true,
+  },
+]
