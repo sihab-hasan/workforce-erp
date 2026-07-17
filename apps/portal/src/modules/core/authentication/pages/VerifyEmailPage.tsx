@@ -1,14 +1,13 @@
 import { useState } from "react"
 import { Loader2, MailCheck } from "lucide-react"
+import { Link, useNavigate } from "react-router-dom"
 
 import { Button } from "@workforce-erp/ui/components/button"
-import {
-  AUTH_PATHS,
-  navigateTo,
-} from "@/modules/core/authentication/navigation.ts"
+import { AUTH_PATHS } from "@/modules/core/authentication/navigation.ts"
 import { AuthCard } from "@/modules/core/authentication/components/AuthCard.tsx"
 
 export default function VerifyEmailPage() {
+  const navigate = useNavigate()
   const [isResending, setIsResending] = useState(false)
   const [resent, setResent] = useState(false)
 
@@ -27,13 +26,13 @@ export default function VerifyEmailPage() {
       heading="Check your email"
       subheading="We sent a verification link to your inbox"
       footer={
-        <a
-          href={`#${AUTH_PATHS.login}`}
+        <Link
+          to={AUTH_PATHS.login}
           id="verify-back-to-login-link"
           className="font-medium text-primary underline-offset-4 hover:underline"
         >
           ← Back to sign in
-        </a>
+        </Link>
       }
     >
       <div
@@ -50,7 +49,7 @@ export default function VerifyEmailPage() {
           id="verify-email-continue-button"
           size="lg"
           className="w-full"
-          onClick={() => navigateTo(AUTH_PATHS.login)}
+          onClick={() => navigate(AUTH_PATHS.login)}
         >
           Open sign in
         </Button>

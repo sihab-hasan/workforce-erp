@@ -5,10 +5,10 @@ import { cn } from "@workforce-erp/ui/lib/utils"
 import { Button } from "@workforce-erp/ui/components/button"
 
 import { siteRoutes, siteNavigationItems } from "@/app/config/site-map"
+import { portalLinks } from "@/app/config/external-links"
 import { useTheme } from "@/app/providers/ThemeProvider"
 import { NavigationDropdown } from "@/shared/components/navigation"
 import { MobileMenu } from "./MobileMenu"
-import { Container } from "./container"
 
 export default function SiteNavbar() {
   const { theme, setTheme } = useTheme()
@@ -16,7 +16,7 @@ export default function SiteNavbar() {
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl">
-      <Container className="relative flex h-18 items-center justify-between gap-6">
+      <div className="relative flex h-18 items-center justify-between gap-6 px-5 sm:px-8 lg:px-12">
         <Link
           to="/"
           className="group flex shrink-0 items-center gap-3 rounded-sm text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
@@ -67,7 +67,7 @@ export default function SiteNavbar() {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-1.5">
+        <div className="ml-auto flex items-center gap-1.5">
           <Button
             variant="ghost"
             size="icon-lg"
@@ -86,9 +86,9 @@ export default function SiteNavbar() {
             size="lg"
             nativeButton={false}
             className="hidden px-4 xl:inline-flex"
-            render={<Link to={siteRoutes.login.path} />}
+            render={<a href={portalLinks.login} />}
           >
-            {siteRoutes.login.label}
+            Sign In
           </Button>
 
           <Button
@@ -102,7 +102,7 @@ export default function SiteNavbar() {
 
           <MobileMenu />
         </div>
-      </Container>
+      </div>
     </header>
   )
 }

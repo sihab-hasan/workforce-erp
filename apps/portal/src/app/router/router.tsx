@@ -1,58 +1,40 @@
-import { useEffect, useState } from "react"
+import { BrowserRouter, Route, Routes } from "react-router-dom"
+
 import {
   authRoutes,
-  defaultPortalRoute,
   fallbackPortalRoute,
   portalRoutes,
 } from "@/app/config/routes.config.ts"
 import { PortalLayout } from "@/shell/PortalLayout.tsx"
 
-function normalizePath(hash: string) {
-  if (hash.startsWith("#/")) {
-    return hash.slice(1)
-  }
-
-  if (hash === "#") {
-    return "/"
-  }
-
-  return hash ? hash.replace(/^#/, "") : "/"
-}
-
-function getCurrentPath() {
-  return normalizePath(window.location.hash)
-}
-
-const allRoutes = [...portalRoutes, ...authRoutes]
-
 export function PortalRouter() {
-  const [path, setPath] = useState(getCurrentPath)
+  const FallbackPage = fallbackPortalRoute.component
 
-  useEffect(() => {
-    if (!window.location.hash) {
-      window.location.hash = defaultPortalRoute.path
-    }
+  return (
+    <BrowserRouter>
+      <Routes>
+        {portalRoutes.map((route) => {
+          const Page = route.component
 
-    const handleHashChange = () => {
-      setPath(getCurrentPath())
-    }
+          return (
+            <Route
+              key={route.key}
+              path={route.path}
+              element={
+                <PortalLayout>
+                  <Page />
+                </PortalLayout>
+              }
+            />
+          )
+        })}
+        {authRoutes.map((route) => {
+          const Page = route.component
 
-    window.addEventListener("hashchange", handleHashChange)
-
-    return () => {
-      window.removeEventListener("hashchange", handleHashChange)
-    }
-  }, [])
-
-  const route =
-    allRoutes.find((candidate) => candidate.path === path) ??
-    fallbackPortalRoute
-
-  // Auth routes (login, forgot-password, etc.) render without the portal shell
-  if (route.isAuthRoute) {
-    const AuthPage = route.component
-    return <AuthPage />
-  }
-
-  return <PortalLayout route={route} />
+          return <Route key={route.key} path={route.path} element={<Page />} />
+        })}
+        <Route path="*" element={<FallbackPage />} />
+      </Routes>
+    </BrowserRouter>
+  )
 }

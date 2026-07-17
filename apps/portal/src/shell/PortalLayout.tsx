@@ -1,13 +1,9 @@
-import type { PortalRoute } from "@/app/config/routes.config.ts"
+import type { ReactNode } from "react"
 
 type PortalLayoutProps = {
-  route: PortalRoute
+  children: ReactNode
 }
 
-export function PortalLayout({ route }: PortalLayoutProps) {
-  return (
-    <main className="p-6">
-      <h1>{route.title}</h1>
-    </main>
-  )
+export function PortalLayout({ children }: PortalLayoutProps) {
+  return <main className="p-6">{children}</main>
 }

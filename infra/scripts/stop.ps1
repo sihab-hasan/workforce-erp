@@ -1,7 +1,7 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$Ports = @(5173, 5174, 5175)
+$Ports = @(5173, 5174, 5175, 8000)
 $Stopped = @()
 
 foreach ($Port in $Ports) {
@@ -28,5 +28,5 @@ foreach ($Port in $Ports) {
 }
 
 if ($Stopped.Count -eq 0) {
-  Write-Host "No dev servers were listening on ports 5173-5175."
+  Write-Host "No dev servers were listening on ports 5173-5175 or 8000."
 }

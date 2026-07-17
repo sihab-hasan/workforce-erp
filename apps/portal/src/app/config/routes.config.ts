@@ -17,6 +17,7 @@ import MfaChallengePage from "@/modules/core/authentication/pages/MfaChallengePa
 import RegisterPage from "@/modules/core/authentication/pages/RegisterPage.tsx"
 import ResetPasswordPage from "@/modules/core/authentication/pages/ResetPasswordPage.tsx"
 import VerifyEmailPage from "@/modules/core/authentication/pages/VerifyEmailPage.tsx"
+import DashboardPage from "@/modules/core/dashboard/pages/DashboardPage.tsx"
 import ForbiddenPage from "@/app/pages/ForbiddenPage.tsx"
 import MaintenancePage from "@/app/pages/MaintenancePage.tsx"
 import NotFoundPage from "@/app/pages/NotFoundPage.tsx"
@@ -52,7 +53,7 @@ export const portalRoutes: PortalRoute[] = [
     path: "/",
     section: "Workspace",
     icon: Home,
-    component: AttendanceTodayPage,
+    component: DashboardPage,
   },
   {
     key: "employees",
