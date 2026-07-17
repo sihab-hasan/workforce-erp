@@ -1,9 +1,26 @@
+import { KeyRound } from "lucide-react"
+
+import { AUTH_PATHS } from "@/modules/core/authentication/navigation.ts"
+import { AuthCard } from "@/modules/core/authentication/components/AuthCard.tsx"
+import { ForgotPasswordForm } from "@/modules/core/authentication/components/ForgotPasswordForm.tsx"
+
 export default function ForgotPasswordPage() {
   return (
-    <main className="space-y-6 p-6">
-      <header>
-        <h1 className="text-2xl font-semibold">Forgot Password</h1>
-      </header>
-    </main>
+    <AuthCard
+      icon={<KeyRound className="size-6" />}
+      heading="Forgot your password?"
+      subheading="Enter your email and we'll send you a reset link"
+      footer={
+        <a
+          href={`#${AUTH_PATHS.login}`}
+          id="back-to-login-link"
+          className="text-primary font-medium underline-offset-4 hover:underline"
+        >
+          ← Back to sign in
+        </a>
+      }
+    >
+      <ForgotPasswordForm />
+    </AuthCard>
   )
 }
