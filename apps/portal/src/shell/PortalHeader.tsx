@@ -1,5 +1,6 @@
 import { Bell, Search, Settings } from "lucide-react"
 import { Avatar, AvatarFallback } from "@workforce-erp/ui/components/avatar"
+import { Badge } from "@workforce-erp/ui/components/badge"
 import { Button } from "@workforce-erp/ui/components/button"
 import { Separator } from "@workforce-erp/ui/components/separator"
 import { SidebarTrigger } from "@workforce-erp/ui/components/sidebar"
@@ -9,10 +10,10 @@ import {
   TooltipTrigger,
 } from "@workforce-erp/ui/components/tooltip"
 import { appConfig } from "@/app/config/app.config.ts"
-import { BranchSwitcher } from "@/shell/BranchSwitcher.tsx"
 import { Breadcrumbs } from "@/shell/Breadcrumbs.tsx"
 import { CommandMenu } from "@/shell/CommandMenu.tsx"
 import { TenantSwitcher } from "@/shell/TenantSwitcher.tsx"
+import { ThemeSwitcher } from "@/shell/ThemeSwitcher.tsx"
 
 type PortalHeaderProps = {
   section: string
@@ -21,11 +22,10 @@ type PortalHeaderProps = {
 
 export function PortalHeader({ section, title }: PortalHeaderProps) {
   return (
-    <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur-md">
-      <div className="flex items-center justify-between gap-2 px-3 py-2 md:gap-3 md:px-4 md:py-2.5">
-        {/* Left — sidebar trigger + page identity */}
+    <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="flex min-h-16 items-center justify-between gap-3 px-4 md:px-6 lg:px-8">
         <div className="flex min-w-0 flex-1 items-center gap-2 md:gap-3">
-          <SidebarTrigger className="shrink-0 text-muted-foreground hover:text-foreground" />
+          <SidebarTrigger className="shrink-0 rounded-lg text-muted-foreground hover:text-foreground" />
           <Separator orientation="vertical" className="hidden h-5 sm:block" />
           <div className="min-w-0">
             <Breadcrumbs section={section} title={title} />
@@ -35,36 +35,37 @@ export function PortalHeader({ section, title }: PortalHeaderProps) {
           </div>
         </div>
 
-        {/* Center — search (hidden on small screens) */}
         <div className="hidden max-w-sm flex-1 lg:block">
           <CommandMenu hint={appConfig.commandHint} />
         </div>
 
-        {/* Right — actions + avatar */}
         <div className="flex shrink-0 items-center gap-1">
-          {/* Tenant + Branch — hidden on mobile */}
           <div className="hidden items-center gap-1 sm:flex">
             <TenantSwitcher tenantName="Acme Manufacturing" />
-            <BranchSwitcher branchName="team-lead/work" />
             <Separator orientation="vertical" className="mx-1 h-5" />
           </div>
 
-          {/* Search icon — visible on mobile instead of command menu */}
+          <Tooltip>
+            <TooltipTrigger>
+              <ThemeSwitcher className="text-muted-foreground" />
+            </TooltipTrigger>
+            <TooltipContent>Theme</TooltipContent>
+          </Tooltip>
+
           <Tooltip>
             <TooltipTrigger>
               <Button
                 variant="ghost"
                 size="icon-sm"
                 aria-label="Search"
-                className="text-muted-foreground"
+                className="text-muted-foreground lg:hidden"
               >
-                <Search className="size-4" />
+                <Search />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Search</TooltipContent>
           </Tooltip>
 
-          {/* Notifications */}
           <Tooltip>
             <TooltipTrigger>
               <div className="relative">
@@ -74,18 +75,16 @@ export function PortalHeader({ section, title }: PortalHeaderProps) {
                   aria-label="Notifications"
                   className="text-muted-foreground"
                 >
-                  <Bell className="size-4" />
+                  <Bell />
                 </Button>
-                <span className="absolute top-1.5 right-1.5 flex size-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75 motion-reduce:animate-none" />
-                  <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
-                </span>
+                <Badge className="absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[10px]">
+                  3
+                </Badge>
               </div>
             </TooltipTrigger>
             <TooltipContent>Notifications</TooltipContent>
           </Tooltip>
 
-          {/* Settings — hidden on mobile */}
           <Tooltip>
             <TooltipTrigger>
               <Button
@@ -94,7 +93,7 @@ export function PortalHeader({ section, title }: PortalHeaderProps) {
                 aria-label="Settings"
                 className="hidden text-muted-foreground sm:inline-flex"
               >
-                <Settings className="size-4" />
+                <Settings />
               </Button>
             </TooltipTrigger>
             <TooltipContent>Settings</TooltipContent>
@@ -102,13 +101,12 @@ export function PortalHeader({ section, title }: PortalHeaderProps) {
 
           <Separator orientation="vertical" className="mx-1 h-5" />
 
-          {/* Avatar */}
           <Tooltip>
             <TooltipTrigger>
               <button
                 type="button"
                 aria-label="User menu"
-                className="rounded-full ring-2 ring-primary/40 transition-all hover:ring-primary"
+                className="rounded-full ring-2 ring-border transition-all hover:ring-primary"
               >
                 <Avatar size="sm">
                   <AvatarFallback className="bg-primary text-xs font-bold text-primary-foreground">

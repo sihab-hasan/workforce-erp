@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@workforce-erp/ui/components/card"
+import { Badge } from "@workforce-erp/ui/components/badge"
 import { Separator } from "@workforce-erp/ui/components/separator"
 
 const departments = [
@@ -26,7 +27,7 @@ export interface EmployeeStatisticsProps {
 export function EmployeeStatistics({ className }: EmployeeStatisticsProps) {
   return (
     <section aria-label="Employees by department" className={className}>
-      <Card className="h-full">
+      <Card className="h-full rounded-lg shadow-sm">
         <CardHeader>
           <CardTitle>Employees by Department</CardTitle>
           <CardDescription>
@@ -34,19 +35,17 @@ export function EmployeeStatistics({ className }: EmployeeStatisticsProps) {
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-1">
+        <CardContent className="flex flex-col gap-1">
           {departments.map((dept, idx) => {
             const pct = Math.round((dept.count / TOTAL) * 100)
             return (
               <div key={dept.name}>
                 {idx > 0 && <Separator className="my-1" />}
                 <div className="flex items-center gap-3 py-1">
-                  {/* Label */}
                   <span className="w-28 shrink-0 text-sm text-foreground">
                     {dept.name}
                   </span>
 
-                  {/* Inline progress bar — same limitation as AttendanceSummary */}
                   <div className="flex-1">
                     <div
                       role="progressbar"
@@ -63,14 +62,13 @@ export function EmployeeStatistics({ className }: EmployeeStatisticsProps) {
                     </div>
                   </div>
 
-                  {/* Count + pct */}
-                  <div className="w-16 text-right">
+                  <div className="flex w-20 justify-end">
                     <span className="text-sm font-medium text-foreground tabular-nums">
                       {dept.count}
                     </span>
-                    <span className="ml-1.5 text-xs text-muted-foreground">
+                    <Badge variant="outline" className="ml-2">
                       {pct}%
-                    </span>
+                    </Badge>
                   </div>
                 </div>
               </div>

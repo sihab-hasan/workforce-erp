@@ -24,13 +24,15 @@ export function PortalLayout({ children }: PortalLayoutProps) {
     <SidebarProvider defaultOpen={true}>
       <PortalSidebar currentPath={location.pathname} routes={portalRoutes} />
 
-      <SidebarInset className="min-h-screen overflow-x-hidden">
+      <SidebarInset className="min-h-screen overflow-x-hidden bg-background">
         <PortalHeader
           section={currentRoute.section}
           title={currentRoute.title}
         />
 
-        <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+        <main className="flex-1 px-4 py-5 md:px-6 md:py-7 lg:px-8">
+          <div className="mx-auto w-full">{children}</div>
+        </main>
 
         <MobileNavigation
           currentPath={location.pathname}
