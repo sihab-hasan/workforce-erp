@@ -1,4 +1,4 @@
-import { Bell, Search, Settings, Menu } from "lucide-react"
+import { Bell, Search, Settings } from "lucide-react"
 import {
   Avatar,
   AvatarFallback,
@@ -81,7 +81,7 @@ export function PortalHeader({ section, title }: PortalHeaderProps) {
                   <Bell className="size-4" />
                 </Button>
                 <span className="absolute top-1.5 right-1.5 flex size-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+                  <span className="absolute inline-flex h-full w-full animate-ping motion-reduce:animate-none rounded-full bg-primary opacity-75" />
                   <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
                 </span>
               </div>

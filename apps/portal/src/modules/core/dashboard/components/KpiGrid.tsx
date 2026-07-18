@@ -1,61 +1,64 @@
-import { Users, Clock, CalendarOff, DollarSign, TrendingUp, TrendingDown } from "lucide-react"
+import { Users, Clock, CalendarOff, DollarSign, TrendingUp, TrendingDown, Minus } from "lucide-react"
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription,
+  CardAction,
 } from "@workforce-erp/ui/components/card"
-import { Badge } from "@workforce-erp/ui/components/badge"
 
-interface KpiCard {
+type Trend = "up" | "down" | "neutral"
+
+interface KpiCardDatum {
   label: string
   value: string
   change: string
-  trend: "up" | "down" | "neutral"
+  trend: Trend
   icon: React.ElementType
-  iconBg: string
-  iconColor: string
 }
 
-const kpiData: KpiCard[] = [
+const kpiData: KpiCardDatum[] = [
   {
     label: "Total Employees",
     value: "248",
-    change: "+12 this month",
+    change: "+12 hired this month",
     trend: "up",
     icon: Users,
-    iconBg: "bg-primary/15",
-    iconColor: "text-primary",
   },
   {
     label: "Attendance Rate",
     value: "94.2%",
-    change: "+1.8% vs last week",
+    change: "+1.8 pp vs last week",
     trend: "up",
     icon: Clock,
-    iconBg: "bg-emerald-500/15",
-    iconColor: "text-emerald-400",
   },
   {
-    label: "Pending Leaves",
+    label: "Pending Leave Requests",
     value: "17",
-    change: "−5 from last week",
+    change: "−5 since last week",
     trend: "down",
     icon: CalendarOff,
-    iconBg: "bg-amber-500/15",
-    iconColor: "text-amber-400",
   },
   {
     label: "Active Payroll",
     value: "$182,400",
-    change: "Current month cycle",
+    change: "Current monthly cycle",
     trend: "neutral",
     icon: DollarSign,
-    iconBg: "bg-violet-500/15",
-    iconColor: "text-violet-400",
   },
 ]
+
+const trendIconMap: Record<Trend, React.ElementType> = {
+  up: TrendingUp,
+  down: TrendingDown,
+  neutral: Minus,
+}
+
+const trendColorMap: Record<Trend, string> = {
+  up: "text-primary",
+  down: "text-destructive",
+  neutral: "text-muted-foreground",
+}
 
 export interface KpiGridProps {
   className?: string
@@ -63,48 +66,30 @@ export interface KpiGridProps {
 
 export function KpiGrid({ className }: KpiGridProps) {
   return (
-    <section className={className}>
+    <section aria-label="Key performance indicators" className={className}>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {kpiData.map((kpi) => {
           const Icon = kpi.icon
+          const TrendIcon = trendIconMap[kpi.trend]
+          const trendColor = trendColorMap[kpi.trend]
+
           return (
-            <Card key={kpi.label} className="transition-shadow hover:shadow-lg hover:shadow-primary/5">
+            <Card key={kpi.label} size="sm">
               <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className={`flex size-10 items-center justify-center rounded-xl ${kpi.iconBg}`}>
-                    <Icon className={`size-5 ${kpi.iconColor}`} />
+                <CardTitle>{kpi.label}</CardTitle>
+                <CardAction>
+                  <div className="rounded-xl bg-muted p-2">
+                    <Icon className="size-4 text-muted-foreground" aria-hidden />
                   </div>
-                  {kpi.trend !== "neutral" && (
-                    <Badge
-                      variant="secondary"
-                      className={`gap-1 ${
-                        kpi.trend === "up"
-                          ? "bg-emerald-500/15 text-emerald-400"
-                          : "bg-rose-500/15 text-rose-400"
-                      }`}
-                    >
-                      {kpi.trend === "up"
-                        ? <TrendingUp className="size-3" />
-                        : <TrendingDown className="size-3" />}
-                    </Badge>
-                  )}
-                </div>
-                <CardTitle className="mt-3 text-2xl font-bold tracking-tight text-foreground">
-                  {kpi.value}
-                </CardTitle>
-                <CardDescription className="font-medium">
-                  {kpi.label}
-                </CardDescription>
+                </CardAction>
               </CardHeader>
               <CardContent>
-                <p className={`text-xs font-medium ${
-                  kpi.trend === "up"
-                    ? "text-emerald-400"
-                    : kpi.trend === "down"
-                      ? "text-rose-400"
-                      : "text-muted-foreground"
-                }`}>
-                  {kpi.change}
+                <p className="font-heading text-3xl font-semibold tabular-nums text-foreground">
+                  {kpi.value}
+                </p>
+                <p className={`mt-2 flex items-center gap-1 text-xs ${trendColor}`}>
+                  <TrendIcon className="size-3 shrink-0" aria-hidden />
+                  <span>{kpi.change}</span>
                 </p>
               </CardContent>
             </Card>

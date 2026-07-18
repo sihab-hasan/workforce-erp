@@ -1,23 +1,23 @@
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@workforce-erp/ui/components/card"
-import { Badge } from "@workforce-erp/ui/components/badge"
+import { Separator } from "@workforce-erp/ui/components/separator"
 
 const departments = [
-  { name: "Engineering",  count: 52, color: "bg-primary",      dot: "bg-primary" },
-  { name: "Operations",   count: 44, color: "bg-violet-500",   dot: "bg-violet-500" },
-  { name: "Sales",        count: 38, color: "bg-emerald-500",  dot: "bg-emerald-500" },
-  { name: "HR & Admin",   count: 27, color: "bg-amber-400",    dot: "bg-amber-400" },
-  { name: "Finance",      count: 21, color: "bg-rose-500",     dot: "bg-rose-500" },
-  { name: "Marketing",    count: 18, color: "bg-cyan-500",     dot: "bg-cyan-500" },
-  { name: "Others",       count: 48, color: "bg-muted-foreground", dot: "bg-muted-foreground" },
-]
+  { name: "Engineering",    count: 52 },
+  { name: "Operations",     count: 44 },
+  { name: "Sales",          count: 38 },
+  { name: "HR & Admin",     count: 27 },
+  { name: "Finance",        count: 21 },
+  { name: "Marketing",      count: 18 },
+  { name: "Others",         count: 48 },
+] as const
 
-const total = departments.reduce((sum, d) => sum + d.count, 0)
+const TOTAL = departments.reduce((sum, d) => sum + d.count, 0)
 
 export interface EmployeeStatisticsProps {
   className?: string
@@ -25,49 +25,57 @@ export interface EmployeeStatisticsProps {
 
 export function EmployeeStatistics({ className }: EmployeeStatisticsProps) {
   return (
-    <section className={className}>
+    <section aria-label="Employees by department" className={className}>
       <Card className="h-full">
         <CardHeader>
           <CardTitle>Employees by Department</CardTitle>
           <CardDescription>
-            {total} total across {departments.length} departments
+            {TOTAL} total across {departments.length} departments
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="px-0 pb-0">
-          {/* stacked bar */}
-          <div className="flex h-2 overflow-hidden mx-6 rounded-full mb-2">
-            {departments.map((dept) => (
-              <div
-                key={dept.name}
-                className={`${dept.color} transition-all duration-700`}
-                style={{ width: `${(dept.count / total) * 100}%` }}
-              />
-            ))}
-          </div>
-
-          <ul className="divide-y divide-border">
-            {departments.map((dept) => {
-              const pct = Math.round((dept.count / total) * 100)
-              return (
-                <li
-                  key={dept.name}
-                  className="flex items-center gap-3 px-6 py-2.5"
-                >
-                  <span className={`size-2 shrink-0 rounded-full ${dept.dot}`} />
-                  <span className="flex-1 text-sm text-foreground">
+        <CardContent className="space-y-1">
+          {departments.map((dept, idx) => {
+            const pct = Math.round((dept.count / TOTAL) * 100)
+            return (
+              <div key={dept.name}>
+                {idx > 0 && <Separator className="my-1" />}
+                <div className="flex items-center gap-3 py-1">
+                  {/* Label */}
+                  <span className="w-28 shrink-0 text-sm text-foreground">
                     {dept.name}
                   </span>
-                  <Badge variant="secondary" className="text-[10px] tabular-nums">
-                    {pct}%
-                  </Badge>
-                  <span className="w-8 text-right text-sm font-semibold text-foreground tabular-nums">
-                    {dept.count}
-                  </span>
-                </li>
-              )
-            })}
-          </ul>
+
+                  {/* Inline progress bar — same limitation as AttendanceSummary */}
+                  <div className="flex-1">
+                    <div
+                      role="progressbar"
+                      aria-valuenow={pct}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label={`${dept.name}: ${pct}%`}
+                      className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
+                    >
+                      <div
+                        className="h-full rounded-full bg-primary transition-[width] duration-500 motion-reduce:transition-none"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Count + pct */}
+                  <div className="w-16 text-right">
+                    <span className="tabular-nums text-sm font-medium text-foreground">
+                      {dept.count}
+                    </span>
+                    <span className="ml-1.5 text-xs text-muted-foreground">
+                      {pct}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
         </CardContent>
       </Card>
     </section>
