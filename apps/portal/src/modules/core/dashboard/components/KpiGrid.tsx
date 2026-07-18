@@ -10,10 +10,13 @@ import {
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
   CardAction,
 } from "@workforce-erp/ui/components/card"
+import { Badge } from "@workforce-erp/ui/components/badge"
+import { cn } from "@workforce-erp/ui/lib/utils"
 
 type Trend = "up" | "down" | "neutral"
 
@@ -23,6 +26,7 @@ interface KpiCardDatum {
   change: string
   trend: Trend
   icon: React.ElementType
+  caption: string
 }
 
 const kpiData: KpiCardDatum[] = [
@@ -32,6 +36,7 @@ const kpiData: KpiCardDatum[] = [
     change: "+12 hired this month",
     trend: "up",
     icon: Users,
+    caption: "Active employee base",
   },
   {
     label: "Attendance Rate",
@@ -39,6 +44,7 @@ const kpiData: KpiCardDatum[] = [
     change: "+1.8 pp vs last week",
     trend: "up",
     icon: Clock,
+    caption: "Present or late today",
   },
   {
     label: "Pending Leave Requests",
@@ -46,6 +52,7 @@ const kpiData: KpiCardDatum[] = [
     change: "−5 since last week",
     trend: "down",
     icon: CalendarOff,
+    caption: "Awaiting manager action",
   },
   {
     label: "Active Payroll",
@@ -53,6 +60,7 @@ const kpiData: KpiCardDatum[] = [
     change: "Current monthly cycle",
     trend: "neutral",
     icon: DollarSign,
+    caption: "Gross payroll estimate",
   },
 ]
 
@@ -62,10 +70,17 @@ const trendIconMap: Record<Trend, React.ElementType> = {
   neutral: Minus,
 }
 
-const trendColorMap: Record<Trend, string> = {
-  up: "text-primary",
-  down: "text-destructive",
-  neutral: "text-muted-foreground",
+const trendVariantMap: Record<Trend, "default" | "destructive" | "secondary"> =
+  {
+    up: "default",
+    down: "destructive",
+    neutral: "secondary",
+  }
+
+const cardToneMap: Record<Trend, string> = {
+  up: "border-primary/20 bg-primary/5",
+  down: "border-destructive/20 bg-destructive/5",
+  neutral: "bg-card",
 }
 
 export interface KpiGridProps {
@@ -79,18 +94,20 @@ export function KpiGrid({ className }: KpiGridProps) {
         {kpiData.map((kpi) => {
           const Icon = kpi.icon
           const TrendIcon = trendIconMap[kpi.trend]
-          const trendColor = trendColorMap[kpi.trend]
+          const trendVariant = trendVariantMap[kpi.trend]
 
           return (
-            <Card key={kpi.label} size="sm">
+            <Card
+              key={kpi.label}
+              size="sm"
+              className={cn("rounded-lg shadow-sm", cardToneMap[kpi.trend])}
+            >
               <CardHeader>
                 <CardTitle>{kpi.label}</CardTitle>
+                <CardDescription>{kpi.caption}</CardDescription>
                 <CardAction>
-                  <div className="rounded-xl bg-muted p-2">
-                    <Icon
-                      className="size-4 text-muted-foreground"
-                      aria-hidden
-                    />
+                  <div className="flex size-9 items-center justify-center rounded-lg bg-background text-muted-foreground ring-1 ring-border">
+                    <Icon aria-hidden />
                   </div>
                 </CardAction>
               </CardHeader>
@@ -98,12 +115,10 @@ export function KpiGrid({ className }: KpiGridProps) {
                 <p className="font-heading text-3xl font-semibold text-foreground tabular-nums">
                   {kpi.value}
                 </p>
-                <p
-                  className={`mt-2 flex items-center gap-1 text-xs ${trendColor}`}
-                >
-                  <TrendIcon className="size-3 shrink-0" aria-hidden />
-                  <span>{kpi.change}</span>
-                </p>
+                <Badge variant={trendVariant} className="mt-3">
+                  <TrendIcon data-icon="inline-start" aria-hidden />
+                  {kpi.change}
+                </Badge>
               </CardContent>
             </Card>
           )

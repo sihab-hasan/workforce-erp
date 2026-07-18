@@ -1,11 +1,15 @@
+import { Building2 } from "lucide-react"
+import { Badge } from "@workforce-erp/ui/components/badge"
+
 type TenantSwitcherProps = {
   tenantName: string
 }
 
 export function TenantSwitcher({ tenantName }: TenantSwitcherProps) {
   return (
-    <div className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300">
+    <Badge variant="secondary" className="h-8 gap-1.5 px-3">
+      <Building2 data-icon="inline-start" />
       {tenantName}
-    </div>
+    </Badge>
   )
 }

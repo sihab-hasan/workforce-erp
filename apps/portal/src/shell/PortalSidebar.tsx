@@ -1,4 +1,7 @@
 import { Link } from "react-router-dom"
+import { LayoutDashboard } from "lucide-react"
+import { Avatar, AvatarFallback } from "@workforce-erp/ui/components/avatar"
+import { Badge } from "@workforce-erp/ui/components/badge"
 import {
   Sidebar,
   SidebarContent,
@@ -12,6 +15,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
   SidebarSeparator,
+  useSidebar,
 } from "@workforce-erp/ui/components/sidebar"
 
 import type { PortalRoute } from "@/app/config/routes.config.ts"
@@ -22,6 +26,8 @@ type PortalSidebarProps = {
 }
 
 export function PortalSidebar({ currentPath, routes }: PortalSidebarProps) {
+  const { isMobile, setOpenMobile } = useSidebar()
+
   const sections = routes.reduce<Record<string, PortalRoute[]>>(
     (acc, route) => {
       const current = acc[route.section] ?? []
@@ -33,31 +39,21 @@ export function PortalSidebar({ currentPath, routes }: PortalSidebarProps) {
   )
 
   return (
-    <Sidebar collapsible="icon" variant="sidebar">
-      {/* ── Logo / Brand ───────────────────────────────────────── */}
-      <SidebarHeader>
-        <div className="flex items-center gap-2.5 px-2 py-1">
-          {/* Green logo mark */}
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary shadow-lg shadow-primary/30">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              className="size-4 text-primary-foreground"
-              aria-hidden="true"
-            >
-              <path
-                d="M4 6h16M4 12h10M4 18h7"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-              />
-            </svg>
+    <Sidebar
+      collapsible="icon"
+      variant="sidebar"
+      className="border-sidebar-border"
+    >
+      <SidebarHeader className="p-3">
+        <div className="flex items-center gap-2.5 rounded-lg px-2 py-1.5">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
+            <LayoutDashboard aria-hidden />
           </div>
           <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
-            <span className="text-xs font-bold tracking-widest text-primary uppercase">
+            <span className="text-xs font-bold tracking-widest text-sidebar-primary uppercase">
               Workforce
             </span>
-            <span className="text-sm leading-none font-semibold text-foreground">
+            <span className="truncate text-sm leading-none font-semibold text-sidebar-foreground">
               ERP Portal
             </span>
           </div>
@@ -66,8 +62,7 @@ export function PortalSidebar({ currentPath, routes }: PortalSidebarProps) {
 
       <SidebarSeparator />
 
-      {/* ── Navigation ─────────────────────────────────────────── */}
-      <SidebarContent>
+      <SidebarContent className="px-1">
         {Object.entries(sections).map(([section, sectionRoutes]) => (
           <SidebarGroup key={section}>
             <SidebarGroupLabel>{section}</SidebarGroupLabel>
@@ -81,7 +76,15 @@ export function PortalSidebar({ currentPath, routes }: PortalSidebarProps) {
                       <SidebarMenuButton
                         isActive={isActive}
                         tooltip={route.title}
-                        render={<Link to={route.path} />}
+                        className="rounded-lg"
+                        render={
+                          <Link
+                            to={route.path}
+                            onClick={() => {
+                              if (isMobile) setOpenMobile(false)
+                            }}
+                          />
+                        }
                       >
                         <Icon />
                         <span>{route.title}</span>
@@ -95,18 +98,22 @@ export function PortalSidebar({ currentPath, routes }: PortalSidebarProps) {
         ))}
       </SidebarContent>
 
-      {/* ── Footer ─────────────────────────────────────────────── */}
       <SidebarSeparator />
-      <SidebarFooter>
-        <div className="flex items-center gap-2.5 px-2 py-1 group-data-[collapsible=icon]:justify-center">
-          <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-            U
-          </div>
+      <SidebarFooter className="p-3">
+        <div className="flex items-center gap-2.5 rounded-lg border border-sidebar-border bg-sidebar-accent/40 px-2 py-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-transparent group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:px-0">
+          <Avatar size="sm">
+            <AvatarFallback className="bg-sidebar-primary text-xs font-bold text-sidebar-primary-foreground">
+              U
+            </AvatarFallback>
+          </Avatar>
           <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
-            <span className="truncate text-xs font-semibold text-foreground">
-              Portal User
-            </span>
-            <span className="truncate text-[10px] text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <span className="truncate text-xs font-semibold text-sidebar-foreground">
+                Portal User
+              </span>
+              <Badge variant="outline">Pro</Badge>
+            </div>
+            <span className="truncate text-[10px] text-sidebar-foreground/70">
               user@acme.com
             </span>
           </div>
