@@ -19,6 +19,7 @@ export interface AnimateInOptions {
   delay?: number
   duration?: number
   ease?: string
+  paused?: boolean
   stagger?: number
 }
 
@@ -60,6 +61,7 @@ export function animateIn(
     delay: options.delay ?? 0,
     duration: options.duration ?? motionDuration.slow,
     ease: options.ease ?? motionEase.enter,
+    paused: options.paused,
     stagger: options.stagger,
   })
 }

@@ -14,7 +14,9 @@ export {
   prefersReducedMotion,
 } from "@workforce-erp/ui/motion/preferences"
 export {
+  bindScrollAnimation,
   revealOnScroll,
+  type ScrollAnimationOptions,
   type ScrollRevealOptions,
 } from "@workforce-erp/ui/motion/scroll"
 export {

@@ -1,5 +1,6 @@
 import { Section } from "@/shell/section"
 import { cn } from "@workforce-erp/ui/lib/utils"
+import { useReveal } from "@workforce-erp/ui/motion"
 
 type SectionHeaderProps = {
   align?: "left" | "center"
@@ -17,10 +18,15 @@ export function SectionHeader({
   title,
 }: SectionHeaderProps) {
   const isCenter = align === "center"
+  const revealRef = useReveal<HTMLDivElement>("fade-up", {
+    duration: 0.7,
+    start: "top 86%",
+  })
 
   return (
     <Section id={id} className="py-10 md:py-12">
       <div
+        ref={revealRef}
         className={cn(
           "mb-10 max-w-2xl space-y-3",
           isCenter ? "mx-auto text-center" : "text-left",
