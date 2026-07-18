@@ -5,13 +5,13 @@ type CommandMenuProps = {
 export function CommandMenu({ hint }: CommandMenuProps) {
   return (
     <button
-      className="hidden min-w-60 items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-2 text-left text-sm text-slate-500 shadow-sm md:flex dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400"
+      className="flex min-w-48 items-center justify-between rounded-2xl border border-border bg-muted/50 px-4 py-2 text-left text-sm text-muted-foreground shadow-sm transition-colors hover:bg-muted hover:text-foreground"
       type="button"
     >
       <span>{hint}</span>
-      <span className="rounded-lg border border-slate-200 px-2 py-0.5 text-xs dark:border-slate-700">
+      <kbd className="rounded-lg border border-border bg-background px-2 py-0.5 text-xs text-muted-foreground">
         /
-      </span>
+      </kbd>
     </button>
   )
 }
