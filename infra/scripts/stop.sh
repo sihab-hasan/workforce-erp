@@ -2,8 +2,14 @@
 
 set -euo pipefail
 
-PORTS=(5173 5174 5175 8000)
+PORTS=(3000 5173 5174 5175 8000)
 STOPPED=0
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+docker compose \
+  -f "$ROOT_DIR/infra/compose/compose.yml" \
+  -f "$ROOT_DIR/infra/compose/compose.local.yml" \
+  down --remove-orphans
 
 for PORT in "${PORTS[@]}"; do
   if command -v lsof >/dev/null 2>&1; then
@@ -27,5 +33,5 @@ for PORT in "${PORTS[@]}"; do
 done
 
 if [[ "$STOPPED" -eq 0 ]]; then
-  echo "No dev servers were listening on ports 5173-5175 or 8000."
+  echo "No dev servers were listening on ports 3000, 5173, 5174, 5175, or 8000."
 fi

@@ -3,16 +3,15 @@ import { Link, NavLink } from "react-router-dom"
 
 import { cn } from "@workforce-erp/ui/lib/utils"
 import { Button } from "@workforce-erp/ui/components/button"
+import { useTheme } from "@workforce-erp/ui/providers/theme-provider"
 
 import { siteRoutes, siteNavigationItems } from "@/app/config/site-map"
-import { portalLinks } from "@/app/config/external-links"
-import { useTheme } from "@/app/providers/ThemeProvider"
 import { NavigationDropdown } from "@/shared/components/navigation"
 import { MobileMenu } from "./MobileMenu"
 
 export default function SiteNavbar() {
-  const { theme, setTheme } = useTheme()
-  const isDark = theme === "dark"
+  const { resolvedTheme, setTheme } = useTheme()
+  const isDark = resolvedTheme === "dark"
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl">
@@ -32,7 +31,10 @@ export default function SiteNavbar() {
           </span>
         </Link>
 
-        <nav aria-label="Primary navigation" className="hidden xl:block">
+        <nav
+          aria-label="Primary navigation"
+          className="hidden lg:px-10 xl:block"
+        >
           <ul className="flex items-center gap-6">
             {siteNavigationItems.map((item, index) => (
               <li key={item.to}>
@@ -86,7 +88,7 @@ export default function SiteNavbar() {
             size="lg"
             nativeButton={false}
             className="hidden px-4 xl:inline-flex"
-            render={<a href={portalLinks.login} />}
+            render={<a href="/portal/auth/login" />}
           >
             Sign In
           </Button>

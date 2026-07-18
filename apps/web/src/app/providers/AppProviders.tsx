@@ -1,15 +1,11 @@
 import type { ReactNode } from "react"
 
-import { ThemeProvider } from "@/app/providers/ThemeProvider"
+import { ThemeProvider } from "@workforce-erp/ui/providers/theme-provider"
 
 type AppProvidersProps = {
   children: ReactNode
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
-  return (
-    <ThemeProvider defaultTheme="system" storageKey="workforce-web-theme">
-      {children}
-    </ThemeProvider>
-  )
+  return <ThemeProvider>{children}</ThemeProvider>
 }

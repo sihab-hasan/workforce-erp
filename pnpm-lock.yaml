@@ -9,16 +9,16 @@ importers:
   .:
     devDependencies:
       prettier:
-        specifier: ^3.8.3
+        specifier: ^3.9.5
         version: 3.9.5
       prettier-plugin-tailwindcss:
-        specifier: ^0.8.0
+        specifier: ^0.8.1
         version: 0.8.1(prettier@3.9.5)
       turbo:
-        specifier: ^2.9.18
+        specifier: ^2.10.5
         version: 2.10.5
       typescript:
-        specifier: ~6
+        specifier: ~6.0.3
         version: 6.0.3
 
   apps/admin:
@@ -53,9 +53,6 @@ importers:
       lucide-react:
         specifier: ^1.24.0
         version: 1.24.0(react@19.2.7)
-      next-themes:
-        specifier: ^0.4.6
-        version: 0.4.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react:
         specifier: ^19.2.6
         version: 19.2.7
@@ -165,9 +162,6 @@ importers:
       lucide-react:
         specifier: ^1.24.0
         version: 1.24.0(react@19.2.7)
-      next-themes:
-        specifier: ^0.4.6
-        version: 0.4.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react:
         specifier: ^19.2.6
         version: 19.2.7
@@ -256,9 +250,6 @@ importers:
       lucide-react:
         specifier: ^1.24.0
         version: 1.24.0(react@19.2.7)
-      next-themes:
-        specifier: ^0.4.6
-        version: 0.4.6(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react:
         specifier: ^19.2.6
         version: 19.2.7

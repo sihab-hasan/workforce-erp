@@ -8,9 +8,10 @@ packages, and a canonical backend lane at `apps/api`.
 
 ## Application layer
 
-- `apps/web`: public-facing app on port `5173`
+- `apps/web`: public-facing app on internal development port `5173`
 - `apps/portal`: tenant portal on port `5174`
 - `apps/admin`: admin-facing app on port `5175`
+- `infra/nginx`: local reverse proxy exposing all applications on port `3000`
 
 ## Shared package layer
 
