@@ -53,7 +53,10 @@ export default function SiteTopbar() {
   }, [])
 
   return (
-    <div className="w-full overflow-hidden border-b border-primary-foreground/15 bg-primary text-primary-foreground">
+    <div
+      data-site-topbar
+      className="w-full overflow-hidden border-b border-primary-foreground/15 bg-primary text-primary-foreground"
+    >
       <div className="flex h-10 items-center gap-3 px-5 sm:px-8 lg:px-12">
         <span className="shrink-0 rounded-full bg-primary-foreground/15 px-2 py-0.5 text-[0.6875rem] font-semibold tracking-wider uppercase">
           New

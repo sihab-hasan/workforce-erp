@@ -6,12 +6,19 @@ import {
   Search,
   Users,
 } from "lucide-react"
+import { useRef } from "react"
 import { Link } from "react-router-dom"
 
 import { siteRoutes } from "@/app/config/site-map"
 import { Container } from "@/shell/container"
 import { buttonVariants } from "@workforce-erp/ui/components/button"
 import { cn } from "@workforce-erp/ui/lib/utils"
+import {
+  bindScrollAnimation,
+  gsap,
+  prefersReducedMotion,
+  useGSAP,
+} from "@workforce-erp/ui/motion"
 
 export interface HeroSectionProps {
   className?: string
@@ -52,8 +59,129 @@ const attendance = [
 ]
 
 export function HeroSection({ className }: HeroSectionProps) {
+  const heroRef = useRef<HTMLElement>(null)
+
+  useGSAP(
+    () => {
+      if (prefersReducedMotion()) {
+        gsap.set(
+          [
+            "[data-hero-title]",
+            "[data-hero-copy]",
+            "[data-hero-preview]",
+            "[data-hero-panel]",
+            "[data-hero-path]",
+            "[data-hero-node]",
+          ],
+          { clearProps: "all" }
+        )
+        return
+      }
+
+      const timeline = gsap.timeline({
+        defaults: { ease: "power3.out" },
+        paused: true,
+      })
+
+      timeline
+        .from("[data-hero-title]", {
+          autoAlpha: 0,
+          duration: 1,
+          filter: "blur(10px)",
+          yPercent: 115,
+        })
+        .from(
+          "[data-hero-copy]",
+          {
+            autoAlpha: 0,
+            duration: 0.72,
+            stagger: 0.1,
+            y: 22,
+          },
+          "-=0.58"
+        )
+        .from(
+          "[data-hero-preview]",
+          {
+            autoAlpha: 0,
+            duration: 1.15,
+            y: -42,
+          },
+          "-=0.94"
+        )
+        .from(
+          '[data-hero-panel="people"]',
+          {
+            autoAlpha: 0,
+            duration: 0.72,
+            rotate: -1.5,
+            scale: 0.94,
+            x: -28,
+            y: 14,
+          },
+          "-=0.55"
+        )
+        .addLabel("connection-draw", "-=0.22")
+
+      const path =
+        heroRef.current?.querySelector<SVGPathElement>("[data-hero-path]")
+
+      if (path) {
+        const pathLength = path.getTotalLength()
+
+        timeline.fromTo(
+          path,
+          {
+            strokeDasharray: pathLength,
+            strokeDashoffset: pathLength,
+          },
+          {
+            duration: 1.05,
+            ease: "power2.inOut",
+            strokeDashoffset: 0,
+          },
+          "connection-draw"
+        )
+      }
+
+      timeline.from(
+        '[data-hero-panel="payroll"]',
+        {
+          autoAlpha: 0,
+          duration: 0.72,
+          rotate: 1.5,
+          scale: 0.94,
+          x: 28,
+          y: 18,
+        },
+        "connection-draw+=0.68"
+      )
+
+      timeline.from(
+        "[data-hero-node]",
+        {
+          duration: 0.42,
+          ease: "back.out(2)",
+          scale: 0,
+          stagger: 0.08,
+          transformOrigin: "center",
+        },
+        "connection-draw+=0.62"
+      )
+
+      if (heroRef.current) {
+        bindScrollAnimation(timeline, {
+          start: "top 92%",
+          trigger: heroRef.current,
+        })
+      }
+    },
+    { scope: heroRef }
+  )
+
   return (
     <section
+      ref={heroRef}
       className={cn(
         "relative isolate overflow-hidden border-t border-border/70 bg-background",
         className
@@ -61,15 +189,20 @@ export function HeroSection({ className }: HeroSectionProps) {
     >
       <Container className="grid min-h-[calc(100svh-4.5rem)] items-center gap-14 py-16 lg:grid-cols-[minmax(0,0.82fr)_minmax(38rem,1.18fr)] lg:gap-8 lg:py-20 xl:gap-14">
         <div className="relative z-10 max-w-2xl">
-          <h1 className="font-heading text-[clamp(3rem,6vw,5.75rem)] leading-[0.98] font-bold tracking-[-0.065em] text-balance">
-            Your workforce, in one clear view.
+          <h1 className="overflow-hidden font-heading text-[clamp(3rem,6vw,5.75rem)] leading-[0.98] font-bold tracking-[-0.065em] text-balance">
+            <span data-hero-title className="block">
+              Your workforce, in one clear view.
+            </span>
           </h1>
-          <p className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground sm:text-xl sm:leading-9">
+          <p
+            data-hero-copy
+            className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground sm:text-xl sm:leading-9"
+          >
             Bring people, time, payroll, and performance together—so every team
             can move with confidence.
           </p>
 
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+          <div data-hero-copy className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Link
               to={siteRoutes.demoRequest.path}
               className={cn(
@@ -90,7 +223,10 @@ export function HeroSection({ className }: HeroSectionProps) {
             </Link>
           </div>
 
-          <p className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
+          <p
+            data-hero-copy
+            className="mt-6 flex items-center gap-2 text-sm text-muted-foreground"
+          >
             <Check aria-hidden="true" className="size-4 text-primary" />
             No credit card required
             <span aria-hidden="true" className="text-border">
@@ -110,7 +246,8 @@ function WorkforcePreview() {
   return (
     <div
       aria-label="Workforce ERP product preview"
-      className="relative mx-auto w-full max-w-[760px] py-8 lg:py-0"
+      className="relative mx-auto w-full max-w-[760px] transform-gpu py-8 will-change-transform [perspective:1200px] lg:py-0"
+      data-hero-preview
       role="img"
     >
       <div className="absolute inset-x-[12%] top-[9%] bottom-[8%] rounded bg-primary/6 blur-3xl" />
@@ -235,16 +372,19 @@ function WorkforcePreview() {
         </div>
       </div>
 
+      <ConnectiveLine />
       <PeoplePanel />
       <PayrollPanel />
-      <ConnectiveLine />
     </div>
   )
 }
 
 function PeoplePanel() {
   return (
-    <div className="absolute top-[27%] -left-2 hidden w-48 rounded border border-border bg-card p-3 shadow-xl sm:block lg:-left-8 xl:-left-12">
+    <div
+      data-hero-panel="people"
+      className="absolute top-[27%] -left-2 hidden w-48 rounded border border-border bg-card p-3 shadow-xl sm:block lg:-left-8 xl:-left-12"
+    >
       <p className="text-xs font-bold">People</p>
       <div className="mt-2 flex items-center gap-1.5 rounded border border-border px-2 py-1.5 text-[9px] text-muted-foreground">
         <Search aria-hidden="true" className="size-3" />
@@ -279,7 +419,10 @@ function PeoplePanel() {
 
 function PayrollPanel() {
   return (
-    <div className="absolute right-0 bottom-[5%] w-52 rounded border border-border bg-card p-4 shadow-2xl sm:w-60 lg:-right-4 xl:-right-9">
+    <div
+      data-hero-panel="payroll"
+      className="absolute right-0 bottom-[5%] w-52 rounded border border-border bg-card p-4 shadow-2xl sm:w-60 lg:-right-4 xl:-right-9"
+    >
       <div className="flex items-center justify-between">
         <p className="text-xs font-bold sm:text-sm">Payroll approval</p>
         <span className="rounded bg-primary/10 px-2 py-1 text-[8px] font-semibold text-primary">
@@ -321,14 +464,15 @@ function ConnectiveLine() {
       preserveAspectRatio="none"
     >
       <path
+        data-hero-path
         d="M147 207C194 207 185 93 267 93H663C698 93 703 122 703 151V444C703 481 671 491 638 491H229C193 491 181 466 181 435V357"
         stroke="currentColor"
         strokeWidth="1.5"
       />
-      <circle cx="147" cy="207" r="5" fill="currentColor" />
-      <circle cx="703" cy="151" r="5" fill="currentColor" />
-      <circle cx="181" cy="357" r="5" fill="currentColor" />
-      <circle cx="638" cy="491" r="5" fill="currentColor" />
+      <circle data-hero-node cx="147" cy="207" r="5" fill="currentColor" />
+      <circle data-hero-node cx="703" cy="151" r="5" fill="currentColor" />
+      <circle data-hero-node cx="181" cy="357" r="5" fill="currentColor" />
+      <circle data-hero-node cx="638" cy="491" r="5" fill="currentColor" />
     </svg>
   )
 }

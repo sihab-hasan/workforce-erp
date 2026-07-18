@@ -14,7 +14,10 @@ export default function SiteNavbar() {
   const isDark = resolvedTheme === "dark"
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl">
+    <header
+      data-site-navbar
+      className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl"
+    >
       <div className="relative flex h-18 items-center justify-between gap-6 px-5 sm:px-8 lg:px-12">
         <Link
           to="/"

@@ -16,6 +16,8 @@ scroll-driven animation.
 - Register any additional GSAP plugin once in `config.ts`.
 - Prefer transforms and opacity for smooth rendering.
 - Never hide required content when JavaScript is unavailable.
+- Scroll reveals are reversible by default: they reveal on entry and unreveal
+  when leaving the viewport in either direction.
 
 ## React reveal
 
@@ -28,6 +30,8 @@ export function Example() {
   return <section ref={ref}>Content</section>
 }
 ```
+
+Pass `{ once: true }` only when replaying the reveal would be confusing.
 
 ## Scoped timeline
 
@@ -61,6 +65,28 @@ Call `revealOnScroll` inside `useGSAP`. Cleanup is automatic because
 useGSAP(
   () => {
     revealOnScroll("[data-reveal]", { start: "top 85%" })
+  },
+  { scope }
+)
+```
+
+## Reversible scoped timeline
+
+Use `bindScrollAnimation` for a custom timeline. Keep the timeline paused; the
+shared binding handles reveal, unreveal, replay, and reduced motion.
+
+```tsx
+useGSAP(
+  () => {
+    const timeline = gsap.timeline({ paused: true })
+
+    timeline
+      .from("[data-title]", { autoAlpha: 0, y: 24 })
+      .from("[data-action]", { autoAlpha: 0, y: 12 }, "-=0.25")
+
+    bindScrollAnimation(timeline, {
+      trigger: scope.current!,
+    })
   },
   { scope }
 )
