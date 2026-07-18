@@ -1,7 +1,104 @@
+import { Link } from "react-router-dom"
+import {
+  UserPlus,
+  CalendarPlus,
+  ClipboardList,
+  FileSearch,
+  Receipt,
+  Building2,
+} from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@workforce-erp/ui/components/card"
+import { Button } from "@workforce-erp/ui/components/button"
+
+interface QuickAction {
+  label: string
+  description: string
+  to: string
+  icon: React.ElementType
+}
+
+const actions: QuickAction[] = [
+  {
+    label: "Add Employee",
+    description: "Onboard a new team member",
+    to: "/people/employees",
+    icon: UserPlus,
+  },
+  {
+    label: "Request Leave",
+    description: "Submit or review time-off",
+    to: "/people/leave",
+    icon: CalendarPlus,
+  },
+  {
+    label: "View Attendance",
+    description: "Check today's presence log",
+    to: "/people/attendance",
+    icon: ClipboardList,
+  },
+  {
+    label: "Documents",
+    description: "Manage employee files",
+    to: "/people/documents",
+    icon: FileSearch,
+  },
+  {
+    label: "Payroll",
+    description: "Process salary operations",
+    to: "/people/payroll",
+    icon: Receipt,
+  },
+  {
+    label: "Departments",
+    description: "Manage org structure",
+    to: "/people/departments",
+    icon: Building2,
+  },
+]
+
 export interface QuickActionsProps {
   className?: string
 }
 
 export function QuickActions({ className }: QuickActionsProps) {
-  return <section className={className} data-component="QuickActions" />
+  return (
+    <section aria-label="Quick actions" className={className}>
+      <Card className="h-full">
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Shortcuts to common tasks</CardDescription>
+        </CardHeader>
+
+        <CardContent className="grid grid-cols-2 gap-2">
+          {actions.map((action) => {
+            const Icon = action.icon
+            return (
+              <Button
+                key={action.label}
+                variant="outline"
+                className="h-auto flex-col items-start gap-2 py-4 text-left"
+                render={<Link to={action.to} />}
+              >
+                <Icon className="size-4 text-muted-foreground" aria-hidden />
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium text-foreground">
+                    {action.label}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {action.description}
+                  </p>
+                </div>
+              </Button>
+            )
+          })}
+        </CardContent>
+      </Card>
+    </section>
+  )
 }

@@ -1,5 +1,9 @@
 import type { ReactNode } from "react"
 import { useLocation } from "react-router-dom"
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@workforce-erp/ui/components/sidebar"
 import { portalRoutes } from "@/app/config/routes.config.ts"
 import { PortalSidebar } from "@/shell/PortalSidebar.tsx"
 import { PortalHeader } from "@/shell/PortalHeader.tsx"
@@ -12,16 +16,15 @@ type PortalLayoutProps = {
 export function PortalLayout({ children }: PortalLayoutProps) {
   const location = useLocation()
 
-  // Find current route to pass context to header
   const currentRoute = portalRoutes.find(
     (route) => route.path === location.pathname
   ) || { section: "System", title: "Portal" }
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
+    <SidebarProvider defaultOpen={true}>
       <PortalSidebar currentPath={location.pathname} routes={portalRoutes} />
 
-      <div className="flex min-w-0 flex-1 flex-col pb-16 lg:pb-0">
+      <SidebarInset className="min-h-screen overflow-x-hidden">
         <PortalHeader
           section={currentRoute.section}
           title={currentRoute.title}
@@ -33,7 +36,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
           currentPath={location.pathname}
           routes={portalRoutes}
         />
-      </div>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }
