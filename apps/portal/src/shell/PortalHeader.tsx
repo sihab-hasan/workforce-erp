@@ -51,7 +51,7 @@ export function PortalHeader({ section, title }: PortalHeaderProps) {
 
           {/* Search icon — visible on mobile instead of command menu */}
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <Button
                 variant="ghost"
                 size="icon-sm"
@@ -66,7 +66,7 @@ export function PortalHeader({ section, title }: PortalHeaderProps) {
 
           {/* Notifications */}
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <div className="relative">
                 <Button
                   variant="ghost"
@@ -87,7 +87,7 @@ export function PortalHeader({ section, title }: PortalHeaderProps) {
 
           {/* Settings — hidden on mobile */}
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <Button
                 variant="ghost"
                 size="icon-sm"
@@ -104,7 +104,7 @@ export function PortalHeader({ section, title }: PortalHeaderProps) {
 
           {/* Avatar */}
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <button
                 type="button"
                 aria-label="User menu"
