@@ -1,77 +1,94 @@
-import { UserPlus, CalendarCheck, Clock, FileText, AlertCircle } from "lucide-react"
+import {
+  UserPlus,
+  CalendarCheck,
+  Clock,
+  FileText,
+  AlertCircle,
+  type LucideIcon,
+} from "lucide-react"
 import {
   Card,
   CardContent,
+  CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@workforce-erp/ui/components/card"
 import {
   Avatar,
   AvatarFallback,
 } from "@workforce-erp/ui/components/avatar"
 import { Button } from "@workforce-erp/ui/components/button"
+import { Separator } from "@workforce-erp/ui/components/separator"
 
-type ActivityType = "hire" | "leave" | "attendance" | "document" | "alert"
+type ActivityKind = "hire" | "leave" | "attendance" | "document" | "alert"
 
 interface ActivityItem {
   id: string
-  type: ActivityType
+  kind: ActivityKind
   message: string
   actor: string
   initials: string
-  time: string
+  timestamp: string
 }
 
 const activities: ActivityItem[] = [
   {
     id: "1",
-    type: "hire",
+    kind: "hire",
     message: "New employee onboarded",
     actor: "Sarah Mitchell",
     initials: "SM",
-    time: "2 hours ago",
+    timestamp: "2 hours ago",
   },
   {
     id: "2",
-    type: "leave",
+    kind: "leave",
     message: "Leave request approved",
     actor: "James Okonkwo",
     initials: "JO",
-    time: "4 hours ago",
+    timestamp: "4 hours ago",
   },
   {
     id: "3",
-    type: "attendance",
-    message: "Late check-in flagged",
+    kind: "attendance",
+    message: "Late check-in recorded",
     actor: "Priya Sharma",
     initials: "PS",
-    time: "5 hours ago",
+    timestamp: "5 hours ago",
   },
   {
     id: "4",
-    type: "document",
+    kind: "document",
     message: "Contract document uploaded",
     actor: "Carlos Mendez",
     initials: "CM",
-    time: "Yesterday",
+    timestamp: "Yesterday",
   },
   {
     id: "5",
-    type: "alert",
+    kind: "alert",
     message: "Probation period ending soon",
     actor: "Lena Fischer",
     initials: "LF",
-    time: "Yesterday",
+    timestamp: "Yesterday",
+  },
+  {
+    id: "6",
+    kind: "hire",
+    message: "Offer letter sent",
+    actor: "Kwame Asante",
+    initials: "KA",
+    timestamp: "2 days ago",
   },
 ]
 
-const typeConfig: Record<ActivityType, { icon: React.ElementType; bg: string; color: string; avatarBg: string }> = {
-  hire:       { icon: UserPlus,      bg: "bg-primary/15",       color: "text-primary",       avatarBg: "bg-primary/20 text-primary" },
-  leave:      { icon: CalendarCheck, bg: "bg-emerald-500/15",   color: "text-emerald-400",   avatarBg: "bg-emerald-500/20 text-emerald-400" },
-  attendance: { icon: Clock,         bg: "bg-amber-500/15",     color: "text-amber-400",     avatarBg: "bg-amber-500/20 text-amber-400" },
-  document:   { icon: FileText,      bg: "bg-violet-500/15",    color: "text-violet-400",    avatarBg: "bg-violet-500/20 text-violet-400" },
-  alert:      { icon: AlertCircle,   bg: "bg-rose-500/15",      color: "text-rose-400",      avatarBg: "bg-rose-500/20 text-rose-400" },
+const kindIconMap: Record<ActivityKind, LucideIcon> = {
+  hire:       UserPlus,
+  leave:      CalendarCheck,
+  attendance: Clock,
+  document:   FileText,
+  alert:      AlertCircle,
 }
 
 export interface ActivityFeedProps {
@@ -80,55 +97,55 @@ export interface ActivityFeedProps {
 
 export function ActivityFeed({ className }: ActivityFeedProps) {
   return (
-    <section className={className}>
+    <section aria-label="Recent activity" className={className}>
       <Card className="h-full">
         <CardHeader>
           <CardTitle>Recent Activity</CardTitle>
           <CardDescription>Latest events across the platform</CardDescription>
         </CardHeader>
 
-        <CardContent className="px-0 pb-0">
-          <ul className="divide-y divide-border">
-            {activities.map((item) => {
-              const cfg = typeConfig[item.type]
-              const Icon = cfg.icon
+        <CardContent className="px-0">
+          <ul role="list">
+            {activities.map((item, idx) => {
+              const Icon = kindIconMap[item.kind]
               return (
-                <li key={item.id} className="flex items-start gap-3 px-6 py-3.5">
-                  {/* Type icon */}
-                  <div className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg ${cfg.bg}`}>
-                    <Icon className={`size-3.5 ${cfg.color}`} />
-                  </div>
-
-                  {/* Message + actor */}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-foreground">
-                      {item.message}
-                    </p>
-                    <div className="mt-0.5 flex items-center gap-1.5">
-                      <Avatar size="sm" className="size-4">
-                        <AvatarFallback className={`text-[8px] font-bold ${cfg.avatarBg}`}>
-                          {item.initials}
-                        </AvatarFallback>
-                      </Avatar>
-                      <p className="text-xs text-muted-foreground">{item.actor}</p>
+                <li key={item.id}>
+                  {idx > 0 && <Separator />}
+                  <div className="flex items-start gap-3 px-6 py-3.5">
+                    {/* Activity-type icon */}
+                    <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                      <Icon className="size-3.5 text-muted-foreground" aria-hidden />
                     </div>
-                  </div>
 
-                  <span className="shrink-0 text-xs text-muted-foreground">
-                    {item.time}
-                  </span>
+                    {/* Text */}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm text-foreground">{item.message}</p>
+                      <div className="mt-0.5 flex items-center gap-1.5">
+                        <Avatar size="sm" className="size-4">
+                          <AvatarFallback className="text-[8px]">
+                            {item.initials}
+                          </AvatarFallback>
+                        </Avatar>
+                        <p className="text-xs text-muted-foreground">{item.actor}</p>
+                      </div>
+                    </div>
+
+                    {/* Time */}
+                    <time className="shrink-0 text-xs text-muted-foreground">
+                      {item.timestamp}
+                    </time>
+                  </div>
                 </li>
               )
             })}
           </ul>
-
-          {/* Footer CTA */}
-          <div className="border-t border-border px-6 py-3">
-            <Button variant="link" size="sm" className="h-auto p-0 text-primary">
-              View all activity →
-            </Button>
-          </div>
         </CardContent>
+
+        <CardFooter className="border-t border-border">
+          <Button variant="link" size="sm" className="h-auto p-0">
+            View all activity
+          </Button>
+        </CardFooter>
       </Card>
     </section>
   )
