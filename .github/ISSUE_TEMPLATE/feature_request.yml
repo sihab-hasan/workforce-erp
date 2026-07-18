@@ -1,6 +1,5 @@
 name: Feature request
 description: Propose a new capability or improvement
-title: "[Feature]: "
 labels:
   - enhancement
 body:
@@ -11,10 +10,10 @@ body:
       description: Select where the feature belongs.
       options:
         - Public website (apps/web)
-        - Customer portal (apps/portal)
+        - ERP portal (apps/portal)
         - Administration app (apps/admin)
         - Laravel API (apps/api)
-        - Shared package
+        - Shared package (packages/*)
         - CI or GitHub Actions
         - Documentation
         - Infrastructure
@@ -23,34 +22,61 @@ body:
     validations:
       required: true
 
+  - type: markdown
+    attributes:
+      value: |
+        ## Feature request
+
   - type: textarea
     id: requested-feature
     attributes:
-      label: Feature request
+      label: Description
       description: Describe what should be built, why it is needed, and the expected behavior.
       placeholder: Build ... so that users can ...
     validations:
       required: true
 
+  - type: markdown
+    attributes:
+      value: |
+        ## Contributor work location
+
   - type: input
     id: work-location
     attributes:
-      label: Contributor work location
-      description: Provide the primary app, directory, or file where the work belongs.
+      label: Primary location
+      description: Specify the primary app, package, directory, or file where the contributor must work.
       placeholder: apps/web/src/modules/home/components/HeroSection.tsx
     validations:
       required: true
 
+  - type: markdown
+    attributes:
+      value: |
+        ## Related files
+
+  - type: textarea
+    id: related-files
+    attributes:
+      label: Files or directories
+      description: List relevant files or directories if known. This field may be left empty.
+      placeholder: |
+        apps/web/src/modules/home/components/HeroSection.tsx
+        apps/web/src/modules/home/pages/HomePage.tsx
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Acceptance criteria
+
   - type: textarea
     id: acceptance-criteria
     attributes:
-      label: Acceptance criteria
-      description: List the testable requirements for completion.
+      label: Requirements
+      description: List the testable requirements if known. This field may be left empty.
       placeholder: |
         - ...
         - ...
-    validations:
-      required: true
 
   - type: checkboxes
     id: confirmation
