@@ -1,11 +1,20 @@
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@workforce-erp/ui/components/card"
+import { Badge } from "@workforce-erp/ui/components/badge"
+
 const departments = [
-  { name: "Engineering",  count: 52, color: "bg-indigo-500" },
-  { name: "Operations",   count: 44, color: "bg-violet-500" },
-  { name: "Sales",        count: 38, color: "bg-emerald-500" },
-  { name: "HR & Admin",   count: 27, color: "bg-amber-400" },
-  { name: "Finance",      count: 21, color: "bg-rose-500" },
-  { name: "Marketing",    count: 18, color: "bg-cyan-500" },
-  { name: "Others",       count: 48, color: "bg-slate-400" },
+  { name: "Engineering",  count: 52, color: "bg-primary",      dot: "bg-primary" },
+  { name: "Operations",   count: 44, color: "bg-violet-500",   dot: "bg-violet-500" },
+  { name: "Sales",        count: 38, color: "bg-emerald-500",  dot: "bg-emerald-500" },
+  { name: "HR & Admin",   count: 27, color: "bg-amber-400",    dot: "bg-amber-400" },
+  { name: "Finance",      count: 21, color: "bg-rose-500",     dot: "bg-rose-500" },
+  { name: "Marketing",    count: 18, color: "bg-cyan-500",     dot: "bg-cyan-500" },
+  { name: "Others",       count: 48, color: "bg-muted-foreground", dot: "bg-muted-foreground" },
 ]
 
 const total = departments.reduce((sum, d) => sum + d.count, 0)
@@ -17,51 +26,50 @@ export interface EmployeeStatisticsProps {
 export function EmployeeStatistics({ className }: EmployeeStatisticsProps) {
   return (
     <section className={className}>
-      <div className="rounded-2xl border border-slate-200/60 bg-white dark:border-slate-800/60 dark:bg-slate-900">
-        <div className="border-b border-slate-100 px-5 py-4 dark:border-slate-800">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
-            Employees by Department
-          </h2>
-          <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">
+      <Card className="h-full">
+        <CardHeader>
+          <CardTitle>Employees by Department</CardTitle>
+          <CardDescription>
             {total} total across {departments.length} departments
-          </p>
-        </div>
+          </CardDescription>
+        </CardHeader>
 
-        {/* stacked bar at top */}
-        <div className="flex h-2 overflow-hidden rounded-none">
-          {departments.map((dept) => (
-            <div
-              key={dept.name}
-              className={`${dept.color} transition-all duration-700`}
-              style={{ width: `${(dept.count / total) * 100}%` }}
-            />
-          ))}
-        </div>
-
-        <ul className="divide-y divide-slate-100 dark:divide-slate-800">
-          {departments.map((dept) => {
-            const pct = Math.round((dept.count / total) * 100)
-            return (
-              <li
+        <CardContent className="px-0 pb-0">
+          {/* stacked bar */}
+          <div className="flex h-2 overflow-hidden mx-6 rounded-full mb-2">
+            {departments.map((dept) => (
+              <div
                 key={dept.name}
-                className="flex items-center gap-3 px-5 py-2.5"
-              >
-                <span className={`size-2 shrink-0 rounded-full ${dept.color}`} />
-                <span className="flex-1 text-sm text-slate-700 dark:text-slate-300">
-                  {dept.name}
-                </span>
-                <span className="text-xs text-slate-400 dark:text-slate-500">
-                  {pct}%
-                </span>
-                <span className="w-8 text-right text-sm font-semibold text-slate-900 dark:text-white">
-                  {dept.count}
-                </span>
-              </li>
-            )
-          })}
-        </ul>
-      </div>
+                className={`${dept.color} transition-all duration-700`}
+                style={{ width: `${(dept.count / total) * 100}%` }}
+              />
+            ))}
+          </div>
+
+          <ul className="divide-y divide-border">
+            {departments.map((dept) => {
+              const pct = Math.round((dept.count / total) * 100)
+              return (
+                <li
+                  key={dept.name}
+                  className="flex items-center gap-3 px-6 py-2.5"
+                >
+                  <span className={`size-2 shrink-0 rounded-full ${dept.dot}`} />
+                  <span className="flex-1 text-sm text-foreground">
+                    {dept.name}
+                  </span>
+                  <Badge variant="secondary" className="text-[10px] tabular-nums">
+                    {pct}%
+                  </Badge>
+                  <span className="w-8 text-right text-sm font-semibold text-foreground tabular-nums">
+                    {dept.count}
+                  </span>
+                </li>
+              )
+            })}
+          </ul>
+        </CardContent>
+      </Card>
     </section>
   )
 }
-
