@@ -4,8 +4,6 @@ import { Link } from "react-router-dom"
 
 import { apiClient } from "@/lib/api"
 
-import { Container } from "./container"
-
 const announcements = [
   "🚀 Workforce ERP is now available with AI-powered business insights.",
   "⚡ Automate your business workflows with Workforce ERP.",
@@ -56,7 +54,7 @@ export default function SiteTopbar() {
 
   return (
     <div className="w-full overflow-hidden border-b border-primary-foreground/15 bg-primary text-primary-foreground">
-      <Container className="flex h-10 items-center gap-3">
+      <div className="flex h-10 items-center gap-3 px-5 sm:px-8 lg:px-12">
         <span className="shrink-0 rounded-full bg-primary-foreground/15 px-2 py-0.5 text-[0.6875rem] font-semibold tracking-wider uppercase">
           New
         </span>
@@ -79,7 +77,7 @@ export default function SiteTopbar() {
           <span className="sm:hidden">More</span>
           <ArrowRight aria-hidden="true" className="size-4" />
         </Link>
-      </Container>
+      </div>
     </div>
   )
 }

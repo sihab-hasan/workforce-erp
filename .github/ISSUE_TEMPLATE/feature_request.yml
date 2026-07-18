@@ -22,57 +22,37 @@ body:
     validations:
       required: true
 
-  - type: markdown
-    attributes:
-      value: |
-        ## Feature request
-
   - type: textarea
     id: requested-feature
     attributes:
-      label: Description
+      label: Feature request
       description: Describe what should be built, why it is needed, and the expected behavior.
       placeholder: Build ... so that users can ...
     validations:
       required: true
 
-  - type: markdown
-    attributes:
-      value: |
-        ## Contributor work location
-
   - type: input
     id: work-location
     attributes:
-      label: Primary location
+      label: Contributor work location
       description: Specify the primary app, package, directory, or file where the contributor must work.
       placeholder: apps/web/src/modules/home/components/HeroSection.tsx
     validations:
       required: true
 
-  - type: markdown
-    attributes:
-      value: |
-        ## Related files
-
   - type: textarea
     id: related-files
     attributes:
-      label: Files or directories
+      label: Related files
       description: List relevant files or directories if known. This field may be left empty.
       placeholder: |
         apps/web/src/modules/home/components/HeroSection.tsx
         apps/web/src/modules/home/pages/HomePage.tsx
 
-  - type: markdown
-    attributes:
-      value: |
-        ## Acceptance criteria
-
   - type: textarea
     id: acceptance-criteria
     attributes:
-      label: Requirements
+      label: Acceptance criteria
       description: List the testable requirements if known. This field may be left empty.
       placeholder: |
         - ...
