@@ -1,4 +1,16 @@
 import { UserPlus, CalendarCheck, Clock, FileText, AlertCircle } from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@workforce-erp/ui/components/card"
+import {
+  Avatar,
+  AvatarFallback,
+} from "@workforce-erp/ui/components/avatar"
+import { Button } from "@workforce-erp/ui/components/button"
 
 type ActivityType = "hire" | "leave" | "attendance" | "document" | "alert"
 
@@ -54,12 +66,12 @@ const activities: ActivityItem[] = [
   },
 ]
 
-const typeConfig: Record<ActivityType, { icon: React.ElementType; bg: string; color: string }> = {
-  hire:       { icon: UserPlus,      bg: "bg-indigo-100 dark:bg-indigo-950", color: "text-indigo-600 dark:text-indigo-400" },
-  leave:      { icon: CalendarCheck, bg: "bg-emerald-100 dark:bg-emerald-950", color: "text-emerald-600 dark:text-emerald-400" },
-  attendance: { icon: Clock,         bg: "bg-amber-100 dark:bg-amber-950",   color: "text-amber-600 dark:text-amber-400" },
-  document:   { icon: FileText,      bg: "bg-violet-100 dark:bg-violet-950", color: "text-violet-600 dark:text-violet-400" },
-  alert:      { icon: AlertCircle,   bg: "bg-rose-100 dark:bg-rose-950",     color: "text-rose-500 dark:text-rose-400" },
+const typeConfig: Record<ActivityType, { icon: React.ElementType; bg: string; color: string; avatarBg: string }> = {
+  hire:       { icon: UserPlus,      bg: "bg-primary/15",       color: "text-primary",       avatarBg: "bg-primary/20 text-primary" },
+  leave:      { icon: CalendarCheck, bg: "bg-emerald-500/15",   color: "text-emerald-400",   avatarBg: "bg-emerald-500/20 text-emerald-400" },
+  attendance: { icon: Clock,         bg: "bg-amber-500/15",     color: "text-amber-400",     avatarBg: "bg-amber-500/20 text-amber-400" },
+  document:   { icon: FileText,      bg: "bg-violet-500/15",    color: "text-violet-400",    avatarBg: "bg-violet-500/20 text-violet-400" },
+  alert:      { icon: AlertCircle,   bg: "bg-rose-500/15",      color: "text-rose-400",      avatarBg: "bg-rose-500/20 text-rose-400" },
 }
 
 export interface ActivityFeedProps {
@@ -69,49 +81,55 @@ export interface ActivityFeedProps {
 export function ActivityFeed({ className }: ActivityFeedProps) {
   return (
     <section className={className}>
-      <div className="rounded-2xl border border-slate-200/60 bg-white dark:border-slate-800/60 dark:bg-slate-900">
-        <div className="border-b border-slate-100 px-5 py-4 dark:border-slate-800">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
-            Recent Activity
-          </h2>
-          <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">
-            Latest events across the platform
-          </p>
-        </div>
-        <ul className="divide-y divide-slate-100 dark:divide-slate-800">
-          {activities.map((item) => {
-            const cfg = typeConfig[item.type]
-            const Icon = cfg.icon
-            return (
-              <li key={item.id} className="flex items-start gap-3 px-5 py-3.5">
-                <div className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg ${cfg.bg}`}>
-                  <Icon className={`size-3.5 ${cfg.color}`} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                    {item.message}
-                  </p>
-                  <p className="text-xs text-slate-400 dark:text-slate-500">
-                    {item.actor}
-                  </p>
-                </div>
-                <span className="shrink-0 text-xs text-slate-400 dark:text-slate-500">
-                  {item.time}
-                </span>
-              </li>
-            )
-          })}
-        </ul>
-        <div className="border-t border-slate-100 px-5 py-3 dark:border-slate-800">
-          <button
-            type="button"
-            className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
-          >
-            View all activity →
-          </button>
-        </div>
-      </div>
+      <Card className="h-full">
+        <CardHeader>
+          <CardTitle>Recent Activity</CardTitle>
+          <CardDescription>Latest events across the platform</CardDescription>
+        </CardHeader>
+
+        <CardContent className="px-0 pb-0">
+          <ul className="divide-y divide-border">
+            {activities.map((item) => {
+              const cfg = typeConfig[item.type]
+              const Icon = cfg.icon
+              return (
+                <li key={item.id} className="flex items-start gap-3 px-6 py-3.5">
+                  {/* Type icon */}
+                  <div className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg ${cfg.bg}`}>
+                    <Icon className={`size-3.5 ${cfg.color}`} />
+                  </div>
+
+                  {/* Message + actor */}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-foreground">
+                      {item.message}
+                    </p>
+                    <div className="mt-0.5 flex items-center gap-1.5">
+                      <Avatar size="sm" className="size-4">
+                        <AvatarFallback className={`text-[8px] font-bold ${cfg.avatarBg}`}>
+                          {item.initials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <p className="text-xs text-muted-foreground">{item.actor}</p>
+                    </div>
+                  </div>
+
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    {item.time}
+                  </span>
+                </li>
+              )
+            })}
+          </ul>
+
+          {/* Footer CTA */}
+          <div className="border-t border-border px-6 py-3">
+            <Button variant="link" size="sm" className="h-auto p-0 text-primary">
+              View all activity →
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </section>
   )
 }
-

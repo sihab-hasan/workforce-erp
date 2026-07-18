@@ -1,8 +1,47 @@
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@workforce-erp/ui/components/card"
+import {
+  Progress,
+  ProgressIndicator,
+  ProgressLabel,
+  ProgressTrack,
+  ProgressValue,
+} from "@workforce-erp/ui/components/progress"
+
 const breakdown = [
-  { label: "Present",  count: 198, total: 248, color: "bg-emerald-500", light: "bg-emerald-100 dark:bg-emerald-950", text: "text-emerald-700 dark:text-emerald-400" },
-  { label: "Late",     count: 16,  total: 248, color: "bg-amber-400",   light: "bg-amber-100 dark:bg-amber-950",   text: "text-amber-700 dark:text-amber-400" },
-  { label: "Absent",   count: 22,  total: 248, color: "bg-rose-500",    light: "bg-rose-100 dark:bg-rose-950",     text: "text-rose-700 dark:text-rose-400" },
-  { label: "On Leave", count: 12,  total: 248, color: "bg-violet-500",  light: "bg-violet-100 dark:bg-violet-950", text: "text-violet-700 dark:text-violet-400" },
+  {
+    label: "Present",
+    count: 198,
+    total: 248,
+    indicatorClass: "bg-emerald-500",
+    labelClass: "text-emerald-400",
+  },
+  {
+    label: "Late",
+    count: 16,
+    total: 248,
+    indicatorClass: "bg-amber-400",
+    labelClass: "text-amber-400",
+  },
+  {
+    label: "Absent",
+    count: 22,
+    total: 248,
+    indicatorClass: "bg-rose-500",
+    labelClass: "text-rose-400",
+  },
+  {
+    label: "On Leave",
+    count: 12,
+    total: 248,
+    indicatorClass: "bg-violet-500",
+    labelClass: "text-violet-400",
+  },
 ]
 
 export interface AttendanceSummaryProps {
@@ -12,55 +51,47 @@ export interface AttendanceSummaryProps {
 export function AttendanceSummary({ className }: AttendanceSummaryProps) {
   return (
     <section className={className}>
-      <div className="rounded-2xl border border-slate-200/60 bg-white dark:border-slate-800/60 dark:bg-slate-900">
-        <div className="border-b border-slate-100 px-5 py-4 dark:border-slate-800">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
-            Today's Attendance
-          </h2>
-          <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">
-            Out of 248 total employees
-          </p>
-        </div>
+      <Card className="h-full">
+        <CardHeader>
+          <CardTitle>Today's Attendance</CardTitle>
+          <CardDescription>Out of 248 total employees</CardDescription>
+        </CardHeader>
 
-        <div className="space-y-4 px-5 py-4">
+        <CardContent className="space-y-5">
           {breakdown.map((item) => {
             const pct = Math.round((item.count / item.total) * 100)
             return (
-              <div key={item.label}>
-                <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
-                    {item.label}
+              /**
+               * Progress wraps children AND auto-appends a ProgressTrack+ProgressIndicator
+               * when no ProgressTrack is found among children. To avoid the double-bar,
+               * we compose fully: supply our own ProgressTrack inside the Progress root
+               * and suppress the default one by always providing children.
+               */
+              <Progress key={item.label} value={pct} className="gap-1.5">
+                <ProgressLabel className={`text-xs font-medium ${item.labelClass}`}>
+                  {item.label}
+                </ProgressLabel>
+                <ProgressValue className={`text-xs font-bold tabular-nums ${item.labelClass}`}>
+                  {item.count}
+                  <span className="ml-1 font-normal text-muted-foreground">
+                    ({pct}%)
                   </span>
-                  <div className="flex items-center gap-2">
-                    <span className={`rounded-md px-1.5 py-0.5 text-xs font-bold ${item.light} ${item.text}`}>
-                      {item.count}
-                    </span>
-                    <span className="text-xs text-slate-400">{pct}%</span>
-                  </div>
-                </div>
-                {/* animated progress bar */}
-                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                  <div
-                    className={`h-full rounded-full ${item.color} transition-all duration-700 ease-out`}
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-              </div>
+                </ProgressValue>
+                {/* Full-width track below the label row */}
+                <ProgressTrack className="h-2 w-full bg-muted/50">
+                  <ProgressIndicator className={item.indicatorClass} />
+                </ProgressTrack>
+              </Progress>
             )
           })}
-        </div>
+        </CardContent>
 
         {/* Summary footer */}
-        <div className="flex items-center justify-between border-t border-slate-100 px-5 py-3 dark:border-slate-800">
-          <p className="text-xs text-slate-400 dark:text-slate-500">
-            Overall presence rate
-          </p>
-          <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-            94.2%
-          </p>
+        <div className="flex items-center justify-between border-t border-border px-6 py-3">
+          <p className="text-xs text-muted-foreground">Overall presence rate</p>
+          <p className="text-sm font-bold text-emerald-400">94.2%</p>
         </div>
-      </div>
+      </Card>
     </section>
   )
 }
-

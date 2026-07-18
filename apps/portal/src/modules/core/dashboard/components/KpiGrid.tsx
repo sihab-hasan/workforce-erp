@@ -1,4 +1,12 @@
 import { Users, Clock, CalendarOff, DollarSign, TrendingUp, TrendingDown } from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@workforce-erp/ui/components/card"
+import { Badge } from "@workforce-erp/ui/components/badge"
 
 interface KpiCard {
   label: string
@@ -17,8 +25,8 @@ const kpiData: KpiCard[] = [
     change: "+12 this month",
     trend: "up",
     icon: Users,
-    iconBg: "bg-indigo-100 dark:bg-indigo-950",
-    iconColor: "text-indigo-600 dark:text-indigo-400",
+    iconBg: "bg-primary/15",
+    iconColor: "text-primary",
   },
   {
     label: "Attendance Rate",
@@ -26,8 +34,8 @@ const kpiData: KpiCard[] = [
     change: "+1.8% vs last week",
     trend: "up",
     icon: Clock,
-    iconBg: "bg-emerald-100 dark:bg-emerald-950",
-    iconColor: "text-emerald-600 dark:text-emerald-400",
+    iconBg: "bg-emerald-500/15",
+    iconColor: "text-emerald-400",
   },
   {
     label: "Pending Leaves",
@@ -35,8 +43,8 @@ const kpiData: KpiCard[] = [
     change: "−5 from last week",
     trend: "down",
     icon: CalendarOff,
-    iconBg: "bg-amber-100 dark:bg-amber-950",
-    iconColor: "text-amber-600 dark:text-amber-400",
+    iconBg: "bg-amber-500/15",
+    iconColor: "text-amber-400",
   },
   {
     label: "Active Payroll",
@@ -44,8 +52,8 @@ const kpiData: KpiCard[] = [
     change: "Current month cycle",
     trend: "neutral",
     icon: DollarSign,
-    iconBg: "bg-violet-100 dark:bg-violet-950",
-    iconColor: "text-violet-600 dark:text-violet-400",
+    iconBg: "bg-violet-500/15",
+    iconColor: "text-violet-400",
   },
 ]
 
@@ -60,48 +68,49 @@ export function KpiGrid({ className }: KpiGridProps) {
         {kpiData.map((kpi) => {
           const Icon = kpi.icon
           return (
-            <div
-              key={kpi.label}
-              className="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-800/60 dark:bg-slate-900"
-            >
-              <div className="flex items-start justify-between">
-                <div className={`flex size-10 items-center justify-center rounded-xl ${kpi.iconBg}`}>
-                  <Icon className={`size-5 ${kpi.iconColor}`} />
+            <Card key={kpi.label} className="transition-shadow hover:shadow-lg hover:shadow-primary/5">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className={`flex size-10 items-center justify-center rounded-xl ${kpi.iconBg}`}>
+                    <Icon className={`size-5 ${kpi.iconColor}`} />
+                  </div>
+                  {kpi.trend !== "neutral" && (
+                    <Badge
+                      variant="secondary"
+                      className={`gap-1 ${
+                        kpi.trend === "up"
+                          ? "bg-emerald-500/15 text-emerald-400"
+                          : "bg-rose-500/15 text-rose-400"
+                      }`}
+                    >
+                      {kpi.trend === "up"
+                        ? <TrendingUp className="size-3" />
+                        : <TrendingDown className="size-3" />}
+                    </Badge>
+                  )}
                 </div>
-                {kpi.trend !== "neutral" && (
-                  <span className={`flex items-center gap-1 text-xs font-semibold ${
-                    kpi.trend === "up"
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-rose-500 dark:text-rose-400"
-                  }`}>
-                    {kpi.trend === "up"
-                      ? <TrendingUp className="size-3.5" />
-                      : <TrendingDown className="size-3.5" />}
-                  </span>
-                )}
-              </div>
-              <div className="mt-4">
-                <p className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                <CardTitle className="mt-3 text-2xl font-bold tracking-tight text-foreground">
                   {kpi.value}
-                </p>
-                <p className="mt-0.5 text-sm font-medium text-slate-500 dark:text-slate-400">
+                </CardTitle>
+                <CardDescription className="font-medium">
                   {kpi.label}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className={`text-xs font-medium ${
+                  kpi.trend === "up"
+                    ? "text-emerald-400"
+                    : kpi.trend === "down"
+                      ? "text-rose-400"
+                      : "text-muted-foreground"
+                }`}>
+                  {kpi.change}
                 </p>
-              </div>
-              <p className={`mt-3 text-xs font-medium ${
-                kpi.trend === "up"
-                  ? "text-emerald-600 dark:text-emerald-400"
-                  : kpi.trend === "down"
-                    ? "text-rose-500 dark:text-rose-400"
-                    : "text-slate-400 dark:text-slate-500"
-              }`}>
-                {kpi.change}
-              </p>
-            </div>
+              </CardContent>
+            </Card>
           )
         })}
       </div>
     </section>
   )
 }
-
