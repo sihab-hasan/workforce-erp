@@ -19,6 +19,13 @@ Development:
 pnpm dev
 ```
 
+Full local Docker stack:
+
+```bash
+pnpm run docker:up
+pnpm run docker:down
+```
+
 Lint:
 
 ```bash
@@ -81,8 +88,10 @@ pnpm --filter @workforce-erp/api test
 pnpm --filter @workforce-erp/api build
 ```
 
-The API development server listens on `http://127.0.0.1:8000`. The frontend Vite
-applications proxy `/api` requests to this address.
+`pnpm dev` runs the Turborepo development servers directly. `pnpm run up`
+builds and starts the complete container stack behind Nginx at
+`http://localhost:3000`; `pnpm run down` stops it. The container network keeps
+application, PostgreSQL, and Redis ports private.
 
 ## Safety rules
 

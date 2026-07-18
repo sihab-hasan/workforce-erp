@@ -10,7 +10,6 @@ import {
   mobilePrimaryNavigationItems,
   siteRoutes,
 } from "@/app/config/site-map"
-import { portalLinks } from "@/app/config/external-links"
 
 const mobileMenuLinkClassName = ({ isActive }: { isActive: boolean }) =>
   cn(
@@ -166,7 +165,7 @@ export function MobileMenu() {
                 className="h-11 w-full"
                 render={
                   <a
-                    href={portalLinks.login}
+                    href="/portal/auth/login"
                     onClick={() => setIsOpen(false)}
                   />
                 }

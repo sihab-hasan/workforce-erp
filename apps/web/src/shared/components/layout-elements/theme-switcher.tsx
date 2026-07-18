@@ -1,6 +1,6 @@
 import { Moon, Sun } from "lucide-react"
 
-import { useTheme } from "@/app/providers/ThemeProvider"
+import { useTheme } from "@workforce-erp/ui/providers/theme-provider"
 import { Button } from "@workforce-erp/ui/components/button"
 
 type ThemeSwitcherProps = {
@@ -8,8 +8,8 @@ type ThemeSwitcherProps = {
 }
 
 export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
-  const { theme, setTheme } = useTheme()
-  const isDark = theme === "dark"
+  const { resolvedTheme, setTheme } = useTheme()
+  const isDark = resolvedTheme === "dark"
   const nextTheme = isDark ? "light" : "dark"
 
   return (

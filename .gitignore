@@ -15,6 +15,7 @@ dist-ssr
 # env files (can opt-in for committing if needed)
 .env*
 !apps/api/.env.example
+!infra/compose/.env.example
 
 # turbo
 .turbo
@@ -38,3 +39,12 @@ dist-ssr
 skills-lock.json
 /skills
 design-guide.md
+
+compose/
+docker/
+kubernetes/
+monitoring/
+redis/
+terraform/
+nginx/
+.dockerignore

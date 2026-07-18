@@ -1,8 +1,13 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$Ports = @(5173, 5174, 5175, 8000)
+$Ports = @(3000, 5173, 5174, 5175, 8000)
 $Stopped = @()
+
+$RootDir = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+$ComposeBase = Join-Path $RootDir "infra\compose\compose.yml"
+$ComposeLocal = Join-Path $RootDir "infra\compose\compose.local.yml"
+docker compose -f $ComposeBase -f $ComposeLocal down --remove-orphans
 
 foreach ($Port in $Ports) {
   $Connections = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
@@ -28,5 +33,5 @@ foreach ($Port in $Ports) {
 }
 
 if ($Stopped.Count -eq 0) {
-  Write-Host "No dev servers were listening on ports 5173-5175 or 8000."
+  Write-Host "No dev servers were listening on ports 3000, 5173, 5174, 5175, or 8000."
 }

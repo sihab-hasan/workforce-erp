@@ -11,7 +11,7 @@ export function PortalRouter() {
   const FallbackPage = fallbackPortalRoute.component
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         {portalRoutes.map((route) => {
           const Page = route.component

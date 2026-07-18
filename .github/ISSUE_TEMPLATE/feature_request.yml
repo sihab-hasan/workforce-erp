@@ -4,16 +4,11 @@ title: "[Feature]: "
 labels:
   - enhancement
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Describe the problem first so the proposal can be evaluated against user needs, architecture, and delivery impact.
-
   - type: dropdown
     id: affected-area
     attributes:
       label: Affected area
-      description: Select the primary application or repository area for this proposal.
+      description: Select where the feature belongs.
       options:
         - Public website (apps/web)
         - Customer portal (apps/portal)
@@ -29,38 +24,33 @@ body:
       required: true
 
   - type: textarea
-    id: problem
+    id: requested-feature
     attributes:
-      label: Problem or opportunity
-      description: Explain the user or business need without prescribing the implementation.
-      placeholder: Who has this problem, what are they trying to do, and why does it matter?
+      label: Feature request
+      description: Describe what should be built, why it is needed, and the expected behavior.
+      placeholder: Build ... so that users can ...
+    validations:
+      required: true
+
+  - type: input
+    id: work-location
+    attributes:
+      label: Contributor work location
+      description: Provide the primary app, directory, or file where the work belongs.
+      placeholder: apps/web/src/modules/home/components/HeroSection.tsx
     validations:
       required: true
 
   - type: textarea
-    id: proposed-outcome
+    id: acceptance-criteria
     attributes:
-      label: Proposed outcome
-      description: Describe the desired behavior and acceptance criteria.
+      label: Acceptance criteria
+      description: List the testable requirements for completion.
       placeholder: |
-        Users should be able to ...
-
-        Acceptance criteria:
+        - ...
         - ...
     validations:
       required: true
-
-  - type: textarea
-    id: alternatives
-    attributes:
-      label: Alternatives considered
-      description: Describe current workarounds or other approaches you considered.
-
-  - type: textarea
-    id: impact
-    attributes:
-      label: Additional impact or context
-      description: Note permissions, API, data, migration, privacy, rollout, or compatibility considerations when known.
 
   - type: checkboxes
     id: confirmation
@@ -68,6 +58,4 @@ body:
       label: Confirmation
       options:
         - label: I searched existing issues and did not find a duplicate request.
-          required: true
-        - label: I described the need and expected outcome, not only an implementation preference.
           required: true
