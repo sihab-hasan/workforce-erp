@@ -57,7 +57,7 @@ export function PortalSidebar({ currentPath, routes }: PortalSidebarProps) {
             <span className="text-xs font-bold tracking-widest text-primary uppercase">
               Workforce
             </span>
-            <span className="text-sm font-semibold text-foreground leading-none">
+            <span className="text-sm leading-none font-semibold text-foreground">
               ERP Portal
             </span>
           </div>
@@ -103,10 +103,10 @@ export function PortalSidebar({ currentPath, routes }: PortalSidebarProps) {
             U
           </div>
           <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
-            <span className="text-xs font-semibold text-foreground truncate">
+            <span className="truncate text-xs font-semibold text-foreground">
               Portal User
             </span>
-            <span className="text-[10px] text-muted-foreground truncate">
+            <span className="truncate text-[10px] text-muted-foreground">
               user@acme.com
             </span>
           </div>

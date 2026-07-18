@@ -39,9 +39,11 @@ export function MobileNavigation({
               >
                 <Icon className="size-4" />
               </span>
-              <span className={`text-[9px] font-semibold leading-tight ${
-                isActive ? "text-primary" : "text-muted-foreground"
-              }`}>
+              <span
+                className={`text-[9px] leading-tight font-semibold ${
+                  isActive ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
                 {route.title}
               </span>
             </Link>

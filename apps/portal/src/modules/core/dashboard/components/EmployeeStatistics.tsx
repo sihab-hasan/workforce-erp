@@ -8,13 +8,13 @@ import {
 import { Separator } from "@workforce-erp/ui/components/separator"
 
 const departments = [
-  { name: "Engineering",    count: 52 },
-  { name: "Operations",     count: 44 },
-  { name: "Sales",          count: 38 },
-  { name: "HR & Admin",     count: 27 },
-  { name: "Finance",        count: 21 },
-  { name: "Marketing",      count: 18 },
-  { name: "Others",         count: 48 },
+  { name: "Engineering", count: 52 },
+  { name: "Operations", count: 44 },
+  { name: "Sales", count: 38 },
+  { name: "HR & Admin", count: 27 },
+  { name: "Finance", count: 21 },
+  { name: "Marketing", count: 18 },
+  { name: "Others", count: 48 },
 ] as const
 
 const TOTAL = departments.reduce((sum, d) => sum + d.count, 0)
@@ -65,7 +65,7 @@ export function EmployeeStatistics({ className }: EmployeeStatisticsProps) {
 
                   {/* Count + pct */}
                   <div className="w-16 text-right">
-                    <span className="tabular-nums text-sm font-medium text-foreground">
+                    <span className="text-sm font-medium text-foreground tabular-nums">
                       {dept.count}
                     </span>
                     <span className="ml-1.5 text-xs text-muted-foreground">

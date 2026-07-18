@@ -31,18 +31,17 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6 pb-20 md:pb-0">
-
       {/* ── Page header ───────────────────────────────────────────────────── */}
       <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+          <p className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
             {formattedDate}
           </p>
           {/*
            * h2 is used here because h1 lives in PortalHeader for the page title.
            * This is a section-level heading within the main content area.
            */}
-          <h2 className="font-heading mt-1 text-xl font-semibold text-foreground sm:text-2xl">
+          <h2 className="mt-1 font-heading text-xl font-semibold text-foreground sm:text-2xl">
             {greetingText}, Team
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -70,7 +69,6 @@ export default function DashboardPage() {
         <ActivityFeed className="lg:col-span-2" />
         <QuickActions />
       </div>
-
     </div>
   )
 }

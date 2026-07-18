@@ -1,4 +1,12 @@
-import { Users, Clock, CalendarOff, DollarSign, TrendingUp, TrendingDown, Minus } from "lucide-react"
+import {
+  Users,
+  Clock,
+  CalendarOff,
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+} from "lucide-react"
 import {
   Card,
   CardContent,
@@ -79,15 +87,20 @@ export function KpiGrid({ className }: KpiGridProps) {
                 <CardTitle>{kpi.label}</CardTitle>
                 <CardAction>
                   <div className="rounded-xl bg-muted p-2">
-                    <Icon className="size-4 text-muted-foreground" aria-hidden />
+                    <Icon
+                      className="size-4 text-muted-foreground"
+                      aria-hidden
+                    />
                   </div>
                 </CardAction>
               </CardHeader>
               <CardContent>
-                <p className="font-heading text-3xl font-semibold tabular-nums text-foreground">
+                <p className="font-heading text-3xl font-semibold text-foreground tabular-nums">
                   {kpi.value}
                 </p>
-                <p className={`mt-2 flex items-center gap-1 text-xs ${trendColor}`}>
+                <p
+                  className={`mt-2 flex items-center gap-1 text-xs ${trendColor}`}
+                >
                   <TrendIcon className="size-3 shrink-0" aria-hidden />
                   <span>{kpi.change}</span>
                 </p>

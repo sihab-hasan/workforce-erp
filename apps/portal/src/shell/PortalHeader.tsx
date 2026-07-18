@@ -1,8 +1,5 @@
 import { Bell, Search, Settings } from "lucide-react"
-import {
-  Avatar,
-  AvatarFallback,
-} from "@workforce-erp/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workforce-erp/ui/components/avatar"
 import { Button } from "@workforce-erp/ui/components/button"
 import { Separator } from "@workforce-erp/ui/components/separator"
 import { SidebarTrigger } from "@workforce-erp/ui/components/sidebar"
@@ -26,7 +23,6 @@ export function PortalHeader({ section, title }: PortalHeaderProps) {
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur-md">
       <div className="flex items-center justify-between gap-2 px-3 py-2 md:gap-3 md:px-4 md:py-2.5">
-
         {/* Left — sidebar trigger + page identity */}
         <div className="flex min-w-0 flex-1 items-center gap-2 md:gap-3">
           <SidebarTrigger className="shrink-0 text-muted-foreground hover:text-foreground" />
@@ -81,7 +77,7 @@ export function PortalHeader({ section, title }: PortalHeaderProps) {
                   <Bell className="size-4" />
                 </Button>
                 <span className="absolute top-1.5 right-1.5 flex size-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping motion-reduce:animate-none rounded-full bg-primary opacity-75" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75 motion-reduce:animate-none" />
                   <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
                 </span>
               </div>
@@ -115,7 +111,7 @@ export function PortalHeader({ section, title }: PortalHeaderProps) {
                 className="rounded-full ring-2 ring-primary/40 transition-all hover:ring-primary"
               >
                 <Avatar size="sm">
-                  <AvatarFallback className="bg-primary text-primary-foreground font-bold text-xs">
+                  <AvatarFallback className="bg-primary text-xs font-bold text-primary-foreground">
                     U
                   </AvatarFallback>
                 </Avatar>

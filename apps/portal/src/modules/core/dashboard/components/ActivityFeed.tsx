@@ -14,10 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@workforce-erp/ui/components/card"
-import {
-  Avatar,
-  AvatarFallback,
-} from "@workforce-erp/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workforce-erp/ui/components/avatar"
 import { Button } from "@workforce-erp/ui/components/button"
 import { Separator } from "@workforce-erp/ui/components/separator"
 
@@ -84,11 +81,11 @@ const activities: ActivityItem[] = [
 ]
 
 const kindIconMap: Record<ActivityKind, LucideIcon> = {
-  hire:       UserPlus,
-  leave:      CalendarCheck,
+  hire: UserPlus,
+  leave: CalendarCheck,
   attendance: Clock,
-  document:   FileText,
-  alert:      AlertCircle,
+  document: FileText,
+  alert: AlertCircle,
 }
 
 export interface ActivityFeedProps {
@@ -114,7 +111,10 @@ export function ActivityFeed({ className }: ActivityFeedProps) {
                   <div className="flex items-start gap-3 px-6 py-3.5">
                     {/* Activity-type icon */}
                     <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                      <Icon className="size-3.5 text-muted-foreground" aria-hidden />
+                      <Icon
+                        className="size-3.5 text-muted-foreground"
+                        aria-hidden
+                      />
                     </div>
 
                     {/* Text */}
@@ -126,7 +126,9 @@ export function ActivityFeed({ className }: ActivityFeedProps) {
                             {item.initials}
                           </AvatarFallback>
                         </Avatar>
-                        <p className="text-xs text-muted-foreground">{item.actor}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {item.actor}
+                        </p>
                       </div>
                     </div>
 
