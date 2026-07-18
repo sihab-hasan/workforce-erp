@@ -84,7 +84,7 @@ export default function SiteNavbar() {
           </Button>
 
           <Button
-            variant="outline"
+            variant="secondary"
             size="lg"
             nativeButton={false}
             className="hidden px-4 xl:inline-flex"

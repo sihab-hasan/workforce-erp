@@ -129,6 +129,12 @@
   body {
     @apply bg-background text-foreground;
   }
+  button:not(:disabled) {
+    @apply cursor-pointer;
+  }
+  button:disabled {
+    @apply cursor-not-allowed;
+  }
   html {
     @apply font-sans;
   }

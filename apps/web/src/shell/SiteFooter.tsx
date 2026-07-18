@@ -34,7 +34,7 @@ export default function SiteFooter() {
               <ArrowUpRight data-icon="inline-end" />
             </Button>
             <Button
-              variant="outline"
+              variant="secondary"
               size="lg"
               nativeButton={false}
               className="h-11 px-5"
