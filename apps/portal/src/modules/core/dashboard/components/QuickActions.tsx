@@ -69,24 +69,24 @@ export interface QuickActionsProps {
 export function QuickActions({ className }: QuickActionsProps) {
   return (
     <section aria-label="Quick actions" className={className}>
-      <Card className="h-full">
+      <Card className="h-full rounded-lg shadow-sm">
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>
           <CardDescription>Shortcuts to common tasks</CardDescription>
         </CardHeader>
 
-        <CardContent className="grid grid-cols-2 gap-2">
+        <CardContent className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
           {actions.map((action) => {
             const Icon = action.icon
             return (
               <Button
                 key={action.label}
                 variant="outline"
-                className="h-auto flex-col items-start gap-2 py-4 text-left"
+                className="h-auto min-h-24 flex-col items-start justify-start gap-2 rounded-lg py-4 text-left"
                 render={<Link to={action.to} />}
               >
-                <Icon className="size-4 text-muted-foreground" aria-hidden />
-                <div className="space-y-0.5">
+                <Icon data-icon="inline-start" aria-hidden />
+                <div className="flex min-w-0 flex-col gap-0.5">
                   <p className="text-sm font-medium text-foreground">
                     {action.label}
                   </p>

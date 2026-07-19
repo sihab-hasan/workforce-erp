@@ -17,7 +17,8 @@ scroll-driven animation.
 - Prefer transforms and opacity for smooth rendering.
 - Never hide required content when JavaScript is unavailable.
 - Scroll reveals are reversible by default: they reveal on entry and unreveal
-  when leaving the viewport in either direction.
+  by playing the same animation backward when leaving the viewport in either
+  direction. This preserves the exact sequence, timing, and easing in reverse.
 
 ## React reveal
 
@@ -91,3 +92,7 @@ useGSAP(
   { scope }
 )
 ```
+
+The default `revealUnrevealToggleActions` value is
+`"play reverse play reverse"`. Keep `once` set to `false` when the animation
+must reveal on entry and unreveal as its exact backward sequence on exit.

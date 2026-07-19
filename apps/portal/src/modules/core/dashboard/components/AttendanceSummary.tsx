@@ -11,17 +11,8 @@ import {
   ProgressLabel,
   ProgressValue,
 } from "@workforce-erp/ui/components/progress"
+import { Badge } from "@workforce-erp/ui/components/badge"
 import { Separator } from "@workforce-erp/ui/components/separator"
-
-/*
- * Design note — Progress component limitation:
- * `packages/ui/src/components/progress.tsx` always renders an internal
- * <ProgressTrack><ProgressIndicator /></ProgressTrack> after its children.
- * Providing a custom ProgressTrack in children would create a double bar.
- * Therefore the overall attendance rate uses <Progress> with its default
- * primary-colored track, and the per-category breakdown uses plain <div>
- * elements to display distinct contextual styles without modifying packages/ui.
- */
 
 const TOTAL = 248
 
@@ -41,20 +32,19 @@ export interface AttendanceSummaryProps {
 export function AttendanceSummary({ className }: AttendanceSummaryProps) {
   return (
     <section aria-label="Attendance summary" className={className}>
-      <Card className="h-full">
+      <Card className="h-full rounded-lg shadow-sm">
         <CardHeader>
           <CardTitle>Today's Attendance</CardTitle>
           <CardDescription>
-            {TOTAL} employees tracked · placeholder data
+            {TOTAL} employees tracked across all branches
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="space-y-5">
-          {/* Overall rate — uses Progress from packages/ui */}
-          <div className="space-y-1.5">
-            <p className="text-xs font-medium text-muted-foreground">
+        <CardContent className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <Badge variant="secondary" className="w-fit">
               Overall rate
-            </p>
+            </Badge>
             <Progress value={OVERALL_RATE}>
               <ProgressLabel>Present or late</ProgressLabel>
               <ProgressValue />
@@ -63,8 +53,7 @@ export function AttendanceSummary({ className }: AttendanceSummaryProps) {
 
           <Separator />
 
-          {/* Per-category breakdown — raw divs; Progress can't support multi-color */}
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <p className="text-xs font-medium text-muted-foreground">
               Breakdown
             </p>
@@ -81,7 +70,6 @@ export function AttendanceSummary({ className }: AttendanceSummaryProps) {
                       <span className="ml-1 text-xs">({pct}%)</span>
                     </span>
                   </div>
-                  {/* Intentionally a plain div — Progress component limitation noted above */}
                   <div
                     role="progressbar"
                     aria-valuenow={pct}

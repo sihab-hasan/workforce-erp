@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@workforce-erp/ui/components/card"
 import { Avatar, AvatarFallback } from "@workforce-erp/ui/components/avatar"
+import { Badge } from "@workforce-erp/ui/components/badge"
 import { Button } from "@workforce-erp/ui/components/button"
 import { Separator } from "@workforce-erp/ui/components/separator"
 
@@ -95,7 +96,7 @@ export interface ActivityFeedProps {
 export function ActivityFeed({ className }: ActivityFeedProps) {
   return (
     <section aria-label="Recent activity" className={className}>
-      <Card className="h-full">
+      <Card className="h-full rounded-lg shadow-sm">
         <CardHeader>
           <CardTitle>Recent Activity</CardTitle>
           <CardDescription>Latest events across the platform</CardDescription>
@@ -109,15 +110,10 @@ export function ActivityFeed({ className }: ActivityFeedProps) {
                 <li key={item.id}>
                   {idx > 0 && <Separator />}
                   <div className="flex items-start gap-3 px-6 py-3.5">
-                    {/* Activity-type icon */}
-                    <div className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                      <Icon
-                        className="size-3.5 text-muted-foreground"
-                        aria-hidden
-                      />
+                    <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                      <Icon aria-hidden />
                     </div>
 
-                    {/* Text */}
                     <div className="min-w-0 flex-1">
                       <p className="text-sm text-foreground">{item.message}</p>
                       <div className="mt-0.5 flex items-center gap-1.5">
@@ -132,9 +128,8 @@ export function ActivityFeed({ className }: ActivityFeedProps) {
                       </div>
                     </div>
 
-                    {/* Time */}
-                    <time className="shrink-0 text-xs text-muted-foreground">
-                      {item.timestamp}
+                    <time className="shrink-0">
+                      <Badge variant="outline">{item.timestamp}</Badge>
                     </time>
                   </div>
                 </li>
