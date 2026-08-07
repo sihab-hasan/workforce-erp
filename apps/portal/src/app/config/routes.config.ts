@@ -28,7 +28,7 @@ import EmployeeDirectoryPage from "@/modules/people/employees/pages/EmployeeDire
 import LeaveRequestListPage from "@/modules/people/leave/pages/LeaveRequestListPage.tsx"
 import PayrollRunsPage from "@/modules/people/payroll/pages/PayrollRunsPage.tsx"
 import CandidateListPage from "@/modules/people/recruitment/pages/CandidateListPage.tsx"
-import ShiftRosterPage from "@/modules/people/shifts/pages/ShiftRosterPage.tsx"
+import TimesheetRosterPage from "@/modules/people/timesheet/pages/TimesheetRosterPage.tsx"
 
 type Icon = ComponentType<{ className?: string }>
 
@@ -100,13 +100,13 @@ export const portalRoutes: PortalRoute[] = [
     component: CandidateListPage,
   },
   {
-    key: "shifts",
-    title: "Shifts",
-    description: "Rosters, assignments, and schedules",
-    path: "/people/shifts",
+    key: "timesheet",
+    title: "Timesheet",
+    description: "Track hours, timesheets, and schedules",
+    path: "/people/timesheet",
     section: "People",
     icon: Clock3,
-    component: ShiftRosterPage,
+    component: TimesheetRosterPage,
   },
   {
     key: "payroll",
