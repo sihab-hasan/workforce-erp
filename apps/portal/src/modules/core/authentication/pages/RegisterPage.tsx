@@ -1,14 +1,14 @@
 import { UserPlus } from "lucide-react"
+import { Link, useNavigate } from "react-router-dom"
 
-import {
-  AUTH_PATHS,
-  navigateTo,
-} from "@/modules/core/authentication/navigation.ts"
+import { AUTH_PATHS } from "@/modules/core/authentication/navigation.ts"
 import { AuthCard } from "@/modules/core/authentication/components/AuthCard.tsx"
 import { RegisterForm } from "@/modules/core/authentication/components/RegisterForm.tsx"
 import { SocialLoginButtons } from "@/modules/core/authentication/components/SocialLoginButtons.tsx"
 
 export default function RegisterPage() {
+  const navigate = useNavigate()
+
   return (
     <AuthCard
       icon={<UserPlus className="size-6" />}
@@ -17,17 +17,17 @@ export default function RegisterPage() {
       footer={
         <>
           Already have an account?{" "}
-          <a
-            href={`#${AUTH_PATHS.login}`}
+          <Link
+            to={AUTH_PATHS.login}
             id="go-to-login-link"
             className="font-medium text-primary underline-offset-4 hover:underline"
           >
             Sign in
-          </a>
+          </Link>
         </>
       }
     >
-      <RegisterForm onSuccess={() => navigateTo(AUTH_PATHS.verifyEmail)} />
+      <RegisterForm onSuccess={() => navigate(AUTH_PATHS.verifyEmail)} />
 
       {/* Divider */}
       <div className="relative my-2 flex items-center gap-3">

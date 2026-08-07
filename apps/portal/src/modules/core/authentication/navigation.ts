@@ -1,4 +1,4 @@
-/** Canonical hash-based paths for every authentication screen. */
+/** Canonical browser paths for every authentication screen. */
 export const AUTH_PATHS = {
   login: "/auth/login",
   register: "/auth/register",
@@ -9,8 +9,3 @@ export const AUTH_PATHS = {
 } as const
 
 export type AuthPath = (typeof AUTH_PATHS)[keyof typeof AUTH_PATHS]
-
-/** Navigate to an auth path using the hash router. */
-export function navigateTo(path: AuthPath | string) {
-  window.location.hash = path
-}

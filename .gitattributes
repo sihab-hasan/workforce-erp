@@ -1,0 +1,8 @@
+# Normalize repository text files across operating systems.
+* text=auto eol=lf
+
+# Keep platform-specific scripts in their native line-ending format.
+*.sh text eol=lf
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf

@@ -9,6 +9,7 @@ This repository is public for visibility, but it is not open source and remains 
 - `apps/web`: public-facing web app on port `5173`
 - `apps/portal`: tenant portal on port `5174`
 - `apps/admin`: admin app on port `5175`
+- `infra/nginx`: local reverse proxy on port `3000`
 - `packages/ui`: shared UI components, styles, and package-level shadcn/ui registry setup
 - `packages/config/*`: shared ESLint and TypeScript configuration packages
 - `packages/constants`: shared constants

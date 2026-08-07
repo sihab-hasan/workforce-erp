@@ -1,6 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "base-nova",
+  "style": "base-luma",
   "rsc": false,
   "tsx": true,
   "tailwind": {
@@ -12,8 +12,8 @@
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@/components",
-    "hooks": "@/hooks",
-    "lib": "@/lib",
+    "hooks": "@workforce-erp/ui/hooks",
+    "lib": "@workforce-erp/ui/lib",
     "utils": "@workforce-erp/ui/lib/utils",
     "ui": "@workforce-erp/ui/components"
   },

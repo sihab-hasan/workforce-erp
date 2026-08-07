@@ -1,8 +1,42 @@
+# Build and distribution
 dist/
 **/dist/
+build/
+**/build/
+.turbo/
+
+# Dependencies
 node_modules/
 **/node_modules/
-.turbo/
+vendor/
+**/vendor/
+
+# Package manager locks
+pnpm-lock.yaml
+composer.lock
+
+# Environment and local config
+.env
+.env.*
+.env.local
+
+# Laravel specific
+storage/
+**/storage/
+bootstrap/cache/
+**/bootstrap/cache/
+
+# Testing and coverage
 coverage/
+**/.coverage/
+
+# Cache and temporary
 .pnpm-store/
+**/.cache/
+**/node_modules/.cache/
+
+# Special paths
 **/skills/
+.git/
+.github/
+public/build/

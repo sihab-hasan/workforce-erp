@@ -19,6 +19,13 @@ Development:
 pnpm dev
 ```
 
+Full local Docker stack:
+
+```bash
+pnpm run docker:up
+pnpm run docker:down
+```
+
 Lint:
 
 ```bash
@@ -50,6 +57,7 @@ Changed-workspace examples:
 
 ```bash
 pnpm --filter @workforce-erp/admin lint
+pnpm --filter @workforce-erp/api test
 pnpm --filter @workforce-erp/portal typecheck
 pnpm --filter @workforce-erp/web build
 pnpm --filter @workforce-erp/ui lint
@@ -70,11 +78,20 @@ Canonical path:
 cd apps/api
 ```
 
-Backend command policy:
+From the repository root:
 
-- The repository contract reserves `apps/api` for the Laravel backend.
-- Do not add Composer, Artisan, Pint, PHPUnit, Pest, PHPStan, queue, scheduler, or migration commands to this file until `apps/api/composer.json` or equivalent backend files are checked in.
-- When backend code is added, update this section in the same change so the documented commands remain executable and truthful.
+```bash
+composer --working-dir=apps/api install
+pnpm --filter @workforce-erp/api dev
+pnpm --filter @workforce-erp/api lint
+pnpm --filter @workforce-erp/api test
+pnpm --filter @workforce-erp/api build
+```
+
+`pnpm dev` runs the Turborepo development servers directly. `pnpm run up`
+builds and starts the complete container stack behind Nginx at
+`http://localhost:3000`; `pnpm run down` stops it. The container network keeps
+application, PostgreSQL, and Redis ports private.
 
 ## Safety rules
 

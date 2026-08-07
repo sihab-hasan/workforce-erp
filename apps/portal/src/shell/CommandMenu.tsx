@@ -1,17 +1,31 @@
+import { Search } from "lucide-react"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@workforce-erp/ui/components/input-group"
+
 type CommandMenuProps = {
   hint: string
 }
 
 export function CommandMenu({ hint }: CommandMenuProps) {
   return (
-    <button
-      className="hidden min-w-60 items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-2 text-left text-sm text-slate-500 shadow-sm md:flex dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400"
-      type="button"
-    >
-      <span>{hint}</span>
-      <span className="rounded-lg border border-slate-200 px-2 py-0.5 text-xs dark:border-slate-700">
-        /
-      </span>
-    </button>
+    <InputGroup className="min-w-56 rounded-lg border-border bg-card shadow-sm">
+      <InputGroupAddon align="inline-start" className="text-muted-foreground">
+        <Search aria-hidden />
+      </InputGroupAddon>
+      <InputGroupInput
+        type="search"
+        placeholder={hint}
+        aria-label="Search"
+        className="text-sm placeholder:text-muted-foreground"
+      />
+      <InputGroupAddon align="inline-end">
+        <kbd className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[11px] leading-none font-medium text-muted-foreground">
+          /
+        </kbd>
+      </InputGroupAddon>
+    </InputGroup>
   )
 }

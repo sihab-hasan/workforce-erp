@@ -1,3 +1,23 @@
+import { Link } from "react-router-dom"
+import { LayoutDashboard } from "lucide-react"
+import { Avatar, AvatarFallback } from "@workforce-erp/ui/components/avatar"
+import { Badge } from "@workforce-erp/ui/components/badge"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+  SidebarSeparator,
+  useSidebar,
+} from "@workforce-erp/ui/components/sidebar"
+
 import type { PortalRoute } from "@/app/config/routes.config.ts"
 
 type PortalSidebarProps = {
@@ -6,69 +26,101 @@ type PortalSidebarProps = {
 }
 
 export function PortalSidebar({ currentPath, routes }: PortalSidebarProps) {
+  const { isMobile, setOpenMobile } = useSidebar()
+
   const sections = routes.reduce<Record<string, PortalRoute[]>>(
     (acc, route) => {
-      const currentSection = acc[route.section] ?? []
-      currentSection.push(route)
-      acc[route.section] = currentSection
+      const current = acc[route.section] ?? []
+      current.push(route)
+      acc[route.section] = current
       return acc
     },
     {}
   )
 
   return (
-    <aside className="hidden w-80 shrink-0 border-r border-slate-200 bg-white/70 px-4 py-6 backdrop-blur lg:block dark:border-slate-800 dark:bg-slate-950/70">
-      <div className="mb-6 px-3">
-        <p className="text-xs font-semibold tracking-[0.24em] text-slate-400 uppercase">
-          Workforce ERP
-        </p>
-        <h2 className="mt-2 text-2xl font-semibold text-slate-950 dark:text-white">
-          Portal
-        </h2>
-      </div>
-      <nav className="space-y-6">
-        {Object.entries(sections).map(([section, sectionRoutes]) => (
-          <div key={section} className="space-y-2">
-            <p className="px-3 text-xs font-semibold tracking-[0.18em] text-slate-400 uppercase">
-              {section}
-            </p>
-            <div className="space-y-1">
-              {sectionRoutes.map((route) => {
-                const Icon = route.icon
-                const isActive = route.path === currentPath
-
-                return (
-                  <a
-                    key={route.key}
-                    className={`flex items-start gap-3 rounded-2xl px-3 py-3 transition ${
-                      isActive
-                        ? "bg-slate-950 text-white shadow-lg dark:bg-white dark:text-slate-950"
-                        : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-900"
-                    }`}
-                    href={`#${route.path}`}
-                  >
-                    <Icon className="mt-0.5 size-4 shrink-0" />
-                    <span className="space-y-1">
-                      <span className="block text-sm font-semibold">
-                        {route.title}
-                      </span>
-                      <span
-                        className={`block text-xs ${
-                          isActive
-                            ? "text-white/70 dark:text-slate-700"
-                            : "text-slate-400 dark:text-slate-500"
-                        }`}
-                      >
-                        {route.description}
-                      </span>
-                    </span>
-                  </a>
-                )
-              })}
-            </div>
+    <Sidebar
+      collapsible="icon"
+      variant="sidebar"
+      className="border-sidebar-border"
+    >
+      <SidebarHeader className="p-3">
+        <div className="flex items-center gap-2.5 rounded-lg px-2 py-1.5">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
+            <LayoutDashboard aria-hidden />
           </div>
+          <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
+            <span className="text-xs font-bold tracking-widest text-sidebar-primary uppercase">
+              Workforce
+            </span>
+            <span className="truncate text-sm leading-none font-semibold text-sidebar-foreground">
+              ERP Portal
+            </span>
+          </div>
+        </div>
+      </SidebarHeader>
+
+      <SidebarSeparator />
+
+      <SidebarContent className="px-1">
+        {Object.entries(sections).map(([section, sectionRoutes]) => (
+          <SidebarGroup key={section}>
+            <SidebarGroupLabel>{section}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {sectionRoutes.map((route) => {
+                  const Icon = route.icon
+                  const isActive = route.path === currentPath
+                  return (
+                    <SidebarMenuItem key={route.key}>
+                      <SidebarMenuButton
+                        isActive={isActive}
+                        tooltip={route.title}
+                        className="rounded-lg"
+                        render={
+                          <Link
+                            to={route.path}
+                            onClick={() => {
+                              if (isMobile) setOpenMobile(false)
+                            }}
+                          />
+                        }
+                      >
+                        <Icon />
+                        <span>{route.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         ))}
-      </nav>
-    </aside>
+      </SidebarContent>
+
+      <SidebarSeparator />
+      <SidebarFooter className="p-3">
+        <div className="flex items-center gap-2.5 rounded-lg border border-sidebar-border bg-sidebar-accent/40 px-2 py-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-transparent group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:px-0">
+          <Avatar size="sm">
+            <AvatarFallback className="bg-sidebar-primary text-xs font-bold text-sidebar-primary-foreground">
+              U
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
+            <div className="flex items-center gap-2">
+              <span className="truncate text-xs font-semibold text-sidebar-foreground">
+                Portal User
+              </span>
+              <Badge variant="outline">Pro</Badge>
+            </div>
+            <span className="truncate text-[10px] text-sidebar-foreground/70">
+              user@acme.com
+            </span>
+          </div>
+        </div>
+      </SidebarFooter>
+
+      <SidebarRail />
+    </Sidebar>
   )
 }

@@ -164,13 +164,13 @@ export function MobileMenu() {
                 nativeButton={false}
                 className="h-11 w-full"
                 render={
-                  <Link
-                    to={siteRoutes.login.path}
+                  <a
+                    href="/portal/auth/login"
                     onClick={() => setIsOpen(false)}
                   />
                 }
               >
-                {siteRoutes.login.label}
+                Sign In
               </Button>
               <Button
                 size="lg"

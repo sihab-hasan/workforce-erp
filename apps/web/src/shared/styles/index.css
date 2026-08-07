@@ -13,8 +13,43 @@
   animation-play-state: paused;
 }
 
-@media (prefers-reduced-motion: reduce) {
+.marketing-marquee:focus .marketing-marquee-track,
+.marketing-marquee:focus-within .marketing-marquee-track {
+  animation-play-state: paused;
+}
+
+.marketing-marquee::-webkit-scrollbar {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .marketing-marquee {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+  }
+
   .marketing-marquee-track {
     animation: none;
+  }
+
+  .marketing-marquee-duplicate {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-marquee {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+  }
+
+  .marketing-marquee-track {
+    animation: none;
+  }
+
+  .marketing-marquee-duplicate {
+    display: none;
   }
 }

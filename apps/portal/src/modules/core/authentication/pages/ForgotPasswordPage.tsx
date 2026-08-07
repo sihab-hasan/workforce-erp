@@ -1,4 +1,5 @@
 import { KeyRound } from "lucide-react"
+import { Link } from "react-router-dom"
 
 import { AUTH_PATHS } from "@/modules/core/authentication/navigation.ts"
 import { AuthCard } from "@/modules/core/authentication/components/AuthCard.tsx"
@@ -11,13 +12,13 @@ export default function ForgotPasswordPage() {
       heading="Forgot your password?"
       subheading="Enter your email and we'll send you a reset link"
       footer={
-        <a
-          href={`#${AUTH_PATHS.login}`}
+        <Link
+          to={AUTH_PATHS.login}
           id="back-to-login-link"
           className="font-medium text-primary underline-offset-4 hover:underline"
         >
           ← Back to sign in
-        </a>
+        </Link>
       }
     >
       <ForgotPasswordForm />

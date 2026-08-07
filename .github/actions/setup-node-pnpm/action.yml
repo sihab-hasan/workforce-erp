@@ -1,6 +1,5 @@
-name: Setup Node and pnpm
-
-description: Install pnpm, configure Node.js, restore cache, and install workspace dependencies.
+name: Setup Node.js and pnpm
+description: Configure Node.js and pnpm, then install workspace dependencies.
 
 inputs:
   node-version:

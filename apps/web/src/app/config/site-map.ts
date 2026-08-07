@@ -82,8 +82,6 @@ export const siteRoutes = {
     path: "/cookies",
   },
   security: { key: "security", label: "Security", path: "/security" },
-  login: { key: "login", label: "Sign In", path: "/login" },
-  register: { key: "register", label: "Register", path: "/register" },
   maintenance: {
     key: "maintenance",
     label: "Maintenance",

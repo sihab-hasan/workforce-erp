@@ -5,8 +5,6 @@ import ForbiddenPage from "@/app/pages/ForbiddenPage.tsx"
 import MaintenancePage from "@/app/pages/MaintenancePage.tsx"
 import NotFoundPage from "@/app/pages/NotFoundPage.tsx"
 import ServerErrorPage from "@/app/pages/ServerErrorPage.tsx"
-import LoginRedirectPage from "@/modules/auth-redirect/pages/LoginRedirectPage.tsx"
-import RegisterRedirectPage from "@/modules/auth-redirect/pages/RegisterRedirectPage.tsx"
 import AboutPage from "@/modules/company/pages/AboutPage.tsx"
 import CareersPage from "@/modules/company/pages/CareersPage.tsx"
 import PartnersPage from "@/modules/company/pages/PartnersPage.tsx"
@@ -65,8 +63,6 @@ export const webRoutes: WebRoute[] = [
   { path: siteRoutes.termsOfService.path, component: TermsOfServicePage },
   { path: siteRoutes.cookiePolicy.path, component: CookiePolicyPage },
   { path: siteRoutes.security.path, component: SecurityPage },
-  { path: siteRoutes.login.path, component: LoginRedirectPage },
-  { path: siteRoutes.register.path, component: RegisterRedirectPage },
   { path: siteRoutes.maintenance.path, component: MaintenancePage },
   { path: siteRoutes.forbidden.path, component: ForbiddenPage },
   { path: siteRoutes.serverError.path, component: ServerErrorPage },
