@@ -43,8 +43,7 @@ export default function DashboardPage() {
             {greetingText}, Team
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            A focused view of workforce health and operational
-            tasks for today.
+            A focused view of workforce health and operational tasks for today.
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">

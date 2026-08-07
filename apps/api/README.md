@@ -1,6 +1,6 @@
 # Laravel API Starter Template
 
-This is a **Laravel API-only starter template** intended for students to build their own projects. 
+This is a **Laravel API-only starter template** intended for students to build their own projects.
 
 The backend is fully prepared for RESTful API development, and students are expected to create a frontend separately in a `client` folder.
 
@@ -34,3 +34,4 @@ Make sure you have the following installed:
 ```bash
 git clone <repository-url>
 cd <project-folder>
+```
