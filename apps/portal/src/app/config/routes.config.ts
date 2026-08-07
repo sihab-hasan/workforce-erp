@@ -17,11 +17,11 @@ import MfaChallengePage from "@/modules/core/authentication/pages/MfaChallengePa
 import RegisterPage from "@/modules/core/authentication/pages/RegisterPage.tsx"
 import ResetPasswordPage from "@/modules/core/authentication/pages/ResetPasswordPage.tsx"
 import VerifyEmailPage from "@/modules/core/authentication/pages/VerifyEmailPage.tsx"
+import DashboardPage from "@/modules/core/dashboard/pages/DashboardPage.tsx"
 import ForbiddenPage from "@/app/pages/ForbiddenPage.tsx"
 import MaintenancePage from "@/app/pages/MaintenancePage.tsx"
 import NotFoundPage from "@/app/pages/NotFoundPage.tsx"
 import ServerErrorPage from "@/app/pages/ServerErrorPage.tsx"
-import AttendanceTodayPage from "@/modules/people/attendance/pages/AttendanceTodayPage.tsx"
 import DepartmentListPage from "@/modules/people/departments/pages/DepartmentListPage.tsx"
 import EmployeeDocumentListPage from "@/modules/people/employee-documents/pages/EmployeeDocumentListPage.tsx"
 import EmployeeDirectoryPage from "@/modules/people/employees/pages/EmployeeDirectoryPage.tsx"
@@ -52,7 +52,7 @@ export const portalRoutes: PortalRoute[] = [
     path: "/",
     section: "Workspace",
     icon: Home,
-    component: AttendanceTodayPage,
+    component: DashboardPage,
   },
   {
     key: "employees",
@@ -71,15 +71,6 @@ export const portalRoutes: PortalRoute[] = [
     section: "People",
     icon: Building2,
     component: DepartmentListPage,
-  },
-  {
-    key: "attendance",
-    title: "Attendance",
-    description: "Daily activity, presence, and reporting",
-    path: "/people/attendance",
-    section: "People",
-    icon: Clock3,
-    component: AttendanceTodayPage,
   },
   {
     key: "leave",
