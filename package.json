@@ -25,9 +25,12 @@
     "setup": "powershell -ExecutionPolicy Bypass -File ./infra/scripts/setup.ps1",
     "stop": "powershell -ExecutionPolicy Bypass -File ./infra/scripts/stop.ps1",
     "typecheck": "turbo typecheck",
-    "validate": "pnpm format && pnpm format:check && pnpm lint && pnpm typecheck && pnpm build"
+    "validate": "pnpm format && pnpm format:check && pnpm lint && pnpm typecheck && pnpm build",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0",
     "prettier": "^3.9.5",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "turbo": "^2.10.5",
