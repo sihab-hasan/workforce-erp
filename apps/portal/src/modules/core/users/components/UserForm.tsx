@@ -226,9 +226,11 @@ export function UserForm({
           <Select
             value={role}
             onValueChange={(val) => {
-              setRole(val as UserRole)
-              if (touched.role) {
-                setErrors((prev) => ({ ...prev, role: validateRole(val) }))
+              if (val) {
+                setRole(val as UserRole)
+                if (touched.role) {
+                  setErrors((prev) => ({ ...prev, role: validateRole(val) }))
+                }
               }
             }}
             disabled={isPending}
@@ -285,7 +287,7 @@ export function UserForm({
           <Select
             value={organizationId || "default"}
             onValueChange={(val) =>
-              setOrganizationId(val === "default" ? "" : val)
+              setOrganizationId(!val || val === "default" ? "" : val)
             }
             disabled={isPending}
           >
@@ -322,7 +324,7 @@ export function UserForm({
         ) : (
           <Select
             value={employeeId}
-            onValueChange={setEmployeeId}
+            onValueChange={(val) => setEmployeeId(val ?? "none")}
             disabled={isPending}
           >
             <SelectTrigger
