@@ -80,10 +80,16 @@ describe("UserListPage Integration Test", () => {
   it("renders page header and user data table with live users", () => {
     render(<UserListPage />)
 
-    expect(screen.getByRole("heading", { name: /user accounts/i })).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: /invite user/i })).toBeInTheDocument()
+    expect(
+      screen.getByRole("heading", { name: /user accounts/i })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole("button", { name: /invite user/i })
+    ).toBeInTheDocument()
     expect(screen.getAllByText("Diana Prince").length).toBeGreaterThan(0)
-    expect(screen.getAllByText("diana@themyscira.internal").length).toBeGreaterThan(0)
+    expect(
+      screen.getAllByText("diana@themyscira.internal").length
+    ).toBeGreaterThan(0)
   })
 
   it("opens Invite User dialog when clicking Invite User button", async () => {
@@ -93,6 +99,8 @@ describe("UserListPage Integration Test", () => {
     const inviteBtn = screen.getByRole("button", { name: /invite user/i })
     await user.click(inviteBtn)
 
-    expect(screen.getByRole("heading", { name: /invite new user/i })).toBeInTheDocument()
+    expect(
+      screen.getByRole("heading", { name: /invite new user/i })
+    ).toBeInTheDocument()
   })
 })

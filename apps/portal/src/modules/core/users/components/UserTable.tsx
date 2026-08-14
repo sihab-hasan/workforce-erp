@@ -1,5 +1,12 @@
 import { useState } from "react"
-import { AlertCircle, Mail, Users, Building2, UserCheck, Shield } from "lucide-react"
+import {
+  AlertCircle,
+  Mail,
+  Users,
+  Building2,
+  UserCheck,
+  Shield,
+} from "lucide-react"
 import {
   Table,
   TableBody,
@@ -47,12 +54,24 @@ const ROLE_LABEL: Record<UserRole, string> = {
   readonly: "Read-only",
 }
 
-const ROLE_BADGE_STYLE: Record<UserRole, { variant: "default" | "secondary" | "outline"; className?: string }> = {
-  owner: { variant: "default", className: "bg-primary text-primary-foreground font-semibold" },
-  admin: { variant: "default", className: "bg-indigo-600 text-white dark:bg-indigo-500" },
+const ROLE_BADGE_STYLE: Record<
+  UserRole,
+  { variant: "default" | "secondary" | "outline"; className?: string }
+> = {
+  owner: {
+    variant: "default",
+    className: "bg-primary text-primary-foreground font-semibold",
+  },
+  admin: {
+    variant: "default",
+    className: "bg-indigo-600 text-white dark:bg-indigo-500",
+  },
   manager: { variant: "secondary", className: "font-medium" },
   staff: { variant: "outline", className: "text-muted-foreground" },
-  readonly: { variant: "outline", className: "text-muted-foreground/80 border-dashed" },
+  readonly: {
+    variant: "outline",
+    className: "text-muted-foreground/80 border-dashed",
+  },
 }
 
 function getInitials(name: string): string {
@@ -165,10 +184,7 @@ function UserTableError({ onRetry }: { onRetry?: () => void }) {
       className="flex flex-col items-center gap-3 py-20 text-center"
     >
       <div className="flex size-14 items-center justify-center rounded-2xl bg-destructive/10">
-        <AlertCircle
-          className="size-7 text-destructive"
-          aria-hidden
-        />
+        <AlertCircle className="size-7 text-destructive" aria-hidden />
       </div>
       <div>
         <p className="text-sm font-medium text-foreground">
@@ -218,7 +234,10 @@ function UserMobileCard({
           </div>
 
           <div className="flex flex-wrap items-center gap-1.5 text-xs">
-            <Badge variant={roleStyle.variant} className={`text-[11px] ${roleStyle.className ?? ""}`}>
+            <Badge
+              variant={roleStyle.variant}
+              className={`text-[11px] ${roleStyle.className ?? ""}`}
+            >
               {ROLE_LABEL[user.role]}
             </Badge>
             <span className="text-muted-foreground/60">·</span>
@@ -347,15 +366,21 @@ export function UserTable({
                                   {user.employee_id && (
                                     <span
                                       title="Linked to staff employee profile"
-                                      className="inline-flex items-center gap-0.5 rounded bg-emerald-500/10 px-1.5 py-0.2 text-[10px] font-medium text-emerald-600 dark:text-emerald-400"
+                                      className="py-0.2 inline-flex items-center gap-0.5 rounded bg-emerald-500/10 px-1.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400"
                                     >
-                                      <UserCheck className="size-2.5" aria-hidden />
+                                      <UserCheck
+                                        className="size-2.5"
+                                        aria-hidden
+                                      />
                                       Employee
                                     </span>
                                   )}
                                 </div>
                                 <p className="flex items-center gap-1 truncate text-xs text-muted-foreground">
-                                  <Mail className="size-3 shrink-0" aria-hidden />
+                                  <Mail
+                                    className="size-3 shrink-0"
+                                    aria-hidden
+                                  />
                                   {user.email}
                                 </p>
                               </div>
@@ -376,9 +401,13 @@ export function UserTable({
                           {/* ── Organization ── */}
                           <TableCell>
                             <div className="flex items-center gap-1.5 text-sm text-foreground">
-                              <Building2 className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+                              <Building2
+                                className="size-3.5 shrink-0 text-muted-foreground"
+                                aria-hidden
+                              />
                               <span className="truncate">
-                                {user.organization_name || "Default Organization"}
+                                {user.organization_name ||
+                                  "Default Organization"}
                               </span>
                             </div>
                           </TableCell>
@@ -505,7 +534,7 @@ export function UserTable({
                             {num}
                           </PaginationLink>
                         </PaginationItem>
-                      ),
+                      )
                     )}
 
                     <PaginationItem>

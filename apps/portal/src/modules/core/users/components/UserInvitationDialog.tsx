@@ -52,7 +52,7 @@ export function UserInvitationDialog({
           setServerError(message)
           toast.error(message)
         },
-      },
+      }
     )
   }
 
@@ -62,7 +62,8 @@ export function UserInvitationDialog({
         <DialogHeader>
           <DialogTitle>Invite New User</DialogTitle>
           <DialogDescription>
-            Send an account invitation email with designated role, organization, and optional employee record link.
+            Send an account invitation email with designated role, organization,
+            and optional employee record link.
           </DialogDescription>
         </DialogHeader>
 

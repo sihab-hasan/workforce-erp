@@ -26,4 +26,5 @@ export const USER_PERMISSIONS = {
   resendInvitation: "users:resend-invitation",
 } as const
 
-export type UserPermission = (typeof USER_PERMISSIONS)[keyof typeof USER_PERMISSIONS]
+export type UserPermission =
+  (typeof USER_PERMISSIONS)[keyof typeof USER_PERMISSIONS]

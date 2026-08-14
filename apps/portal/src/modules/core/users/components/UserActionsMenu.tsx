@@ -63,7 +63,7 @@ export function UserActionsMenu({ user, onEdit }: UserActionsMenuProps) {
       },
       onError: (err: unknown) => {
         toast.error(
-          err instanceof Error ? err.message : "Failed to activate user.",
+          err instanceof Error ? err.message : "Failed to activate user."
         )
       },
     })
@@ -77,7 +77,7 @@ export function UserActionsMenu({ user, onEdit }: UserActionsMenuProps) {
       },
       onError: (err: unknown) => {
         toast.error(
-          err instanceof Error ? err.message : "Failed to deactivate user.",
+          err instanceof Error ? err.message : "Failed to deactivate user."
         )
       },
     })
@@ -91,7 +91,7 @@ export function UserActionsMenu({ user, onEdit }: UserActionsMenuProps) {
       },
       onError: (err: unknown) => {
         toast.error(
-          err instanceof Error ? err.message : "Failed to suspend user.",
+          err instanceof Error ? err.message : "Failed to suspend user."
         )
       },
     })
@@ -104,7 +104,7 @@ export function UserActionsMenu({ user, onEdit }: UserActionsMenuProps) {
       },
       onError: (err: unknown) => {
         toast.error(
-          err instanceof Error ? err.message : "Failed to resend invitation.",
+          err instanceof Error ? err.message : "Failed to resend invitation."
         )
       },
     })
@@ -210,7 +210,7 @@ export function UserActionsMenu({ user, onEdit }: UserActionsMenuProps) {
             <AlertDialogAction
               className={
                 confirmAction === "deactivate"
-                  ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  ? "text-destructive-foreground bg-destructive hover:bg-destructive/90"
                   : "bg-amber-600 text-white hover:bg-amber-700"
               }
               onClick={(e) => {

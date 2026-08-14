@@ -11,10 +11,7 @@ import type { InviteUserPayload, UpdateUserPayload } from "../types/users.types"
 // ---------------------------------------------------------------------------
 
 function getUsersApi() {
-  const http = createHttpClient(
-    environment.apiBaseUrl,
-    getStoredToken,
-  )
+  const http = createHttpClient(environment.apiBaseUrl, getStoredToken)
   return createUsersApi(http)
 }
 

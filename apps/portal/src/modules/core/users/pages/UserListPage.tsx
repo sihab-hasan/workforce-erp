@@ -59,7 +59,8 @@ export default function UserListPage() {
             User Accounts
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage system access, roles, and account status for your organisation.
+            Manage system access, roles, and account status for your
+            organisation.
           </p>
         </div>
 
@@ -96,10 +97,7 @@ export default function UserListPage() {
       />
 
       {/* ── Invite User Dialog ────────────────────────────────────────────── */}
-      <UserInvitationDialog
-        open={inviteOpen}
-        onOpenChange={setInviteOpen}
-      />
+      <UserInvitationDialog open={inviteOpen} onOpenChange={setInviteOpen} />
     </div>
   )
 }

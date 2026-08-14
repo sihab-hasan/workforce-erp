@@ -34,7 +34,7 @@ export function createUsersApi(http: ReturnType<typeof createHttpClient>) {
     list(filters?: UsersFilters): Promise<PaginatedResponse<UserSummary>> {
       return http.get<PaginatedResponse<UserSummary>>(
         "/api/users",
-        filters as Record<string, string | number | boolean | undefined | null>,
+        filters as Record<string, string | number | boolean | undefined | null>
       )
     },
 
@@ -93,7 +93,7 @@ export function createUsersApi(http: ReturnType<typeof createHttpClient>) {
      */
     resendInvitation(id: string): Promise<ApiResponse<{ sent_at: string }>> {
       return http.post<ApiResponse<{ sent_at: string }>>(
-        `/api/users/${id}/resend-invitation`,
+        `/api/users/${id}/resend-invitation`
       )
     },
 

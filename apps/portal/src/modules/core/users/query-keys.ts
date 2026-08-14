@@ -13,7 +13,8 @@ export const usersKeys = {
 
   /** List queries (with optional filter scope) */
   lists: () => [...usersKeys.all, "list"] as const,
-  list: (filters?: UsersFilters) => [...usersKeys.lists(), { filters }] as const,
+  list: (filters?: UsersFilters) =>
+    [...usersKeys.lists(), { filters }] as const,
 
   /** Detail queries */
   details: () => [...usersKeys.all, "detail"] as const,

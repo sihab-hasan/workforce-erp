@@ -60,7 +60,7 @@ export function UserEditDialog({
           setServerError(message)
           toast.error(message)
         },
-      },
+      }
     )
   }
 
@@ -70,7 +70,8 @@ export function UserEditDialog({
         <DialogHeader>
           <DialogTitle>Edit User Profile</DialogTitle>
           <DialogDescription>
-            Update role, organization, and linked employee record for {user.name} ({user.email}).
+            Update role, organization, and linked employee record for{" "}
+            {user.name} ({user.email}).
           </DialogDescription>
         </DialogHeader>
 

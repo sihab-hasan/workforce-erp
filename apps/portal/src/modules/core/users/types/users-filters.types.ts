@@ -29,7 +29,8 @@ export interface UsersFilters extends PaginationParams {
    * Sort column.
    * The backend validates the value against an allowlist to prevent injection.
    */
-  sort_by?: "name" | "email" | "created_at" | "last_login_at" | "role" | "status"
+  sort_by?:
+    "name" | "email" | "created_at" | "last_login_at" | "role" | "status"
 
   /** Sort direction */
   sort_direction?: "asc" | "desc"

@@ -78,7 +78,9 @@ describe("UserTable Component", () => {
     const user = userEvent.setup()
     render(<UserTable {...defaultProps} isError={true} />)
 
-    expect(screen.getAllByText(/failed to load users/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/failed to load users/i).length).toBeGreaterThan(
+      0
+    )
     const retryButtons = screen.getAllByRole("button", { name: /try again/i })
     expect(retryButtons.length).toBeGreaterThan(0)
 
@@ -119,12 +121,7 @@ describe("UserTable Component", () => {
   it("renders pagination controls when totalPages > 1", async () => {
     const user = userEvent.setup()
     render(
-      <UserTable
-        {...defaultProps}
-        totalCount={25}
-        pageSize={10}
-        page={1}
-      />,
+      <UserTable {...defaultProps} totalCount={25} pageSize={10} page={1} />
     )
 
     expect(screen.getByText(/page 1 of 3/i)).toBeInTheDocument()

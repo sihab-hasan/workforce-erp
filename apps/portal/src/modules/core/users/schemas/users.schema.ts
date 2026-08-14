@@ -32,12 +32,22 @@ export function validateEmail(value: string): string | undefined {
 
 export function validateRole(value: string | undefined): string | undefined {
   if (!value) return "Role is required."
-  const validRoles: UserRole[] = ["owner", "admin", "manager", "staff", "readonly"]
-  if (!validRoles.includes(value as UserRole)) return "Please select a valid role."
+  const validRoles: UserRole[] = [
+    "owner",
+    "admin",
+    "manager",
+    "staff",
+    "readonly",
+  ]
+  if (!validRoles.includes(value as UserRole))
+    return "Please select a valid role."
   return undefined
 }
 
-export function validateOrganization(value: string | undefined, isRequired = false): string | undefined {
+export function validateOrganization(
+  value: string | undefined,
+  isRequired = false
+): string | undefined {
   if (isRequired && !value) return "Organization is required."
   return undefined
 }

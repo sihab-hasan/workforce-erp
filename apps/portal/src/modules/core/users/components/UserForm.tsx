@@ -1,5 +1,11 @@
 import { useState, type FormEvent } from "react"
-import { Loader2, Building2, Shield, UserCheck, AlertCircle } from "lucide-react"
+import {
+  Loader2,
+  Building2,
+  Shield,
+  UserCheck,
+  AlertCircle,
+} from "lucide-react"
 import { Input } from "@workforce-erp/ui/components/input"
 import { Label } from "@workforce-erp/ui/components/label"
 import { Button } from "@workforce-erp/ui/components/button"
@@ -65,14 +71,16 @@ export function UserForm({
   const [email, setEmail] = useState(initialValues?.email ?? "")
   const [role, setRole] = useState<UserRole>(initialValues?.role ?? "staff")
   const [organizationId, setOrganizationId] = useState<string>(
-    initialValues?.organization_id ?? "",
+    initialValues?.organization_id ?? ""
   )
   const [employeeId, setEmployeeId] = useState<string>(
-    initialValues?.employee_id ?? "none",
+    initialValues?.employee_id ?? "none"
   )
 
   const [errors, setErrors] = useState<FieldErrors<UserFormData>>({})
-  const [touched, setTouched] = useState<Partial<Record<keyof UserFormData, boolean>>>({})
+  const [touched, setTouched] = useState<
+    Partial<Record<keyof UserFormData, boolean>>
+  >({})
 
   const validateForm = (): boolean => {
     const nextErrors: FieldErrors<UserFormData> = {}
@@ -146,7 +154,10 @@ export function UserForm({
           onChange={(e) => {
             setName(e.target.value)
             if (touched.name) {
-              setErrors((prev) => ({ ...prev, name: validateName(e.target.value) }))
+              setErrors((prev) => ({
+                ...prev,
+                name: validateName(e.target.value),
+              }))
             }
           }}
           onBlur={() => handleBlur("name")}
@@ -176,7 +187,10 @@ export function UserForm({
             onChange={(e) => {
               setEmail(e.target.value)
               if (touched.email) {
-                setErrors((prev) => ({ ...prev, email: validateEmail(e.target.value) }))
+                setErrors((prev) => ({
+                  ...prev,
+                  email: validateEmail(e.target.value),
+                }))
               }
             }}
             onBlur={() => handleBlur("email")}
@@ -197,7 +211,9 @@ export function UserForm({
       <div className="space-y-1.5">
         <Label htmlFor="user-form-role" className="flex items-center gap-1.5">
           <Shield className="size-3.5 text-muted-foreground" aria-hidden />
-          <span>System Role <span className="text-destructive">*</span></span>
+          <span>
+            System Role <span className="text-destructive">*</span>
+          </span>
         </Label>
         {isRolesPending ? (
           <Skeleton className="h-9 w-full rounded-3xl" />
@@ -268,7 +284,9 @@ export function UserForm({
         ) : (
           <Select
             value={organizationId || "default"}
-            onValueChange={(val) => setOrganizationId(val === "default" ? "" : val)}
+            onValueChange={(val) =>
+              setOrganizationId(val === "default" ? "" : val)
+            }
             disabled={isPending}
           >
             <SelectTrigger id="user-form-org" aria-label="Select organization">
@@ -288,7 +306,10 @@ export function UserForm({
 
       {/* Employee Linking (Optional) */}
       <div className="space-y-1.5">
-        <Label htmlFor="user-form-employee" className="flex items-center gap-1.5">
+        <Label
+          htmlFor="user-form-employee"
+          className="flex items-center gap-1.5"
+        >
           <UserCheck className="size-3.5 text-muted-foreground" aria-hidden />
           <span>Link to Employee Profile (Optional)</span>
         </Label>
@@ -304,12 +325,17 @@ export function UserForm({
             onValueChange={setEmployeeId}
             disabled={isPending}
           >
-            <SelectTrigger id="user-form-employee" aria-label="Link to an employee">
+            <SelectTrigger
+              id="user-form-employee"
+              aria-label="Link to an employee"
+            >
               <SelectValue placeholder="None (No employee profile linked)" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="none">
-                <span className="text-muted-foreground">None (No employee linked)</span>
+                <span className="text-muted-foreground">
+                  None (No employee linked)
+                </span>
               </SelectItem>
               {employees.map((emp) => (
                 <SelectItem key={emp.id} value={emp.id}>
@@ -317,7 +343,9 @@ export function UserForm({
                     <span className="font-medium">{emp.name}</span>
                     {(emp.department || emp.designation) && (
                       <span className="text-[11px] text-muted-foreground">
-                        {[emp.designation, emp.department].filter(Boolean).join(" · ")}
+                        {[emp.designation, emp.department]
+                          .filter(Boolean)
+                          .join(" · ")}
                       </span>
                     )}
                   </div>
@@ -341,7 +369,9 @@ export function UserForm({
           </Button>
         )}
         <Button type="submit" disabled={isPending}>
-          {isPending && <Loader2 className="mr-2 size-4 animate-spin" aria-hidden />}
+          {isPending && (
+            <Loader2 className="mr-2 size-4 animate-spin" aria-hidden />
+          )}
           {submitLabel}
         </Button>
       </div>

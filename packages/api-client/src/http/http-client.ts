@@ -12,7 +12,7 @@ import { ApiError } from "./api-error"
  */
 export function createHttpClient(
   baseUrl: string,
-  getToken: () => string | null | undefined,
+  getToken: () => string | null | undefined
 ) {
   const resolvedBase = baseUrl.replace(/\/$/, "")
 
@@ -22,7 +22,7 @@ export function createHttpClient(
     options: {
       body?: unknown
       params?: Record<string, string | number | boolean | undefined | null>
-    } = {},
+    } = {}
   ): Promise<T> {
     const { body, params } = options
 
@@ -74,16 +74,16 @@ export function createHttpClient(
   }
 
   return {
-    get: <T>(path: string, params?: Record<string, string | number | boolean | undefined | null>) =>
-      request<T>("GET", path, { params }),
+    get: <T>(
+      path: string,
+      params?: Record<string, string | number | boolean | undefined | null>
+    ) => request<T>("GET", path, { params }),
     post: <T>(path: string, body?: unknown) =>
       request<T>("POST", path, { body }),
-    put: <T>(path: string, body?: unknown) =>
-      request<T>("PUT", path, { body }),
+    put: <T>(path: string, body?: unknown) => request<T>("PUT", path, { body }),
     patch: <T>(path: string, body?: unknown) =>
       request<T>("PATCH", path, { body }),
-    delete: <T>(path: string) =>
-      request<T>("DELETE", path),
+    delete: <T>(path: string) => request<T>("DELETE", path),
   }
 }
 

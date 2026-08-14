@@ -31,7 +31,7 @@ export function useUsersFilters() {
       setFilters((prev) => ({ ...prev, ...next }))
       setPage(1) // Always reset to page 1 when filters change
     },
-    [],
+    []
   )
 
   const handleReset = useCallback(() => {
@@ -53,9 +53,7 @@ export function useUsersFilters() {
   }
 
   const isDirty =
-    filters.search !== "" ||
-    filters.status !== "all" ||
-    filters.role !== "all"
+    filters.search !== "" || filters.status !== "all" || filters.role !== "all"
 
   return {
     filters,

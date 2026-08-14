@@ -8,11 +8,36 @@ import type { RoleOption } from "../types/users.types"
 
 // Default static fallback role definitions if API is empty/unseeded
 const DEFAULT_ROLES: RoleOption[] = [
-  { id: "owner", name: "Owner", slug: "owner", description: "Full workspace ownership" },
-  { id: "admin", name: "Administrator", slug: "admin", description: "System administrator" },
-  { id: "manager", name: "Manager", slug: "manager", description: "Department & team manager" },
-  { id: "staff", name: "Staff Member", slug: "staff", description: "Standard user access" },
-  { id: "readonly", name: "Read Only", slug: "readonly", description: "View only access" },
+  {
+    id: "owner",
+    name: "Owner",
+    slug: "owner",
+    description: "Full workspace ownership",
+  },
+  {
+    id: "admin",
+    name: "Administrator",
+    slug: "admin",
+    description: "System administrator",
+  },
+  {
+    id: "manager",
+    name: "Manager",
+    slug: "manager",
+    description: "Department & team manager",
+  },
+  {
+    id: "staff",
+    name: "Staff Member",
+    slug: "staff",
+    description: "Standard user access",
+  },
+  {
+    id: "readonly",
+    name: "Read Only",
+    slug: "readonly",
+    description: "View only access",
+  },
 ]
 
 /**
