@@ -105,7 +105,8 @@ export function ClockActionWidget({
   const status = todayData?.data
   const isClockedIn = Boolean(status?.is_clocked_in)
   const activeTimesheet = status?.active_timesheet
-  const totalTodayHours = status?.total_today_hours ?? activeTimesheet?.total_hours ?? 0
+  const totalTodayHours =
+    status?.total_today_hours ?? activeTimesheet?.total_hours ?? 0
 
   const isMutating = clockInMutation.isPending || clockOutMutation.isPending
 
@@ -120,8 +121,7 @@ export function ClockActionWidget({
           void refetchToday()
         },
         onError: (err: Error) => {
-          const message =
-            err.message || "Failed to clock in. Please try again."
+          const message = err.message || "Failed to clock in. Please try again."
           toast.error("Clock In Failed", { description: message })
         },
       }
@@ -290,14 +290,16 @@ export function ClockActionWidget({
             size="lg"
             onClick={handleClockIn}
             disabled={isClockedIn || isMutating || isTodayPending}
-            className="flex-1 gap-2 bg-emerald-600 font-medium text-white hover:bg-emerald-700 disabled:opacity-50 dark:bg-emerald-600 dark:hover:bg-emerald-500 sm:flex-initial sm:min-w-40"
+            className="flex-1 gap-2 bg-emerald-600 font-medium text-white hover:bg-emerald-700 disabled:opacity-50 sm:min-w-40 sm:flex-initial dark:bg-emerald-600 dark:hover:bg-emerald-500"
           >
             {clockInMutation.isPending ? (
               <Loader2 className="size-4 animate-spin" aria-hidden />
             ) : (
               <LogIn className="size-4" aria-hidden />
             )}
-            <span>{clockInMutation.isPending ? "Clocking In..." : "Clock In"}</span>
+            <span>
+              {clockInMutation.isPending ? "Clocking In..." : "Clock In"}
+            </span>
           </Button>
 
           {/* Clock Out Button */}
@@ -307,7 +309,7 @@ export function ClockActionWidget({
             size="lg"
             onClick={handleClockOut}
             disabled={!isClockedIn || isMutating || isTodayPending}
-            className="flex-1 gap-2 font-medium disabled:opacity-50 sm:flex-initial sm:min-w-40"
+            className="flex-1 gap-2 font-medium disabled:opacity-50 sm:min-w-40 sm:flex-initial"
           >
             {clockOutMutation.isPending ? (
               <Loader2 className="size-4 animate-spin" aria-hidden />
@@ -320,13 +322,10 @@ export function ClockActionWidget({
           </Button>
 
           {/* Quick status message */}
-          <div className="hidden items-center gap-1.5 text-xs text-muted-foreground lg:flex lg:ml-auto">
+          <div className="hidden items-center gap-1.5 text-xs text-muted-foreground lg:ml-auto lg:flex">
             {isClockedIn ? (
               <>
-                <CheckCircle2
-                  className="size-4 text-emerald-500"
-                  aria-hidden
-                />
+                <CheckCircle2 className="size-4 text-emerald-500" aria-hidden />
                 <span>
                   Active shift since {formatIsoTime(activeTimesheet?.clock_in)}
                 </span>

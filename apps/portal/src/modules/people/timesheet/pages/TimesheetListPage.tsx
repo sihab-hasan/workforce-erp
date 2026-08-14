@@ -25,7 +25,8 @@ export default function TimesheetListPage() {
             Timesheets & Attendance
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Track daily work shifts, record clock-in/out timestamps, and review attendance logs.
+            Track daily work shifts, record clock-in/out timestamps, and review
+            attendance logs.
           </p>
         </div>
       </header>

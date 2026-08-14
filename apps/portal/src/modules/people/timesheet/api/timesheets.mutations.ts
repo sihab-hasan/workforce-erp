@@ -86,7 +86,9 @@ export function useUpdateTimesheet() {
       payload: Partial<Timesheet>
     }) => api.update(id, payload),
     onSuccess: (_data, { id }) => {
-      void queryClient.invalidateQueries({ queryKey: timesheetsKeys.detail(id) })
+      void queryClient.invalidateQueries({
+        queryKey: timesheetsKeys.detail(id),
+      })
       void queryClient.invalidateQueries({ queryKey: timesheetsKeys.lists() })
     },
   })

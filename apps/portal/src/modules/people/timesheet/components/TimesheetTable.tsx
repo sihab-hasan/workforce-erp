@@ -29,27 +29,35 @@ export interface TimesheetTableProps {
 
 const STATUS_BADGES: Record<
   TimesheetStatus,
-  { label: string; variant: "default" | "secondary" | "outline" | "destructive"; className?: string }
+  {
+    label: string
+    variant: "default" | "secondary" | "outline" | "destructive"
+    className?: string
+  }
 > = {
   present: {
     label: "Present",
     variant: "default",
-    className: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
+    className:
+      "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
   },
   approved: {
     label: "Approved",
     variant: "default",
-    className: "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30",
+    className:
+      "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30",
   },
   pending: {
     label: "Pending",
     variant: "secondary",
-    className: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30",
+    className:
+      "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30",
   },
   "half-day": {
     label: "Half Day",
     variant: "secondary",
-    className: "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30",
+    className:
+      "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30",
   },
   "on-leave": {
     label: "On Leave",
@@ -59,7 +67,8 @@ const STATUS_BADGES: Record<
   absent: {
     label: "Absent",
     variant: "destructive",
-    className: "bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30",
+    className:
+      "bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30",
   },
   rejected: {
     label: "Rejected",
@@ -104,7 +113,9 @@ export function TimesheetTable({
   return (
     <Card className={className}>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base font-semibold">Attendance & Work Logs</CardTitle>
+        <CardTitle className="text-base font-semibold">
+          Attendance & Work Logs
+        </CardTitle>
         <CardDescription className="text-xs">
           Recent shifts, clock-in records, and accumulated work hours.
         </CardDescription>
@@ -114,18 +125,25 @@ export function TimesheetTable({
         {isError ? (
           <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
             <AlertCircle className="size-8 text-destructive" aria-hidden />
-            <p className="text-sm font-medium">Failed to load attendance logs</p>
+            <p className="text-sm font-medium">
+              Failed to load attendance logs
+            </p>
             <p className="text-xs text-muted-foreground">
               An error occurred while communicating with the server.
             </p>
             {onRetry && (
-              <Button variant="outline" size="sm" onClick={onRetry} className="mt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRetry}
+                className="mt-2"
+              >
                 Try Again
               </Button>
             )}
           </div>
         ) : isPending ? (
-          <div className="p-4 space-y-3">
+          <div className="space-y-3 p-4">
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="flex items-center justify-between gap-4">
                 <Skeleton className="h-4 w-28" />
@@ -140,8 +158,12 @@ export function TimesheetTable({
         ) : timesheets.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 py-12 text-center text-muted-foreground">
             <Inbox className="size-8 stroke-[1.5]" aria-hidden />
-            <p className="text-sm font-medium text-foreground">No timesheet records found</p>
-            <p className="text-xs">Clock in above or adjust filters to view historical logs.</p>
+            <p className="text-sm font-medium text-foreground">
+              No timesheet records found
+            </p>
+            <p className="text-xs">
+              Clock in above or adjust filters to view historical logs.
+            </p>
           </div>
         ) : (
           <Table>
@@ -166,14 +188,20 @@ export function TimesheetTable({
                   <TableRow key={entry.id}>
                     <TableCell className="pl-6 font-medium">
                       <div className="flex items-center gap-2">
-                        <Calendar className="size-3.5 text-muted-foreground" aria-hidden />
+                        <Calendar
+                          className="size-3.5 text-muted-foreground"
+                          aria-hidden
+                        />
                         <span>{formatIsoDate(entry.date)}</span>
                       </div>
                     </TableCell>
 
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <User className="size-3.5 text-muted-foreground" aria-hidden />
+                        <User
+                          className="size-3.5 text-muted-foreground"
+                          aria-hidden
+                        />
                         <span className="truncate text-sm">
                           {entry.employee?.name ?? "Current User"}
                         </span>
@@ -182,20 +210,26 @@ export function TimesheetTable({
 
                     <TableCell>
                       <div className="flex items-center gap-1.5 font-mono text-xs">
-                        <Clock className="size-3 text-muted-foreground" aria-hidden />
+                        <Clock
+                          className="size-3 text-muted-foreground"
+                          aria-hidden
+                        />
                         <span>{formatIsoTime(entry.clock_in)}</span>
                       </div>
                     </TableCell>
 
                     <TableCell>
                       <div className="flex items-center gap-1.5 font-mono text-xs">
-                        <Clock className="size-3 text-muted-foreground" aria-hidden />
+                        <Clock
+                          className="size-3 text-muted-foreground"
+                          aria-hidden
+                        />
                         <span>{formatIsoTime(entry.clock_out)}</span>
                       </div>
                     </TableCell>
 
                     <TableCell>
-                      <span className="font-semibold text-sm">
+                      <span className="text-sm font-semibold">
                         {Number(entry.total_hours).toFixed(2)} hrs
                       </span>
                     </TableCell>

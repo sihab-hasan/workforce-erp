@@ -28,7 +28,9 @@ export function createTimesheetsApi(http: ReturnType<typeof createHttpClient>) {
      * `GET /api/v1/timesheets/today`
      * Fetches the current / today's active timesheet status for the user/employee.
      */
-    getTodayStatus(employeeId?: string): Promise<ApiResponse<TodayTimesheetStatus>> {
+    getTodayStatus(
+      employeeId?: string
+    ): Promise<ApiResponse<TodayTimesheetStatus>> {
       const params = employeeId ? { employee_id: employeeId } : undefined
       return http.get<ApiResponse<TodayTimesheetStatus>>(
         "/api/v1/timesheets/today",
