@@ -1,5 +1,15 @@
+export { ApiError, createHttpClient } from "./http/index"
+export type { HttpClient } from "./http/index"
+
+// ---------------------------------------------------------------------------
+// Legacy client surface — kept for backward compatibility while the codebase
+// migrates to the module-level API functions that use createHttpClient directly.
+// ---------------------------------------------------------------------------
+
 export interface ApiClientOptions {
   baseUrl: string
+  /** Callback returning the current Bearer token, or null/undefined if unauthenticated. */
+  getToken?: () => string | null | undefined
 }
 
 export interface ApiClient {
@@ -8,10 +18,11 @@ export interface ApiClient {
 }
 
 export function createApiClient(options: ApiClientOptions): ApiClient {
+  const resolvedBase = options.baseUrl.replace(/\/$/, "")
   return {
-    baseUrl: options.baseUrl.replace(/\/$/, ""),
+    baseUrl: resolvedBase,
     async getHealth() {
-      const response = await fetch(`${this.baseUrl}/api/health`)
+      const response = await fetch(`${resolvedBase}/api/health`)
 
       if (!response.ok) {
         throw new Error(`API request failed with status ${response.status}`)

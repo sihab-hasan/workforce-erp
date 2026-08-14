@@ -7,23 +7,28 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@workforce-erp/ui/components/dialog"
-import { useInviteUser } from "../api/users.mutations"
+import { useUpdateUserMutation } from "../api/users.mutations"
 import { UserForm, type UserFormData } from "./UserForm"
+import type { UserSummary } from "../types/users.types"
 
-export interface UserInvitationDialogProps {
+export interface UserEditDialogProps {
+  user: UserSummary | null
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-export function UserInvitationDialog({
+export function UserEditDialog({
+  user,
   open,
   onOpenChange,
-}: UserInvitationDialogProps) {
+}: UserEditDialogProps) {
   const [serverError, setServerError] = useState<string | null>(null)
-  const inviteMutation = useInviteUser()
+  const updateMutation = useUpdateUserMutation()
+
+  if (!user) return null
 
   const handleClose = () => {
-    if (!inviteMutation.isPending) {
+    if (!updateMutation.isPending) {
       setServerError(null)
       onOpenChange(false)
     }
@@ -31,24 +36,27 @@ export function UserInvitationDialog({
 
   const handleSubmit = (values: UserFormData) => {
     setServerError(null)
-    inviteMutation.mutate(
+    updateMutation.mutate(
       {
-        name: values.name,
-        email: values.email,
-        role: values.role,
-        organization_id: values.organization_id,
-        employee_id: values.employee_id,
+        id: user.id,
+        payload: {
+          name: values.name,
+          role: values.role,
+          organization_id: values.organization_id,
+          employee_id: values.employee_id,
+        },
       },
       {
         onSuccess: () => {
-          toast.success(`Invitation sent to ${values.email}`)
+          toast.success(`User details updated successfully`)
+          setServerError(null)
           onOpenChange(false)
         },
         onError: (err: unknown) => {
           const message =
             err instanceof Error
               ? err.message
-              : "Failed to send invitation. Please try again."
+              : "Failed to update user. Please try again."
           setServerError(message)
           toast.error(message)
         },
@@ -60,18 +68,27 @@ export function UserInvitationDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Invite New User</DialogTitle>
+          <DialogTitle>Edit User Profile</DialogTitle>
           <DialogDescription>
-            Send an account invitation email with designated role, organization, and optional employee record link.
+            Update role, organization, and linked employee record for {user.name} ({user.email}).
           </DialogDescription>
         </DialogHeader>
 
         <UserForm
-          isPending={inviteMutation.isPending}
+          key={user.id}
+          initialValues={{
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            organization_id: user.organization_id,
+            employee_id: user.employee_id ?? "none",
+          }}
+          hideEmail={true}
+          isPending={updateMutation.isPending}
           serverError={serverError}
           onSubmit={handleSubmit}
           onCancel={handleClose}
-          submitLabel="Send Invitation"
+          submitLabel="Save Changes"
         />
       </DialogContent>
     </Dialog>
