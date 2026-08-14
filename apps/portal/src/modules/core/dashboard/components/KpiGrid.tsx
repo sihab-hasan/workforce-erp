@@ -1,6 +1,5 @@
 import {
   Users,
-  Clock,
   CalendarOff,
   DollarSign,
   TrendingUp,
@@ -37,14 +36,6 @@ const kpiData: KpiCardDatum[] = [
     trend: "up",
     icon: Users,
     caption: "Active employee base",
-  },
-  {
-    label: "Attendance Rate",
-    value: "94.2%",
-    change: "+1.8 pp vs last week",
-    trend: "up",
-    icon: Clock,
-    caption: "Present or late today",
   },
   {
     label: "Pending Leave Requests",

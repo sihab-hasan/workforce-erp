@@ -1,7 +1,6 @@
 import {
   UserPlus,
   CalendarCheck,
-  Clock,
   FileText,
   AlertCircle,
   type LucideIcon,
@@ -19,7 +18,7 @@ import { Badge } from "@workforce-erp/ui/components/badge"
 import { Button } from "@workforce-erp/ui/components/button"
 import { Separator } from "@workforce-erp/ui/components/separator"
 
-type ActivityKind = "hire" | "leave" | "attendance" | "document" | "alert"
+type ActivityKind = "hire" | "leave" | "document" | "alert"
 
 interface ActivityItem {
   id: string
@@ -46,14 +45,6 @@ const activities: ActivityItem[] = [
     actor: "James Okonkwo",
     initials: "JO",
     timestamp: "4 hours ago",
-  },
-  {
-    id: "3",
-    kind: "attendance",
-    message: "Late check-in recorded",
-    actor: "Priya Sharma",
-    initials: "PS",
-    timestamp: "5 hours ago",
   },
   {
     id: "4",
@@ -84,7 +75,6 @@ const activities: ActivityItem[] = [
 const kindIconMap: Record<ActivityKind, LucideIcon> = {
   hire: UserPlus,
   leave: CalendarCheck,
-  attendance: Clock,
   document: FileText,
   alert: AlertCircle,
 }

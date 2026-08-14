@@ -1,5 +1,4 @@
-export { ApiError, createHttpClient } from "./http/index"
-export type { HttpClient } from "./http/index"
+export * from "./http"
 
 // ---------------------------------------------------------------------------
 // Legacy client surface — kept for backward compatibility while the codebase
@@ -32,3 +31,4 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     },
   }
 }
+

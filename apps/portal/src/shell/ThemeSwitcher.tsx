@@ -5,15 +5,17 @@ import { useTheme } from "@workforce-erp/ui/providers/theme-provider"
 
 type ThemeSwitcherProps = {
   className?: string
+  ref?: React.Ref<HTMLButtonElement>
 }
 
-export function ThemeSwitcher({ className }: ThemeSwitcherProps) {
+export function ThemeSwitcher({ className, ref }: ThemeSwitcherProps) {
   const { resolvedTheme, setTheme } = useTheme()
   const isDark = resolvedTheme === "dark"
   const nextTheme = isDark ? "light" : "dark"
 
   return (
     <Button
+      ref={ref}
       type="button"
       variant="ghost"
       size="icon-sm"

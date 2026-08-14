@@ -1,4 +1,5 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom"
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
+import { RequireAuth } from "@workforce-erp/auth-client"
 
 import {
   authRoutes,
@@ -21,9 +22,11 @@ export function PortalRouter() {
               key={route.key}
               path={route.path}
               element={
-                <PortalLayout>
-                  <Page />
-                </PortalLayout>
+                <RequireAuth fallback={<Navigate to="/auth/login" replace />}>
+                  <PortalLayout>
+                    <Page />
+                  </PortalLayout>
+                </RequireAuth>
               }
             />
           )

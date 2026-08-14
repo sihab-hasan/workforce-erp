@@ -7,6 +7,8 @@ import { Input } from "@workforce-erp/ui/components/input"
 import { Label } from "@workforce-erp/ui/components/label"
 import { cn } from "@workforce-erp/ui/lib/utils"
 import { AUTH_PATHS } from "@/modules/core/authentication/navigation.ts"
+import { apiClient } from "@/lib/api"
+import { setStoredToken, useAuth } from "@workforce-erp/auth-client"
 
 export interface LoginFormProps {
   className?: string
@@ -19,8 +21,9 @@ export function LoginForm({ className, onSuccess }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { signIn } = useAuth()
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
 
@@ -29,13 +32,39 @@ export function LoginForm({ className, onSuccess }: LoginFormProps) {
       return
     }
 
-    // Placeholder: simulate async login
     setIsLoading(true)
-    setTimeout(() => {
+
+    try {
+      const response = await apiClient.post<{
+        success: boolean
+        token: string
+        user: { id: number; name: string; email: string }
+        message?: string
+      }>("/api/v1/auth/login", { email, password })
+
+      if (response.success && response.token) {
+        setStoredToken(response.token)
+        signIn({
+          accessToken: response.token,
+          user: {
+            id: String(response.user.id),
+            name: response.user.name,
+            email: response.user.email,
+          },
+        })
+        onSuccess?.()
+      } else {
+        setError(response.message || "Invalid email or password.")
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Authentication failed. Please check your credentials."
+      setError(errorMessage)
+    } finally {
       setIsLoading(false)
-      // TODO: replace with real auth call
-      onSuccess?.()
-    }, 1200)
+    }
   }
 
   return (
