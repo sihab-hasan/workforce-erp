@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { UserPlus, Loader2 } from "lucide-react"
 import { Button } from "@workforce-erp/ui/components/button"
 import { Separator } from "@workforce-erp/ui/components/separator"
@@ -13,12 +13,7 @@ import type { Employee } from "@/modules/people/employees/types/employees.types.
 
 const PAGE_SIZE = 10
 
-const DEFAULT_FILTERS: EmployeeFiltersState = {
-  search: "",
-  department: "all",
-  status: "all",
-  location: "all",
-}
+
 
 /**
  * EmployeeDirectoryPage
@@ -44,8 +39,11 @@ export default function EmployeeDirectoryPage() {
 
   useEffect(() => {
     let ignore = false
-    
-    setIsLoading(true)
+    Promise.resolve().then(() => {
+      if (!ignore) {
+        setIsLoading(true)
+      }
+    })
     apiClient
       .getEmployees({
         search: urlState.search,

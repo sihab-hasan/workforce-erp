@@ -7,7 +7,7 @@ export function useUrlState<T extends Record<string, string | number | undefined
   const [searchParams, setSearchParams] = useSearchParams()
 
   const state = useMemo(() => {
-    const currentState = { ...defaultState } as Record<string, any>
+    const currentState = { ...defaultState } as Record<string, unknown>
     
     for (const key in defaultState) {
       if (Object.prototype.hasOwnProperty.call(defaultState, key)) {
