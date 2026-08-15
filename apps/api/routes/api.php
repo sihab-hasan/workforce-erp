@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\EmployeesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,9 @@ use Illuminate\Support\Facades\Route;
 
 // Dummy CRUD operations for items using UsersController
 Route::get('/items', [UsersController::class, 'index']);
+
+// Employees endpoint
+Route::get('/employees', [EmployeesController::class, 'index']);
 Route::get('/items/{id}', [UsersController::class, 'show']);
 Route::post('/items', [UsersController::class, 'store']);
 Route::put('/items/{id}', [UsersController::class, 'update']);
