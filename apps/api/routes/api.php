@@ -36,6 +36,11 @@ Route::post('/v1/auth/login', [\App\Http\Controllers\Api\v1\AuthController::clas
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/v1/auth/me', [\App\Http\Controllers\Api\v1\AuthController::class, 'me']);
     Route::post('/v1/auth/logout', [\App\Http\Controllers\Api\v1\AuthController::class, 'logout']);
+
+    // Paginated list routes
+    Route::get('/v1/timesheets', [\App\Http\Controllers\Api\v1\TimesheetController::class, 'index']);
+    Route::get('/v1/employees', [\App\Http\Controllers\Api\v1\EmployeeController::class, 'index']);
+    Route::get('/users', [\App\Http\Controllers\Api\v1\UserController::class, 'index']);
 });
 
 if (app()->environment('testing', 'local')) {
