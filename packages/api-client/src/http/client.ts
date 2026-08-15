@@ -48,7 +48,9 @@ export interface GetEmployeesParams {
 export interface ApiClient {
   baseUrl: string
   getHealth(): Promise<{ status: string; service: string }>
-  getEmployees(params?: GetEmployeesParams): Promise<PaginatedResponse<Employee>>
+  getEmployees(
+    params?: GetEmployeesParams
+  ): Promise<PaginatedResponse<Employee>>
   get<T>(url: string, options?: HttpRequestOptions): Promise<T>
   post<T>(url: string, data?: any, options?: HttpRequestOptions): Promise<T>
   put<T>(url: string, data?: any, options?: HttpRequestOptions): Promise<T>
@@ -211,9 +213,14 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
       return request<{ status: string; service: string }>("GET", "/api/health")
     },
     async getEmployees(params = {}) {
-      return request<PaginatedResponse<Employee>>("GET", "/api/employees", undefined, {
-        params,
-      })
+      return request<PaginatedResponse<Employee>>(
+        "GET",
+        "/api/employees",
+        undefined,
+        {
+          params,
+        }
+      )
     },
     get<T>(url: string, requestOptions?: HttpRequestOptions) {
       return request<T>("GET", url, undefined, requestOptions)

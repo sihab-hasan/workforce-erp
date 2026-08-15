@@ -2,7 +2,10 @@ import { useState, useEffect } from "react"
 import { UserPlus, Loader2 } from "lucide-react"
 import { Button } from "@workforce-erp/ui/components/button"
 import { Separator } from "@workforce-erp/ui/components/separator"
-import { DEPARTMENTS, LOCATIONS } from "@/modules/people/employees/data/employees.data.ts"
+import {
+  DEPARTMENTS,
+  LOCATIONS,
+} from "@/modules/people/employees/data/employees.data.ts"
 import { EmployeeSummaryCards } from "@/modules/people/employees/components/EmployeeSummaryCards.tsx"
 import { EmployeeFilters } from "@/modules/people/employees/components/EmployeeFilters.tsx"
 import type { EmployeeFiltersState } from "@/modules/people/employees/components/EmployeeFilters.tsx"
@@ -12,8 +15,6 @@ import { apiClient } from "@/lib/api.ts"
 import type { Employee } from "@/modules/people/employees/types/employees.types.ts"
 
 const PAGE_SIZE = 10
-
-
 
 /**
  * EmployeeDirectoryPage
@@ -47,7 +48,8 @@ export default function EmployeeDirectoryPage() {
     apiClient
       .getEmployees({
         search: urlState.search,
-        department: urlState.department === "all" ? undefined : urlState.department,
+        department:
+          urlState.department === "all" ? undefined : urlState.department,
         status: urlState.status === "all" ? undefined : urlState.status,
         location: urlState.location === "all" ? undefined : urlState.location,
         page: urlState.page,
