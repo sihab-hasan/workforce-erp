@@ -17,6 +17,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'sso_provider',
+        'sso_provider_id',
     ];
 
     /**
@@ -32,5 +34,22 @@ class User extends Authenticatable
     public function posts()
     {
         return $this->hasMany(Post::class); // One user has many posts
+    }
+
+    public function organizations()
+    {
+        return $this->belongsToMany(Organization::class, 'organization_members')
+            ->withPivot(['role', 'status'])
+            ->withTimestamps();
+    }
+
+    public function memberships()
+    {
+        return $this->hasMany(OrganizationMember::class);
+    }
+
+    public function employees()
+    {
+        return $this->hasMany(Employee::class);
     }
 }

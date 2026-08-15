@@ -1,37 +1,65 @@
-# Laravel API Starter Template
+# Workforce ERP API Backend
 
-This is a **Laravel API-only starter template** intended for students to build their own projects.
-
-The backend is fully prepared for RESTful API development, and students are expected to create a frontend separately in a `client` folder.
+This is the canonical Laravel API backend service for Workforce ERP. It is an API-only Laravel service that exposes RESTful JSON resources for the administrative, portal, and web frontends.
 
 ---
 
 ## Features
 
-- Laravel 10 backend
-- API routes only (no Blade templates)
-- Sanctum authentication setup (optional)
-- Ready for React or other frontend clients
-- Example routes and controllers to get started
+- Laravel 10 backend API namespace
+- Unified API Response format (using `ApiResponseTrait`)
+- Global exception mapping to standard JSON response contract
+- Versioned API routes under `/api/v1`
+- SQLite/MySQL clean setup support
+- Integrated developer tests (PHPUnit) and code-style formatting (Laravel Pint)
 
 ---
 
-## Prerequisites
+## Installation & Setup
 
-Make sure you have the following installed:
+1. **Install Dependencies**
 
-- PHP >= 8.1
-- Composer
-- MySQL / PostgreSQL / SQLite
-- Node.js and npm/yarn (for the frontend client)
+   ```bash
+   composer install
+   ```
+
+2. **Configure Environment**
+   Copy the example environment configuration:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Generate the application key:
+
+   ```bash
+   php artisan key:generate
+   ```
+
+3. **Database Migration**
+   Run the migrations to create the database schema:
+   ```bash
+   php artisan migrate:fresh
+   ```
 
 ---
 
-## Installation
+## Validation & Testing
 
-1. **Clone the repository**
+Run the automated test suite:
 
 ```bash
-git clone <repository-url>
-cd <project-folder>
+php artisan test
+```
+
+Verify code-style formatting (Laravel Pint):
+
+```bash
+composer exec pint -- --test
+```
+
+To auto-format PHP files:
+
+```bash
+composer exec pint
 ```

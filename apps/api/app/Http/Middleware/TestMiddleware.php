@@ -10,13 +10,14 @@ class TestMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
+        if ($request->is('api/health') || $request->is('api/v1/auth/*')) {
+            return $next($request);
+        }
+
         $token = $request->header('X-API-TOKEN');
 
         if ($token !== 'my-secret-token') {
-            return response()->json([
-                'error' => 'Unauthorized access',
-                'message' => 'Invalid or missing token.',
-            ], 401);
+            throw new \Illuminate\Auth\AuthenticationException('Invalid or missing token.');
         }
 
         return $next($request);

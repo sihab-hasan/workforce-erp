@@ -31,4 +31,16 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID', 'mock-google-client-id'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET', 'mock-google-client-secret'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', 'http://localhost:5174/portal/auth/callback/google'),
+    ],
+
+    'microsoft' => [
+        'client_id' => env('MICROSOFT_CLIENT_ID', 'mock-microsoft-client-id'),
+        'client_secret' => env('MICROSOFT_CLIENT_SECRET', 'mock-microsoft-client-secret'),
+        'redirect' => env('MICROSOFT_REDIRECT_URI', 'http://localhost:5174/portal/auth/callback/microsoft'),
+    ],
+
 ];

@@ -19,6 +19,7 @@ import {
 } from "@workforce-erp/ui/components/sidebar"
 
 import type { PortalRoute } from "@/app/config/routes.config.ts"
+import { useAuth } from "@workforce-erp/auth-client"
 
 type PortalSidebarProps = {
   currentPath: string
@@ -27,6 +28,8 @@ type PortalSidebarProps = {
 
 export function PortalSidebar({ currentPath, routes }: PortalSidebarProps) {
   const { isMobile, setOpenMobile } = useSidebar()
+  const { session } = useAuth()
+  const user = session?.user
 
   const sections = routes.reduce<Record<string, PortalRoute[]>>(
     (acc, route) => {
@@ -103,18 +106,18 @@ export function PortalSidebar({ currentPath, routes }: PortalSidebarProps) {
         <div className="flex items-center gap-2.5 rounded-lg border border-sidebar-border bg-sidebar-accent/40 px-2 py-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-transparent group-data-[collapsible=icon]:bg-transparent group-data-[collapsible=icon]:px-0">
           <Avatar size="sm">
             <AvatarFallback className="bg-sidebar-primary text-xs font-bold text-sidebar-primary-foreground">
-              U
+              {user?.name ? user.name[0].toUpperCase() : "U"}
             </AvatarFallback>
           </Avatar>
           <div className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
             <div className="flex items-center gap-2">
               <span className="truncate text-xs font-semibold text-sidebar-foreground">
-                Portal User
+                {user?.name || "Portal User"}
               </span>
               <Badge variant="outline">Pro</Badge>
             </div>
             <span className="truncate text-[10px] text-sidebar-foreground/70">
-              user@acme.com
+              {user?.email || "user@acme.com"}
             </span>
           </div>
         </div>

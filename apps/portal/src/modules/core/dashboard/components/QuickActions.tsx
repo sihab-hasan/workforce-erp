@@ -77,6 +77,7 @@ export function QuickActions({ className }: QuickActionsProps) {
                 variant="outline"
                 className="h-auto min-h-24 flex-col items-start justify-start gap-2 rounded-lg py-4 text-left"
                 render={<Link to={action.to} />}
+                nativeButton={false}
               >
                 <Icon data-icon="inline-start" aria-hidden />
                 <div className="flex min-w-0 flex-col gap-0.5">
