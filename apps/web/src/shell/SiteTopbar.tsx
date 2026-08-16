@@ -43,7 +43,7 @@ function ApiStatusAnnouncement({
 }
 
 export default function SiteTopbar() {
-  const [apiStatus, setApiStatus] = useState("Connecting...")
+  const [apiStatus, setApiStatus] = useState("Checking...")
 
   useEffect(() => {
     apiClient

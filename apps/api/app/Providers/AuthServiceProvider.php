@@ -2,7 +2,8 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
+use App\Models\User;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -17,10 +18,17 @@ class AuthServiceProvider extends ServiceProvider
     ];
 
     /**
-     * Register any authentication / authorization services.
+     * Register authentication / authorization services.
      */
     public function boot(): void
     {
-        //
+        ResetPassword::createUrlUsing(function (User $user, string $token): string {
+            $portalUrl = (string) config('workforce.portal_url');
+
+            return $portalUrl.'/auth/reset-password?'.http_build_query([
+                'token' => $token,
+                'email' => $user->email,
+            ]);
+        });
     }
 }

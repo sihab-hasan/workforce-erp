@@ -1,28 +1,9 @@
 # @workforce-erp/api-client
 
-Frontend-to-backend API client utilities for Workforce ERP.
+Canonical frontend-to-backend HTTP transport for Workforce ERP.
 
-## Current surface
+First-party browser requests use Laravel Sanctum stateful SPA authentication: `credentials: include`, the HttpOnly Laravel session cookie, and automatic `XSRF-TOKEN` / `X-XSRF-TOKEN` handling for unsafe methods. No browser credential is read from or written to localStorage.
 
-Today the package exports `createApiClient(options)`, which currently returns a simple client
-configuration object. That makes the package real but still early in its implementation maturity.
+The package exports `createApiClient(options)` and the feature-module compatibility facade `createHttpClient()`. Both share query serialization, cancellation, normalized `ApiError` handling, credentialed requests, and CSRF initialization.
 
-## Workspace notes
-
-- `openapi/workforce-api.yaml` is the current OpenAPI source artifact in the package.
-- `src/codegen/openapi.config.ts` is the current codegen configuration entry point.
-- `src/generated/` is reserved for generated client output.
-- `src/http/` is reserved for shared transport helpers.
-
-## Workspace notes
-
-- `openapi/workforce-api.yaml` is the current OpenAPI source artifact in the package.
-- `src/codegen/openapi.config.ts` is the current codegen placeholder.
-- `src/generated/` is reserved for generated client output.
-- `src/http/` is reserved for shared transport helpers.
-
-## Intended use
-
-This package is the canonical typed client boundary that frontend apps should use to talk to the API
-consistently. It still needs deeper transport, error-handling, and auth integration work as backend
-implementation matures.
+Personal access tokens remain a backend capability for explicitly non-browser API clients; the browser transport does not create or persist them.

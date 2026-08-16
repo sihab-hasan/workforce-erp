@@ -14,22 +14,23 @@ import {
 import ForgotPasswordPage from "@/modules/core/authentication/pages/ForgotPasswordPage.tsx"
 import LoginPage from "@/modules/core/authentication/pages/LoginPage.tsx"
 import MfaChallengePage from "@/modules/core/authentication/pages/MfaChallengePage.tsx"
-import RegisterPage from "@/modules/core/authentication/pages/RegisterPage.tsx"
 import ResetPasswordPage from "@/modules/core/authentication/pages/ResetPasswordPage.tsx"
-import VerifyEmailPage from "@/modules/core/authentication/pages/VerifyEmailPage.tsx"
+import SsoCallbackPage from "@/modules/core/authentication/pages/SsoCallbackPage.tsx"
 import DashboardPage from "@/modules/core/dashboard/pages/DashboardPage.tsx"
 import ForbiddenPage from "@/app/pages/ForbiddenPage.tsx"
 import MaintenancePage from "@/app/pages/MaintenancePage.tsx"
 import NotFoundPage from "@/app/pages/NotFoundPage.tsx"
 import ServerErrorPage from "@/app/pages/ServerErrorPage.tsx"
-import AttendanceTodayPage from "@/modules/people/attendance/pages/AttendanceTodayPage.tsx"
 import DepartmentListPage from "@/modules/people/departments/pages/DepartmentListPage.tsx"
 import EmployeeDocumentListPage from "@/modules/people/employee-documents/pages/EmployeeDocumentListPage.tsx"
 import EmployeeDirectoryPage from "@/modules/people/employees/pages/EmployeeDirectoryPage.tsx"
 import LeaveRequestListPage from "@/modules/people/leave/pages/LeaveRequestListPage.tsx"
 import PayrollRunsPage from "@/modules/people/payroll/pages/PayrollRunsPage.tsx"
 import CandidateListPage from "@/modules/people/recruitment/pages/CandidateListPage.tsx"
-import ShiftRosterPage from "@/modules/people/shifts/pages/ShiftRosterPage.tsx"
+import TimesheetListPage from "@/modules/people/timesheet/pages/TimesheetListPage.tsx"
+import UserListPage from "@/modules/core/users/pages/UserListPage.tsx"
+import AccountSecurityPage from "@/modules/core/profile/pages/AccountSecurityPage.tsx"
+import SessionsPage from "@/modules/core/profile/pages/SessionsPage.tsx"
 
 type Icon = ComponentType<{ className?: string }>
 
@@ -41,8 +42,14 @@ export type PortalRoute = {
   section: string
   icon: Icon
   component: ComponentType
+  /** Show this route in the primary sidebar/mobile navigation. */
+  navigation?: boolean
+  /** Optional coarse-grained role gate for portal navigation/routes. */
+  allowedRoles?: string[]
   /** When true, the route renders without the portal shell layout */
   isAuthRoute?: boolean
+  /** Public recovery routes can remain available during an existing session. */
+  anonymousOnly?: boolean
 }
 
 export const portalRoutes: PortalRoute[] = [
@@ -60,7 +67,7 @@ export const portalRoutes: PortalRoute[] = [
     title: "Employees",
     description: "Directory, profiles, and people operations",
     path: "/people/employees",
-    section: "People",
+    section: "Workforce",
     icon: Users,
     component: EmployeeDirectoryPage,
   },
@@ -69,25 +76,16 @@ export const portalRoutes: PortalRoute[] = [
     title: "Departments",
     description: "Org units, hierarchy, and ownership",
     path: "/people/departments",
-    section: "People",
+    section: "Workforce",
     icon: Building2,
     component: DepartmentListPage,
-  },
-  {
-    key: "attendance",
-    title: "Attendance",
-    description: "Daily activity, presence, and reporting",
-    path: "/people/attendance",
-    section: "People",
-    icon: Clock3,
-    component: AttendanceTodayPage,
   },
   {
     key: "leave",
     title: "Leave",
     description: "Requests, balances, and approvals",
     path: "/people/leave",
-    section: "People",
+    section: "Workforce",
     icon: LayoutGrid,
     component: LeaveRequestListPage,
   },
@@ -96,7 +94,7 @@ export const portalRoutes: PortalRoute[] = [
     title: "Documents",
     description: "Templates, requests, and expirations",
     path: "/people/documents",
-    section: "People",
+    section: "Workforce",
     icon: FileText,
     component: EmployeeDocumentListPage,
   },
@@ -108,24 +106,53 @@ export const portalRoutes: PortalRoute[] = [
     section: "People",
     icon: Users,
     component: CandidateListPage,
+    navigation: false,
   },
   {
-    key: "shifts",
-    title: "Shifts",
-    description: "Rosters, assignments, and schedules",
-    path: "/people/shifts",
-    section: "People",
+    key: "timesheet",
+    title: "Timesheet",
+    description: "Track hours, timesheets, and schedules",
+    path: "/people/timesheet",
+    section: "Time & Pay",
     icon: Clock3,
-    component: ShiftRosterPage,
+    component: TimesheetListPage,
   },
   {
     key: "payroll",
     title: "Payroll",
     description: "Runs, reports, and salary operations",
     path: "/people/payroll",
-    section: "Finance",
+    section: "Time & Pay",
     icon: Receipt,
     component: PayrollRunsPage,
+  },
+  {
+    key: "users",
+    title: "Users & Access",
+    description: "Invite users, manage roles, status, and employee links",
+    path: "/core/users",
+    section: "Administration",
+    icon: Users,
+    component: UserListPage,
+    allowedRoles: ["owner", "admin"],
+  },
+  {
+    key: "account-security",
+    title: "Security",
+    description: "Change your password and protect account access",
+    path: "/profile/security",
+    section: "Account",
+    icon: KeyRound,
+    component: AccountSecurityPage,
+  },
+  {
+    key: "sessions",
+    title: "Active Sessions",
+    description: "Review and revoke active API sessions",
+    path: "/profile/sessions",
+    section: "Account",
+    icon: ShieldAlert,
+    component: SessionsPage,
   },
   {
     key: "maintenance",
@@ -135,6 +162,7 @@ export const portalRoutes: PortalRoute[] = [
     section: "System",
     icon: AlertTriangle,
     component: MaintenancePage,
+    navigation: false,
   },
   {
     key: "forbidden",
@@ -144,6 +172,7 @@ export const portalRoutes: PortalRoute[] = [
     section: "System",
     icon: ShieldAlert,
     component: ForbiddenPage,
+    navigation: false,
   },
   {
     key: "server-error",
@@ -153,6 +182,7 @@ export const portalRoutes: PortalRoute[] = [
     section: "System",
     icon: AlertTriangle,
     component: ServerErrorPage,
+    navigation: false,
   },
 ]
 
@@ -181,53 +211,45 @@ export const authRoutes: PortalRoute[] = [
     isAuthRoute: true,
   },
   {
-    key: "register",
-    title: "Create Account",
-    description: "Register a new portal account",
-    path: "/auth/register",
-    section: "Auth",
-    icon: KeyRound,
-    component: RegisterPage,
-    isAuthRoute: true,
-  },
-  {
     key: "forgot-password",
     title: "Forgot Password",
-    description: "Request a password reset link",
+    description: "Request a secure password reset link",
     path: "/auth/forgot-password",
     section: "Auth",
     icon: KeyRound,
     component: ForgotPasswordPage,
     isAuthRoute: true,
+    anonymousOnly: false,
   },
   {
     key: "reset-password",
     title: "Reset Password",
-    description: "Set a new account password",
+    description: "Set a new password using a secure reset token",
     path: "/auth/reset-password",
     section: "Auth",
     icon: KeyRound,
     component: ResetPasswordPage,
     isAuthRoute: true,
-  },
-  {
-    key: "verify-email",
-    title: "Verify Email",
-    description: "Confirm your email address",
-    path: "/auth/verify-email",
-    section: "Auth",
-    icon: KeyRound,
-    component: VerifyEmailPage,
-    isAuthRoute: true,
+    anonymousOnly: false,
   },
   {
     key: "mfa",
-    title: "Two-Factor Authentication",
-    description: "Enter your one-time authentication code",
+    title: "One-Time Code",
+    description: "Sign in using an email verification code",
     path: "/auth/mfa",
     section: "Auth",
     icon: KeyRound,
     component: MfaChallengePage,
+    isAuthRoute: true,
+  },
+  {
+    key: "sso-callback",
+    title: "Single Sign-On",
+    description: "Complete Google or Microsoft authentication",
+    path: "/auth/callback/:provider",
+    section: "Auth",
+    icon: KeyRound,
+    component: SsoCallbackPage,
     isAuthRoute: true,
   },
 ]

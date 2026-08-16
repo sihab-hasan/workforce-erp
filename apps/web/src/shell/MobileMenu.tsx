@@ -5,6 +5,7 @@ import { Link, NavLink } from "react-router-dom"
 import { cn } from "@workforce-erp/ui/lib/utils"
 import { Button } from "@workforce-erp/ui/components/button"
 
+import { portalLinks } from "@/app/config/external-links"
 import {
   mobileNavigationGroups,
   mobilePrimaryNavigationItems,
@@ -165,7 +166,7 @@ export function MobileMenu() {
                 className="h-11 w-full"
                 render={
                   <a
-                    href="/portal/auth/login"
+                    href={portalLinks.login}
                     onClick={() => setIsOpen(false)}
                   />
                 }

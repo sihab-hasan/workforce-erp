@@ -36,4 +36,14 @@ if [[ ! -f "$ROOT_DIR/apps/api/.env" ]]; then
   php "$ROOT_DIR/apps/api/artisan" key:generate
 fi
 
-echo "Setup complete."
+if grep -Eq '^DB_CONNECTION=sqlite$' "$ROOT_DIR/apps/api/.env"; then
+  touch "$ROOT_DIR/apps/api/database/database.sqlite"
+fi
+
+echo "Applying Workforce ERP database migrations..."
+php "$ROOT_DIR/apps/api/artisan" migrate --force
+
+echo "Seeding local authentication bootstrap account (local environment only)..."
+php "$ROOT_DIR/apps/api/artisan" db:seed --force
+
+echo "Setup complete. Start the API with: php apps/api/artisan serve --host=localhost --port=8000"

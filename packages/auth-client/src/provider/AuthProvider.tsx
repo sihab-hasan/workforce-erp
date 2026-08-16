@@ -25,12 +25,8 @@ export function AuthProvider({
     () => ({
       session,
       status: session ? "authenticated" : "anonymous",
-      signIn: (nextSession: AuthSession) => {
-        setSession(nextSession)
-      },
-      signOut: () => {
-        setSession(null)
-      },
+      signIn: setSession,
+      signOut: () => setSession(null),
     }),
     [session]
   )

@@ -7,6 +7,7 @@ import {
   CardAction,
 } from "@workforce-erp/ui/components/card"
 import type { Employee } from "@/modules/people/employees/types/employees.types.ts"
+import type { EmployeeDirectorySummary } from "@/modules/people/employees/types/employees-filters.types.ts"
 
 interface SummaryDatum {
   label: string
@@ -39,7 +40,7 @@ function buildSummary(employees: Employee[]): SummaryDatum[] {
     {
       label: "Active",
       value: active,
-      sub: `${Math.round((active / total) * 100)}% of workforce`,
+      sub: `${total ? Math.round((active / total) * 100) : 0}% of workforce`,
       icon: UserCheck,
     },
     {
@@ -58,15 +59,44 @@ function buildSummary(employees: Employee[]): SummaryDatum[] {
 }
 
 export interface EmployeeSummaryCardsProps {
-  employees: Employee[]
+  employees?: Employee[]
+  summary?: EmployeeDirectorySummary
   className?: string
 }
 
 export function EmployeeSummaryCards({
-  employees,
+  employees = [],
+  summary: liveSummary,
   className,
 }: EmployeeSummaryCardsProps) {
-  const summary = buildSummary(employees)
+  const summary = liveSummary
+    ? [
+        {
+          label: "Total Employees",
+          value: liveSummary.total,
+          sub: "across all departments",
+          icon: Users,
+        },
+        {
+          label: "Active",
+          value: liveSummary.active,
+          sub: `${liveSummary.total ? Math.round((liveSummary.active / liveSummary.total) * 100) : 0}% of workforce`,
+          icon: UserCheck,
+        },
+        {
+          label: "On Leave",
+          value: liveSummary.on_leave,
+          sub: `${liveSummary.probation} on probation`,
+          icon: UserMinus,
+        },
+        {
+          label: "New This Month",
+          value: liveSummary.new_this_month,
+          sub: "recent joiners",
+          icon: TrendingUp,
+        },
+      ]
+    : buildSummary(employees)
 
   return (
     <section aria-label="Employee summary statistics" className={className}>

@@ -109,8 +109,8 @@ export function MobileNavigation({
             sideOffset={10}
             className="w-64"
           >
-            <DropdownMenuLabel>More destinations</DropdownMenuLabel>
             <DropdownMenuGroup>
+              <DropdownMenuLabel>More destinations</DropdownMenuLabel>
               {overflowRoutes.map((route) => {
                 const Icon = route.icon
                 const isActive = isRouteActive(route, currentPath)

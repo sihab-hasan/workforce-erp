@@ -2,10 +2,15 @@ import { useState } from "react"
 import { Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react"
 import { Link } from "react-router-dom"
 
+import { useAuth } from "@workforce-erp/auth-client"
 import { Button } from "@workforce-erp/ui/components/button"
 import { Input } from "@workforce-erp/ui/components/input"
 import { Label } from "@workforce-erp/ui/components/label"
 import { cn } from "@workforce-erp/ui/lib/utils"
+import {
+  authenticationApi,
+  toAuthSession,
+} from "@/modules/core/authentication/api/authentication.api"
 import { AUTH_PATHS } from "@/modules/core/authentication/navigation.ts"
 
 export interface LoginFormProps {
@@ -19,8 +24,9 @@ export function LoginForm({ className, onSuccess }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { signIn } = useAuth()
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
 
@@ -29,13 +35,26 @@ export function LoginForm({ className, onSuccess }: LoginFormProps) {
       return
     }
 
-    // Placeholder: simulate async login
     setIsLoading(true)
-    setTimeout(() => {
+
+    try {
+      const response = await authenticationApi.login(email.trim(), password)
+
+      if (response.success && response.user) {
+        signIn(toAuthSession(response))
+        onSuccess?.()
+      } else {
+        setError(response.message || "Invalid email or password.")
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Authentication failed. Please check your credentials."
+      setError(errorMessage)
+    } finally {
       setIsLoading(false)
-      // TODO: replace with real auth call
-      onSuccess?.()
-    }, 1200)
+    }
   }
 
   return (
@@ -45,7 +64,6 @@ export function LoginForm({ className, onSuccess }: LoginFormProps) {
       className={cn("flex flex-col gap-5", className)}
       noValidate
     >
-      {/* Email field */}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="login-email">Email address</Label>
         <div className="relative">
@@ -54,9 +72,13 @@ export function LoginForm({ className, onSuccess }: LoginFormProps) {
             id="login-email"
             type="email"
             autoComplete="email"
+            inputMode="email"
             placeholder="you@company.com"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value)
+              if (error) setError(null)
+            }}
             className="pl-8"
             aria-required="true"
             disabled={isLoading}
@@ -64,16 +86,14 @@ export function LoginForm({ className, onSuccess }: LoginFormProps) {
         </div>
       </div>
 
-      {/* Password field */}
       <div className="flex flex-col gap-1.5">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <Label htmlFor="login-password">Password</Label>
           <Link
             to={AUTH_PATHS.forgotPassword}
-            id="forgot-password-link"
-            className="text-xs text-muted-foreground underline-offset-4 transition-colors hover:text-primary hover:underline"
+            className="text-xs font-medium text-primary underline-offset-4 hover:underline"
           >
-            Forgot password?
+            Forgot your password?
           </Link>
         </div>
         <div className="relative">
@@ -82,9 +102,12 @@ export function LoginForm({ className, onSuccess }: LoginFormProps) {
             id="login-password"
             type={showPassword ? "text" : "password"}
             autoComplete="current-password"
-            placeholder="••••••••"
+            placeholder="Enter your password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value)
+              if (error) setError(null)
+            }}
             className="px-8"
             aria-required="true"
             disabled={isLoading}
@@ -107,18 +130,16 @@ export function LoginForm({ className, onSuccess }: LoginFormProps) {
         </div>
       </div>
 
-      {/* Inline error */}
       {error && (
         <p
           id="login-error"
           role="alert"
-          className="-mt-1 text-sm text-destructive"
+          className="-mt-1 rounded-md bg-destructive/5 px-3 py-2 text-sm text-destructive"
         >
           {error}
         </p>
       )}
 
-      {/* Submit */}
       <Button
         type="submit"
         id="login-submit-button"

@@ -6,6 +6,7 @@
   "scripts": {
     "build": "turbo build",
     "clean": "powershell -ExecutionPolicy Bypass -File ./infra/scripts/clean.ps1",
+    "predev": "powershell -ExecutionPolicy Bypass -File ./infra/scripts/predev.ps1",
     "dev": "turbo dev",
     "docker:up": "docker compose -f infra/compose/compose.yml -f infra/compose/compose.local.yml up -d --build",
     "docker:down": "docker compose -f infra/compose/compose.yml -f infra/compose/compose.local.yml down --remove-orphans",

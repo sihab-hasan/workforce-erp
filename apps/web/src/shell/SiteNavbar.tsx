@@ -6,6 +6,7 @@ import { Button } from "@workforce-erp/ui/components/button"
 import { useTheme } from "@workforce-erp/ui/providers/theme-provider"
 
 import { siteRoutes, siteNavigationItems } from "@/app/config/site-map"
+import { portalLinks } from "@/app/config/external-links"
 import { NavigationDropdown } from "@/shared/components/navigation"
 import { MobileMenu } from "./MobileMenu"
 
@@ -91,7 +92,7 @@ export default function SiteNavbar() {
             size="lg"
             nativeButton={false}
             className="hidden px-4 xl:inline-flex"
-            render={<a href="/portal/auth/login" />}
+            render={<a href={portalLinks.login} />}
           >
             Sign In
           </Button>

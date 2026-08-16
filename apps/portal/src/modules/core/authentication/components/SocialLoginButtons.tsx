@@ -1,7 +1,13 @@
-import { cn } from "@workforce-erp/ui/lib/utils"
-import { Button } from "@workforce-erp/ui/components/button"
+import { useState } from "react"
+import { Loader2 } from "lucide-react"
 
-/** Inline SVG for Google's "G" mark — no external dependency needed. */
+import { Button } from "@workforce-erp/ui/components/button"
+import { cn } from "@workforce-erp/ui/lib/utils"
+import {
+  authenticationApi,
+  type SsoProvider,
+} from "@/modules/core/authentication/api/authentication.api"
+
 function GoogleIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -31,7 +37,6 @@ function GoogleIcon({ className }: { className?: string }) {
   )
 }
 
-/** Inline SVG for Microsoft Azure / M365 mark. */
 function MicrosoftIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -51,17 +56,40 @@ function MicrosoftIcon({ className }: { className?: string }) {
 
 export interface SocialLoginButtonsProps {
   className?: string
-  /** Label prefix for the action. Defaults to "Sign in". */
   action?: string
+  returnTo?: string
 }
 
 export function SocialLoginButtons({
   className,
   action = "Sign in",
+  returnTo = "/",
 }: SocialLoginButtonsProps) {
-  function handleSocial(provider: "google" | "microsoft") {
-    // TODO: replace with real OAuth redirect
-    console.info(`[placeholder] ${provider} OAuth flow`)
+  const [loadingProvider, setLoadingProvider] = useState<SsoProvider | null>(
+    null
+  )
+  const [error, setError] = useState<string | null>(null)
+
+  async function handleSocial(provider: SsoProvider) {
+    setLoadingProvider(provider)
+    setError(null)
+
+    try {
+      const response = await authenticationApi.getSsoRedirect(provider)
+      sessionStorage.setItem(
+        `workforce-erp.sso.${provider}.state`,
+        response.state
+      )
+      sessionStorage.setItem(`workforce-erp.sso.${provider}.returnTo`, returnTo)
+      window.location.assign(response.redirect_url)
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "We couldn’t start single sign-on. Please try again."
+      )
+      setLoadingProvider(null)
+    }
   }
 
   return (
@@ -72,9 +100,14 @@ export function SocialLoginButtons({
         size="lg"
         type="button"
         className="w-full gap-2.5"
-        onClick={() => handleSocial("google")}
+        disabled={loadingProvider !== null}
+        onClick={() => void handleSocial("google")}
       >
-        <GoogleIcon />
+        {loadingProvider === "google" ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <GoogleIcon />
+        )}
         {action} with Google
       </Button>
 
@@ -84,11 +117,25 @@ export function SocialLoginButtons({
         size="lg"
         type="button"
         className="w-full gap-2.5"
-        onClick={() => handleSocial("microsoft")}
+        disabled={loadingProvider !== null}
+        onClick={() => void handleSocial("microsoft")}
       >
-        <MicrosoftIcon />
+        {loadingProvider === "microsoft" ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <MicrosoftIcon />
+        )}
         {action} with Microsoft
       </Button>
+
+      {error && (
+        <p
+          role="alert"
+          className="rounded-md bg-destructive/5 px-3 py-2 text-center text-xs leading-5 text-destructive"
+        >
+          {error}
+        </p>
+      )}
     </div>
   )
 }

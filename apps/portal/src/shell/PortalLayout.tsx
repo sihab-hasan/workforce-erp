@@ -5,6 +5,7 @@ import {
   SidebarProvider,
 } from "@workforce-erp/ui/components/sidebar"
 import { portalRoutes } from "@/app/config/routes.config.ts"
+import { useAuth } from "@workforce-erp/auth-client"
 import { PortalSidebar } from "@/shell/PortalSidebar.tsx"
 import { PortalHeader } from "@/shell/PortalHeader.tsx"
 import { MobileNavigation } from "@/shell/MobileNavigation.tsx"
@@ -15,6 +16,15 @@ type PortalLayoutProps = {
 
 export function PortalLayout({ children }: PortalLayoutProps) {
   const location = useLocation()
+  const { session } = useAuth()
+  const visibleRoutes = portalRoutes.filter(
+    (route) =>
+      route.navigation !== false &&
+      (!route.allowedRoles ||
+        (session?.user.role
+          ? route.allowedRoles.includes(session.user.role)
+          : false))
+  )
 
   const currentRoute = portalRoutes.find(
     (route) => route.path === location.pathname
@@ -22,7 +32,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <PortalSidebar currentPath={location.pathname} routes={portalRoutes} />
+      <PortalSidebar currentPath={location.pathname} routes={visibleRoutes} />
 
       <SidebarInset className="min-h-screen overflow-x-hidden bg-background">
         <PortalHeader
@@ -36,7 +46,7 @@ export function PortalLayout({ children }: PortalLayoutProps) {
 
         <MobileNavigation
           currentPath={location.pathname}
-          routes={portalRoutes}
+          routes={visibleRoutes}
         />
       </SidebarInset>
     </SidebarProvider>

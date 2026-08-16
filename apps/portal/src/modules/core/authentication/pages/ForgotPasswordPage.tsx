@@ -9,8 +9,8 @@ export default function ForgotPasswordPage() {
   return (
     <AuthCard
       icon={<KeyRound className="size-6" />}
-      heading="Forgot your password?"
-      subheading="Enter your email and we'll send you a reset link"
+      heading="Reset your password"
+      subheading="Enter the email associated with your account and we’ll send password-reset instructions."
       footer={
         <Link
           to={AUTH_PATHS.login}

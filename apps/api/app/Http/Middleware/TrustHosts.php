@@ -13,6 +13,15 @@ class TrustHosts extends Middleware
      */
     public function hosts(): array
     {
+        $configuredHosts = config('workforce.trusted_hosts', []);
+
+        if (is_array($configuredHosts) && $configuredHosts !== []) {
+            return array_map(
+                static fn (string $host): string => '^'.preg_quote($host, '/').'$' ,
+                $configuredHosts
+            );
+        }
+
         return [
             $this->allSubdomainsOfApplicationUrl(),
         ];

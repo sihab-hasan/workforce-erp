@@ -1,17 +1,22 @@
 import { useState } from "react"
-import { Eye, EyeOff, Loader2, Lock } from "lucide-react"
+import { Check, Eye, EyeOff, Loader2, Lock } from "lucide-react"
 
 import { Button } from "@workforce-erp/ui/components/button"
 import { Input } from "@workforce-erp/ui/components/input"
 import { Label } from "@workforce-erp/ui/components/label"
 import { cn } from "@workforce-erp/ui/lib/utils"
+import { authenticationApi } from "@/modules/core/authentication/api/authentication.api"
 
 export interface PasswordResetFormProps {
+  email: string
+  token: string
   className?: string
   onSuccess?: () => void
 }
 
 export function PasswordResetForm({
+  email,
+  token,
   className,
   onSuccess,
 }: PasswordResetFormProps) {
@@ -22,17 +27,17 @@ export function PasswordResetForm({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
 
-    if (!password.trim() || !confirm.trim()) {
-      setError("Please fill in both fields.")
+    if (!password || !confirm) {
+      setError("Please fill in both password fields.")
       return
     }
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.")
+    if (password.length < 10) {
+      setError("Password must be at least 10 characters.")
       return
     }
 
@@ -41,19 +46,30 @@ export function PasswordResetForm({
       return
     }
 
-    // Placeholder: simulate async password reset
     setIsLoading(true)
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      await authenticationApi.resetPassword({
+        email,
+        token,
+        password,
+        password_confirmation: confirm,
+      })
       onSuccess?.()
-    }, 1200)
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "We couldn’t reset your password. Please request a new reset link."
+      )
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  /** Strength indicator: 0–4 */
   function strengthScore(pw: string): number {
     let score = 0
-    if (pw.length >= 8) score++
-    if (/[A-Z]/.test(pw)) score++
+    if (pw.length >= 10) score++
+    if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++
     if (/[0-9]/.test(pw)) score++
     if (/[^A-Za-z0-9]/.test(pw)) score++
     return score
@@ -68,6 +84,7 @@ export function PasswordResetForm({
     "bg-yellow-400",
     "bg-primary",
   ][score]
+  const passwordsMatch = confirm.length > 0 && confirm === password
 
   return (
     <form
@@ -76,7 +93,11 @@ export function PasswordResetForm({
       className={cn("flex flex-col gap-5", className)}
       noValidate
     >
-      {/* New password */}
+      <div className="rounded-md bg-muted/50 px-3 py-2.5 text-xs leading-5 text-muted-foreground">
+        Resetting the password for{" "}
+        <span className="font-medium text-foreground">{email}</span>
+      </div>
+
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="reset-password">New password</Label>
         <div className="relative">
@@ -85,11 +106,12 @@ export function PasswordResetForm({
             id="reset-password"
             type={showPassword ? "text" : "password"}
             autoComplete="new-password"
-            placeholder="Min. 8 characters"
+            placeholder="Enter a strong password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="px-8"
             aria-required="true"
+            aria-describedby="password-requirements password-strength"
             disabled={isLoading}
           />
           <button
@@ -109,9 +131,16 @@ export function PasswordResetForm({
           </button>
         </div>
 
-        {/* Strength bar */}
+        <p
+          id="password-requirements"
+          className="text-xs leading-5 text-muted-foreground"
+        >
+          Use 10+ characters with upper- and lowercase letters, a number, and a
+          symbol.
+        </p>
+
         {password.length > 0 && (
-          <div className="flex items-center gap-2">
+          <div id="password-strength" className="flex items-center gap-2">
             <div className="flex h-1 flex-1 gap-0.5 overflow-hidden rounded-full bg-border">
               {[1, 2, 3, 4].map((step) => (
                 <div
@@ -123,14 +152,13 @@ export function PasswordResetForm({
                 />
               ))}
             </div>
-            <span className="w-10 text-right text-xs text-muted-foreground">
+            <span className="w-12 text-right text-xs font-medium text-muted-foreground">
               {strengthLabel}
             </span>
           </div>
         )}
       </div>
 
-      {/* Confirm password */}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="reset-password-confirm">Confirm password</Label>
         <div className="relative">
@@ -139,15 +167,18 @@ export function PasswordResetForm({
             id="reset-password-confirm"
             type={showConfirm ? "text" : "password"}
             autoComplete="new-password"
-            placeholder="Re-enter your password"
+            placeholder="Re-enter your new password"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             className="px-8"
             aria-required="true"
-            disabled={isLoading}
             aria-invalid={
               confirm.length > 0 && confirm !== password ? true : undefined
             }
+            aria-describedby={
+              passwordsMatch ? "password-match-status" : undefined
+            }
+            disabled={isLoading}
           />
           <button
             type="button"
@@ -167,13 +198,21 @@ export function PasswordResetForm({
             )}
           </button>
         </div>
+        {passwordsMatch && (
+          <p
+            id="password-match-status"
+            className="flex items-center gap-1.5 text-xs text-primary"
+          >
+            <Check className="size-3.5" /> Passwords match
+          </p>
+        )}
       </div>
 
       {error && (
         <p
           id="reset-password-error"
           role="alert"
-          className="-mt-1 text-sm text-destructive"
+          className="-mt-1 rounded-md bg-destructive/5 px-3 py-2 text-sm text-destructive"
         >
           {error}
         </p>
@@ -184,12 +223,12 @@ export function PasswordResetForm({
         id="reset-password-submit"
         size="lg"
         className="mt-1 w-full"
-        disabled={isLoading}
+        disabled={isLoading || score < 4 || password !== confirm}
       >
         {isLoading ? (
           <>
             <Loader2 className="animate-spin" />
-            Resetting…
+            Updating password…
           </>
         ) : (
           "Set new password"

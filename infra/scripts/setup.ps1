@@ -41,4 +41,24 @@ if (-not (Test-Path -LiteralPath $ApiEnvPath)) {
   }
 }
 
-Write-Host "Setup complete."
+$ApiEnv = Get-Content -LiteralPath $ApiEnvPath -Raw
+if ($ApiEnv -match '(?m)^DB_CONNECTION=sqlite$') {
+  $SqlitePath = Join-Path $RootDir "apps\api\database\database.sqlite"
+  if (-not (Test-Path -LiteralPath $SqlitePath)) {
+    New-Item -ItemType File -Path $SqlitePath | Out-Null
+  }
+}
+
+Write-Host "Applying Workforce ERP database migrations..."
+php apps/api/artisan migrate --force
+if ($LASTEXITCODE -ne 0) {
+  throw "Laravel migration failed with exit code $LASTEXITCODE."
+}
+
+Write-Host "Seeding local authentication bootstrap account (local environment only)..."
+php apps/api/artisan db:seed --force
+if ($LASTEXITCODE -ne 0) {
+  throw "Laravel database seeding failed with exit code $LASTEXITCODE."
+}
+
+Write-Host "Setup complete. Start the API with: php apps/api/artisan serve --host=localhost --port=8000"

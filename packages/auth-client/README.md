@@ -1,21 +1,7 @@
 # @workforce-erp/auth-client
 
-Shared frontend authentication helpers for Workforce ERP apps.
+Shared React authentication state for first-party Workforce ERP applications.
 
-## Current exports
+Browser credentials are intentionally **not** stored by this package. Laravel Sanctum owns the authenticated session through an HttpOnly cookie; this package stores only the non-sensitive user/session view in React memory.
 
-- `AuthProvider`
-- `RequireAuth`
-- `useAuth`
-- `useSession`
-- `createSession`
-- `clearStoredToken`
-- `getStoredToken`
-- `setStoredToken`
-- `AuthSession`
-- `AuthUser`
-- `SessionStatus`
-
-## Purpose
-
-Use this package to keep auth state handling, route protection, and token persistence consistent across frontend apps in the monorepo.
+Exports include `AuthProvider`, `useAuth`, `useSession`, `RequireAuth`, `createSession`, and auth types.

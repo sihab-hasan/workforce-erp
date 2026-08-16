@@ -9,6 +9,7 @@ This repository is public for visibility, but it is not open source and remains 
 - `apps/web`: public-facing web app on port `5173`
 - `apps/portal`: tenant portal on port `5174`
 - `apps/admin`: admin app on port `5175`
+- `apps/api`: Laravel 10 REST API backend on port `8000`
 - `infra/nginx`: local reverse proxy on port `3000`
 - `packages/ui`: shared UI components, styles, and package-level shadcn/ui registry setup
 - `packages/config/*`: shared ESLint and TypeScript configuration packages
@@ -53,8 +54,8 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full fork-to-merge workflow.
 
 ## Notes
 
-- There is no backend app in this workspace yet.
-- Generated API-client inputs and scaffolding currently live under `packages/api-client/openapi` and `packages/api-client/src/codegen`.
+- The canonical backend lives in `apps/api`; its architecture and local setup are documented in [`apps/api/README.md`](./apps/api/README.md).
+- Shared frontend transport and OpenAPI/codegen inputs live under `packages/api-client`.
 - The workspace globs live in [pnpm-workspace.yaml](./pnpm-workspace.yaml).
 - Longer-lived project documentation lives in [`docs/`](./docs/README.md).
 - Contribution workflow and pull request expectations live in [`CONTRIBUTING.md`](./CONTRIBUTING.md).

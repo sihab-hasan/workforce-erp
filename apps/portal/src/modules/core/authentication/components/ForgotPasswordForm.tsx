@@ -1,29 +1,23 @@
 import { useState } from "react"
-import { Loader2, Mail } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+import { CheckCircle2, Loader2, Mail } from "lucide-react"
 
 import { Button } from "@workforce-erp/ui/components/button"
 import { Input } from "@workforce-erp/ui/components/input"
 import { Label } from "@workforce-erp/ui/components/label"
 import { cn } from "@workforce-erp/ui/lib/utils"
-import { AUTH_PATHS } from "@/modules/core/authentication/navigation.ts"
+import { authenticationApi } from "@/modules/core/authentication/api/authentication.api"
 
 export interface ForgotPasswordFormProps {
   className?: string
-  onSuccess?: () => void
 }
 
-export function ForgotPasswordForm({
-  className,
-  onSuccess,
-}: ForgotPasswordFormProps) {
-  const navigate = useNavigate()
+export function ForgotPasswordForm({ className }: ForgotPasswordFormProps) {
   const [email, setEmail] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
 
@@ -32,13 +26,19 @@ export function ForgotPasswordForm({
       return
     }
 
-    // Placeholder: simulate sending reset email
     setIsLoading(true)
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      await authenticationApi.requestPasswordReset(email.trim())
       setSent(true)
-      onSuccess?.()
-    }, 1200)
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "We couldn’t start the password reset. Please try again."
+      )
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   if (sent) {
@@ -50,36 +50,33 @@ export function ForgotPasswordForm({
           className
         )}
       >
-        <div className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <Mail className="size-5" />
+        <div className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <CheckCircle2 className="size-5" />
         </div>
-        <div className="flex flex-col gap-1">
-          <p className="text-sm font-medium text-foreground">
+        <div className="flex flex-col gap-1.5">
+          <p className="text-sm font-semibold text-foreground">
             Check your inbox
           </p>
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            If <span className="font-medium text-foreground">{email}</span> is
-            registered, you&apos;ll receive a reset link shortly.
+          <p className="text-xs leading-5 text-muted-foreground">
+            If an eligible account exists for{" "}
+            <span className="font-medium text-foreground">{email}</span>, we’ll
+            send a secure password-reset link shortly.
+          </p>
+          <p className="text-xs leading-5 text-muted-foreground">
+            Didn’t receive it? Check your spam folder or try another email
+            address.
           </p>
         </div>
-
-        {/* Demo: simulate clicking the link that arrives in the email */}
-        <Button
-          id="forgot-password-go-to-reset"
-          size="lg"
-          className="w-full"
-          onClick={() => navigate(AUTH_PATHS.resetPassword)}
-        >
-          Set new password →
-        </Button>
-
         <button
           id="forgot-password-try-again"
           type="button"
-          onClick={() => setSent(false)}
-          className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          onClick={() => {
+            setSent(false)
+            setError(null)
+          }}
+          className="text-xs font-medium text-primary underline-offset-4 hover:underline"
         >
-          Try a different email
+          Use a different email
         </button>
       </div>
     )
@@ -100,21 +97,29 @@ export function ForgotPasswordForm({
             id="forgot-email"
             type="email"
             autoComplete="email"
+            inputMode="email"
             placeholder="you@company.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="pl-8"
             aria-required="true"
+            aria-describedby="forgot-email-help"
             disabled={isLoading}
           />
         </div>
+        <p
+          id="forgot-email-help"
+          className="text-xs leading-5 text-muted-foreground"
+        >
+          Use the email address assigned to your Workforce ERP account.
+        </p>
       </div>
 
       {error && (
         <p
           id="forgot-password-error"
           role="alert"
-          className="-mt-1 text-sm text-destructive"
+          className="-mt-1 rounded-md bg-destructive/5 px-3 py-2 text-sm text-destructive"
         >
           {error}
         </p>
@@ -130,7 +135,7 @@ export function ForgotPasswordForm({
         {isLoading ? (
           <>
             <Loader2 className="animate-spin" />
-            Sending link…
+            Sending reset link…
           </>
         ) : (
           "Send reset link"

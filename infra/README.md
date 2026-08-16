@@ -14,13 +14,19 @@ The root workspace commands call the PowerShell scripts in `infra/scripts/`.
 
 ### Setup
 
-Used by:
+Windows workspace command:
 
-```bash
+```powershell
 pnpm setup
 ```
 
-Script:
+macOS/Linux equivalent:
+
+```bash
+./infra/scripts/setup.sh
+```
+
+Scripts:
 
 - `infra/scripts/setup.ps1`
 - `infra/scripts/setup.sh`

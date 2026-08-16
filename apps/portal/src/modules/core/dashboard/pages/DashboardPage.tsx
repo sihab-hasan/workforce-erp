@@ -3,7 +3,6 @@ import { Button } from "@workforce-erp/ui/components/button"
 import { Separator } from "@workforce-erp/ui/components/separator"
 import { CalendarDays, Download, RefreshCw } from "lucide-react"
 import { ActivityFeed } from "@/modules/core/dashboard/components/ActivityFeed.tsx"
-import { AttendanceSummary } from "@/modules/core/dashboard/components/AttendanceSummary.tsx"
 import { EmployeeStatistics } from "@/modules/core/dashboard/components/EmployeeStatistics.tsx"
 import { KpiGrid } from "@/modules/core/dashboard/components/KpiGrid.tsx"
 import { QuickActions } from "@/modules/core/dashboard/components/QuickActions.tsx"
@@ -44,8 +43,7 @@ export default function DashboardPage() {
             {greetingText}, Team
           </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            A focused view of workforce health, attendance, and operational
-            tasks for today.
+            A focused view of workforce health and operational tasks for today.
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -65,10 +63,7 @@ export default function DashboardPage() {
 
       <KpiGrid />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <AttendanceSummary />
-        <EmployeeStatistics />
-      </div>
+      <EmployeeStatistics />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <ActivityFeed className="lg:col-span-2" />

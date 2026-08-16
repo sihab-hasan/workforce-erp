@@ -17,6 +17,7 @@
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/manrope": "^5.2.8",
     "@workforce-erp/api-client": "workspace:*",
+    "@workforce-erp/auth-client": "workspace:*",
     "@workforce-erp/ui": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

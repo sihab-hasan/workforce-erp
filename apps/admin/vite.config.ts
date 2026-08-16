@@ -8,7 +8,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/admin/",
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
@@ -16,10 +15,15 @@ export default defineConfig({
     },
   },
   server: {
-    host: "0.0.0.0",
+    host: "localhost",
+    port: 5175,
     proxy: {
       "/api": {
-        target: "http://127.0.0.1:8000",
+        target: "http://localhost:8000",
+        changeOrigin: true,
+      },
+      "/sanctum": {
+        target: "http://localhost:8000",
         changeOrigin: true,
       },
     },
