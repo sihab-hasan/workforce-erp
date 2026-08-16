@@ -14,9 +14,7 @@ class SsoService
 {
     private const PROVIDERS = ['google', 'microsoft'];
 
-    public function __construct(private readonly AuthService $authService)
-    {
-    }
+    public function __construct(private readonly AuthService $authService) {}
 
     /**
      * @return array{redirect_url:string,state:string}

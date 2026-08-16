@@ -61,7 +61,6 @@ class AuthService
         ];
     }
 
-
     public function usesPersonalAccessToken(User $user): bool
     {
         return $user->currentAccessToken() instanceof PersonalAccessToken;
@@ -74,8 +73,11 @@ class AuthService
 
     public function isBlockedFromSignIn(User $user, bool $allowInvited = false): bool
     {
-        if (! $user->memberships()->exists()) return true;
+        if (! $user->memberships()->exists()) {
+            return true;
+        }
         $allowedStatuses = $allowInvited ? ['active', 'invited'] : ['active'];
+
         return ! $user->memberships()->whereIn('status', $allowedStatuses)->exists();
     }
 
@@ -102,7 +104,10 @@ class AuthService
 
     public function revokeBrowserSession(User $user, string $sessionId): bool
     {
-        if (config('session.driver') !== 'database') return false;
+        if (config('session.driver') !== 'database') {
+            return false;
+        }
+
         return DB::table(config('session.table', 'sessions'))
             ->where('id', $sessionId)
             ->where('user_id', $user->getAuthIdentifier())
@@ -123,6 +128,7 @@ class AuthService
         }
 
         $currentId = $request->session()->getId();
+
         return DB::table(config('session.table', 'sessions'))
             ->where('user_id', $user->getAuthIdentifier())
             ->orderByDesc('last_activity')
@@ -145,6 +151,7 @@ class AuthService
         $membership = $user->memberships()->with('organization')->where('status', 'active')->get()
             ->sort(function ($left, $right) use ($roleRank): int {
                 $byRole = ($roleRank[$left->role] ?? 99) <=> ($roleRank[$right->role] ?? 99);
+
                 return $byRole !== 0 ? $byRole : ((int) $left->organization_id <=> (int) $right->organization_id);
             })->first();
 
@@ -168,6 +175,7 @@ class AuthService
             : (str_contains($userAgent, 'Macintosh') ? 'macOS'
             : (str_contains($userAgent, 'Android') ? 'Android'
             : (str_contains($userAgent, 'iPhone') ? 'iPhone' : 'Device')));
+
         return $browser.' on '.$platform;
     }
 }

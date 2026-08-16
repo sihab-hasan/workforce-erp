@@ -11,9 +11,7 @@ use Illuminate\Support\Collection;
 
 class EmployeeService
 {
-    public function __construct(private readonly OrganizationAccessService $access)
-    {
-    }
+    public function __construct(private readonly OrganizationAccessService $access) {}
 
     /**
      * @param  array<string, mixed>  $filters

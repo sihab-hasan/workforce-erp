@@ -22,6 +22,7 @@ class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         $user = $this->authService->authenticatePassword($request->validated());
+
         return response()->json([
             'success' => true,
             'user' => $this->authService->establishBrowserSession($request, $user),
@@ -31,12 +32,14 @@ class AuthController extends Controller
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
     {
         $this->passwordService->sendResetLink($request->validated('email'));
+
         return response()->json(['success' => true, 'message' => 'If the account is eligible and email delivery is available, a password reset link will arrive shortly.']);
     }
 
     public function resetPassword(ResetPasswordRequest $request): JsonResponse
     {
         $this->passwordService->reset($request->validated());
+
         return response()->json(['success' => true, 'message' => 'Password reset successfully. Please sign in again.']);
     }
 
@@ -45,7 +48,10 @@ class AuthController extends Controller
         $validated = $request->validated();
         $wasBrowserSession = ! $this->authService->usesPersonalAccessToken($request->user());
         $this->passwordService->change($request->user(), $validated['current_password'], $validated['password']);
-        if ($wasBrowserSession) $this->authService->logoutBrowserSession($request);
+        if ($wasBrowserSession) {
+            $this->authService->logoutBrowserSession($request);
+        }
+
         return response()->json(['success' => true, 'message' => 'Password changed successfully. Please sign in again.']);
     }
 
@@ -78,7 +84,9 @@ class AuthController extends Controller
     {
         if ($this->authService->usesPersonalAccessToken($request->user())) {
             $deleted = $request->user()->tokens()->whereKey($sessionId)->delete();
-            if ($deleted === 0) abort(404, 'Session not found.');
+            if ($deleted === 0) {
+                abort(404, 'Session not found.');
+            }
         } else {
             $isCurrent = hash_equals($request->session()->getId(), $sessionId);
             if ($isCurrent) {
@@ -87,6 +95,7 @@ class AuthController extends Controller
                 abort(404, 'Session not found or this session backend cannot revoke other browser sessions.');
             }
         }
+
         return response()->json(['success' => true, 'message' => 'Session revoked.']);
     }
 
@@ -98,6 +107,7 @@ class AuthController extends Controller
         } else {
             $this->authService->logoutBrowserSession($request);
         }
+
         return response()->json(['success' => true, 'message' => 'Logged out successfully.']);
     }
 
@@ -109,6 +119,7 @@ class AuthController extends Controller
         if (! $this->authService->usesPersonalAccessToken($user) && $request->hasSession()) {
             $this->authService->logoutBrowserSession($request);
         }
+
         return response()->json(['success' => true, 'message' => 'All sessions have been logged out.']);
     }
 }

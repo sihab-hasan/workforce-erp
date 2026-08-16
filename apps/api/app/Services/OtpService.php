@@ -15,9 +15,7 @@ class OtpService
 
     private const MAX_ATTEMPTS = 5;
 
-    public function __construct(private readonly AuthService $authService)
-    {
-    }
+    public function __construct(private readonly AuthService $authService) {}
 
     public function request(string $email): void
     {
@@ -63,9 +61,6 @@ class OtpService
         }
     }
 
-    /**
-     * @return User
-     */
     public function verify(string $email, string $code): User
     {
         $otp = Otp::query()

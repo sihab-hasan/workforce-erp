@@ -11,9 +11,7 @@ use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
 {
-    public function __construct(private readonly EmployeeService $employeeService)
-    {
-    }
+    public function __construct(private readonly EmployeeService $employeeService) {}
 
     public function index(ListEmployeesRequest $request): JsonResponse
     {

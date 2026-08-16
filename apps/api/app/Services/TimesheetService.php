@@ -14,9 +14,7 @@ class TimesheetService
 {
     public const STATUSES = ['present', 'absent', 'on-leave', 'half-day', 'pending', 'approved', 'rejected'];
 
-    public function __construct(private readonly OrganizationAccessService $access)
-    {
-    }
+    public function __construct(private readonly OrganizationAccessService $access) {}
 
     /**
      * @param  array<string, mixed>  $filters

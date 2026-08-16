@@ -204,9 +204,12 @@ class OTPTest extends TestCase
         $code = null;
 
         Mail::assertSent(OtpMail::class, function (OtpMail $mail) use ($email, &$code) {
-            if (! $mail->hasTo($email)) return false;
+            if (! $mail->hasTo($email)) {
+                return false;
+            }
             $code = $mail->code;
             $this->assertSame(5, $mail->expiresInMinutes);
+
             return true;
         });
 

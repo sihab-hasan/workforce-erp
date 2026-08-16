@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
 
         if ($email === '' || $password === '') {
             $this->command?->warn('Local bootstrap owner skipped: email/password is empty.');
+
             return;
         }
 

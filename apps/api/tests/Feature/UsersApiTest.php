@@ -76,6 +76,7 @@ class UsersApiTest extends TestCase
             ->getJson('/api/v1/users')
             ->assertForbidden();
     }
+
     public function test_staff_membership_cannot_access_users_directory(): void
     {
         $organization = Organization::create(['name' => 'Acme', 'slug' => 'acme']);
@@ -297,5 +298,4 @@ class UsersApiTest extends TestCase
             ->postJson("/api/v1/users/{$target->id}/resend-invitation")
             ->assertStatus(409);
     }
-
 }

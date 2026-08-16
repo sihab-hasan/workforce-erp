@@ -87,10 +87,15 @@ class SSOTest extends TestCase
         ]);
 
         Http::assertSent(function (HttpRequest $request) use ($expectedChallenge): bool {
-            if ($request->url() !== 'https://oauth2.googleapis.com/token') return false;
+            if ($request->url() !== 'https://oauth2.googleapis.com/token') {
+                return false;
+            }
             $verifier = $request->data()['code_verifier'] ?? null;
-            if (! is_string($verifier) || $verifier === '') return false;
+            if (! is_string($verifier) || $verifier === '') {
+                return false;
+            }
             $actual = rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '=');
+
             return hash_equals((string) $expectedChallenge, $actual);
         });
     }

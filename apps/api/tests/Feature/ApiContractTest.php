@@ -74,8 +74,8 @@ class ApiContractTest extends TestCase
     {
         // POST to /validate without required 'name' field
         $response = $this->postJson('/api/v1/test-contract/validate', [
-                'description' => 'Missing name field',
-            ]);
+            'description' => 'Missing name field',
+        ]);
 
         $response->assertStatus(422)
             ->assertJsonStructure([

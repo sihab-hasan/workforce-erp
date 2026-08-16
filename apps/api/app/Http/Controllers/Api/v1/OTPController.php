@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Api\v1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RequestOtpRequest;
 use App\Http\Requests\Auth\VerifyOtpRequest;
+use App\Services\AuthService;
 use App\Services\OtpService;
 use Illuminate\Http\JsonResponse;
-use App\Services\AuthService;
 
 class OTPController extends Controller
 {

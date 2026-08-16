@@ -17,9 +17,7 @@ use Illuminate\Http\Request;
 
 class TimesheetController extends Controller
 {
-    public function __construct(private readonly TimesheetService $timesheetService)
-    {
-    }
+    public function __construct(private readonly TimesheetService $timesheetService) {}
 
     public function index(ListTimesheetsRequest $request): JsonResponse
     {

@@ -27,8 +27,7 @@ class UserService
     public function __construct(
         private readonly OrganizationAccessService $access,
         private readonly AuthService $authService,
-    ) {
-    }
+    ) {}
 
     /**
      * @param  array<string, mixed>  $filters

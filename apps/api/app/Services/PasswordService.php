@@ -13,9 +13,7 @@ use Illuminate\Validation\ValidationException;
 
 class PasswordService
 {
-    public function __construct(private readonly AuthService $authService)
-    {
-    }
+    public function __construct(private readonly AuthService $authService) {}
 
     /**
      * Send a real Laravel password-reset notification only to an active

@@ -17,7 +17,7 @@ class TrustHosts extends Middleware
 
         if (is_array($configuredHosts) && $configuredHosts !== []) {
             return array_map(
-                static fn (string $host): string => '^'.preg_quote($host, '/').'$' ,
+                static fn (string $host): string => '^'.preg_quote($host, '/').'$',
                 $configuredHosts
             );
         }

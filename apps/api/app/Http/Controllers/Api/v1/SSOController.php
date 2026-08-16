@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\SsoCallbackRequest;
-use App\Services\SsoService;
 use App\Services\AuthService;
+use App\Services\SsoService;
 use Illuminate\Http\JsonResponse;
 
 class SSOController extends Controller

@@ -64,7 +64,6 @@ class OrganizationAccessService
         }
     }
 
-
     public function activeRole(User $user, int $organizationId): ?string
     {
         return $user->memberships()

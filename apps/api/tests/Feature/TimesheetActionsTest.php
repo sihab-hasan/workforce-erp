@@ -60,6 +60,7 @@ class TimesheetActionsTest extends TestCase
 
         Carbon::setTestNow();
     }
+
     public function test_staff_cannot_clock_or_list_another_employee_timesheet(): void
     {
         $organization = Organization::create(['name' => 'Acme', 'slug' => 'acme']);
@@ -125,7 +126,6 @@ class TimesheetActionsTest extends TestCase
             ->assertForbidden();
     }
 
-
     public function test_live_clock_actions_reject_client_supplied_timestamps(): void
     {
         $organization = Organization::create(['name' => 'Acme', 'slug' => 'acme']);
@@ -160,5 +160,4 @@ class TimesheetActionsTest extends TestCase
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['clock_out']);
     }
-
 }
