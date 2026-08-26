@@ -1,31 +1,37 @@
-import path from "path"
-import { fileURLToPath } from "url"
-import tailwindcss from "@tailwindcss/vite"
-import react from "@vitejs/plugin-react"
-import { defineConfig } from "vite"
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig, loadEnv } from "vite";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const repoEnvDir = "../../";
 
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
+function numberEnv(value: string | undefined, fallback: number) {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 && parsed <= 65535 ? parsed : fallback;
+}
+
+export default defineConfig(({ mode }) => {
+  const fileEnv = loadEnv(mode, repoEnvDir, "");
+  const read = (name: string) => fileEnv[name];
+  const proxyTarget = read("VITE_API_PROXY_TARGET") || "http://127.0.0.1:8000";
+  const proxy = {
+    "/api": { target: proxyTarget, changeOrigin: true },
+    "/sanctum": { target: proxyTarget, changeOrigin: true },
+  };
+
+  return {
+    envDir: repoEnvDir,
+    plugins: [react(), tailwindcss()],
+    server: {
+      host: read("DEV_HOST") || "localhost",
+      port: numberEnv(read("WEB_DEV_PORT"), 5173),
+      strictPort: true,
+      proxy,
     },
-  },
-  server: {
-    host: "localhost",
-    port: 5173,
-    proxy: {
-      "/api": {
-        target: "http://localhost:8000",
-        changeOrigin: true,
-      },
-      "/sanctum": {
-        target: "http://localhost:8000",
-        changeOrigin: true,
-      },
+    preview: {
+      host: read("DEV_HOST") || "localhost",
+      port: numberEnv(read("WEB_PREVIEW_PORT"), 4173),
+      strictPort: true,
+      proxy,
     },
-  },
-})
+  };
+});

@@ -1,26 +1,26 @@
-import { ScrollTrigger } from "@workforce-erp/ui/motion/config"
+import { ScrollTrigger } from "@workforce-erp/ui/motion/config";
 import {
   animateIn,
   type AnimateInOptions,
   type MotionPresetName,
-} from "@workforce-erp/ui/motion/presets"
-import { prefersReducedMotion } from "@workforce-erp/ui/motion/preferences"
+} from "@workforce-erp/ui/motion/presets";
+import { prefersReducedMotion } from "@workforce-erp/ui/motion/preferences";
 
 export interface ScrollRevealOptions extends AnimateInOptions {
-  end?: string
-  once?: boolean
-  preset?: MotionPresetName
-  start?: string
-  toggleActions?: string
-  trigger?: Element | string
+  end?: string;
+  once?: boolean;
+  preset?: MotionPresetName;
+  start?: string;
+  toggleActions?: string;
+  trigger?: Element | string;
 }
 
 export interface ScrollAnimationOptions {
-  end?: string
-  once?: boolean
-  start?: string
-  toggleActions?: string
-  trigger: Element | string
+  end?: string;
+  once?: boolean;
+  start?: string;
+  toggleActions?: string;
+  trigger: Element | string;
 }
 
 export function bindScrollAnimation(
@@ -31,21 +31,21 @@ export function bindScrollAnimation(
     start = "top 85%",
     toggleActions = "play reverse play reverse",
     trigger,
-  }: ScrollAnimationOptions
+  }: ScrollAnimationOptions,
 ) {
   if (prefersReducedMotion()) {
-    animation.progress(1).pause()
-    return null
+    animation.progress(1).pause();
+    return null;
   }
 
   return ScrollTrigger.create({
     animation,
-    end,
+    ...(end !== undefined ? { end } : {}),
     once,
     start,
     toggleActions: once ? "play none none none" : toggleActions,
     trigger,
-  })
+  });
 }
 
 export function revealOnScroll(
@@ -58,24 +58,24 @@ export function revealOnScroll(
     toggleActions = "play reverse play reverse",
     trigger,
     ...animationOptions
-  }: ScrollRevealOptions = {}
+  }: ScrollRevealOptions = {},
 ) {
   if (prefersReducedMotion()) {
-    return animateIn(target, preset, animationOptions)
+    return animateIn(target, preset, animationOptions);
   }
 
   const tween = animateIn(target, preset, {
     ...animationOptions,
     paused: true,
-  })
+  });
 
   bindScrollAnimation(tween, {
-    end,
+    ...(end !== undefined ? { end } : {}),
     once,
     start,
     toggleActions,
     trigger: trigger ?? target,
-  })
+  });
 
-  return tween
+  return tween;
 }

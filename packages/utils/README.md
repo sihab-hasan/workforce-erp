@@ -1,11 +1,5 @@
 # @workforce-erp/utils
 
-Pure shared utility functions for the Workforce ERP workspace.
+Small framework-agnostic pure utilities. No business rules and no dumping-ground helpers.
 
-## Current surface
-
-Today this package exports `isDefined`, a small type-safe helper for null and undefined checks.
-
-## Intended use
-
-Place framework-agnostic helpers here when they are broadly reusable and do not belong to a more specific domain package.
+This package exposes only its public API through `src/index.ts`. Do not deep-import internal files from applications.

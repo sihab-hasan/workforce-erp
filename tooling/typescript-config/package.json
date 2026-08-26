@@ -1,0 +1,27 @@
+{
+  "name": "@workforce-erp/typescript-config",
+  "version": "1.0.0",
+  "private": true,
+  "files": [
+    "*.json",
+    "README.md"
+  ],
+  "exports": {
+    "./base.json": "./base.json",
+    "./browser.json": "./browser.json",
+    "./react-app.json": "./react-app.json",
+    "./react-library.json": "./react-library.json",
+    "./node.json": "./node.json",
+    "./node-library.json": "./node-library.json",
+    "./worker.json": "./worker.json"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.9 <7"
+  },
+  "nx": {
+    "tags": [
+      "type:tooling",
+      "scope:repo"
+    ]
+  }
+}

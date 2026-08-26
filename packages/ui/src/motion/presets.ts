@@ -1,26 +1,26 @@
-import { gsap } from "@workforce-erp/ui/motion/config"
-import { prefersReducedMotion } from "@workforce-erp/ui/motion/preferences"
+import { gsap } from "@workforce-erp/ui/motion/config";
+import { prefersReducedMotion } from "@workforce-erp/ui/motion/preferences";
 import {
   motionDistance,
   motionDuration,
   motionEase,
   motionStagger,
-} from "@workforce-erp/ui/motion/tokens"
+} from "@workforce-erp/ui/motion/tokens";
 
-export type MotionTarget = Parameters<typeof gsap.to>[0]
-export type MotionPresetName = "fade" | "fade-down" | "fade-up" | "scale"
+export type MotionTarget = Parameters<typeof gsap.to>[0];
+export type MotionPresetName = "fade" | "fade-down" | "fade-up" | "scale";
 
 interface MotionPreset {
-  from: gsap.TweenVars
-  to: gsap.TweenVars
+  from: gsap.TweenVars;
+  to: gsap.TweenVars;
 }
 
 export interface AnimateInOptions {
-  delay?: number
-  duration?: number
-  ease?: string
-  paused?: boolean
-  stagger?: number
+  delay?: number;
+  duration?: number;
+  ease?: string;
+  paused?: boolean;
+  stagger?: number;
 }
 
 const presets: Record<MotionPresetName, MotionPreset> = {
@@ -40,20 +40,20 @@ const presets: Record<MotionPresetName, MotionPreset> = {
     from: { autoAlpha: 0, scale: 0.96 },
     to: { autoAlpha: 1, scale: 1 },
   },
-}
+};
 
 export function animateIn(
   target: MotionTarget,
   presetName: MotionPresetName = "fade-up",
-  options: AnimateInOptions = {}
+  options: AnimateInOptions = {},
 ) {
-  const preset = presets[presetName]
+  const preset = presets[presetName];
 
   if (prefersReducedMotion()) {
     return gsap.set(target, {
       autoAlpha: 1,
       clearProps: "transform",
-    })
+    });
   }
 
   return gsap.fromTo(target, preset.from, {
@@ -61,14 +61,14 @@ export function animateIn(
     delay: options.delay ?? 0,
     duration: options.duration ?? motionDuration.slow,
     ease: options.ease ?? motionEase.enter,
-    paused: options.paused,
-    stagger: options.stagger,
-  })
+    ...(options.paused !== undefined ? { paused: options.paused } : {}),
+    ...(options.stagger !== undefined ? { stagger: options.stagger } : {}),
+  });
 }
 
 export function animateOut(
   target: MotionTarget,
-  options: Pick<AnimateInOptions, "delay" | "duration" | "ease"> = {}
+  options: Pick<AnimateInOptions, "delay" | "duration" | "ease"> = {},
 ) {
   return gsap.to(target, {
     autoAlpha: 0,
@@ -77,16 +77,16 @@ export function animateOut(
       ? motionDuration.instant
       : (options.duration ?? motionDuration.normal),
     ease: options.ease ?? motionEase.exit,
-  })
+  });
 }
 
 export function staggerIn(
   target: MotionTarget,
   presetName: MotionPresetName = "fade-up",
-  options: AnimateInOptions = {}
+  options: AnimateInOptions = {},
 ) {
   return animateIn(target, presetName, {
     ...options,
     stagger: options.stagger ?? motionStagger.normal,
-  })
+  });
 }

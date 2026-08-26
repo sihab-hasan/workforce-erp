@@ -1,42 +1,37 @@
-# Build and distribution
-dist/
-**/dist/
-build/
-**/build/
-.turbo/
-
 # Dependencies
 node_modules/
 **/node_modules/
 vendor/
 **/vendor/
 
-# Package manager locks
-pnpm-lock.yaml
-composer.lock
-
-# Environment and local config
-.env
-.env.*
-.env.local
-
-# Laravel specific
-storage/
-**/storage/
-bootstrap/cache/
-**/bootstrap/cache/
-
-# Testing and coverage
+# Build output and caches
+dist/
+**/dist/
+build/
+**/build/
 coverage/
-**/.coverage/
-
-# Cache and temporary
+**/coverage/
+.nx/
 .pnpm-store/
 **/.cache/
-**/node_modules/.cache/
+*.tsbuildinfo
 
-# Special paths
-**/skills/
-.git/
-.github/
-public/build/
+# Generated dependency metadata
+pnpm-lock.yaml
+**/composer.lock
+
+# Laravel runtime files
+apps/api/storage/
+apps/api/bootstrap/cache/
+apps/api/public/build/
+apps/api/.phpunit.result.cache
+
+# Local environment files
+.env
+.env.*
+**/.env
+**/.env.*
+
+# Minified vendor assets
+**/*.min.js
+**/*.min.css

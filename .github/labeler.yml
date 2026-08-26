@@ -1,58 +1,41 @@
-frontend:
+web:
   - changed-files:
       - any-glob-to-any-file: "apps/web/**"
-      - any-glob-to-any-file: "apps/portal/**"
-      - any-glob-to-any-file: "apps/admin/**"
-      - any-glob-to-any-file: "packages/ui/**"
+
+erp:
+  - changed-files:
+      - any-glob-to-any-file: "apps/erp/**"
 
 admin:
   - changed-files:
       - any-glob-to-any-file: "apps/admin/**"
 
-portal:
+api:
   - changed-files:
-      - any-glob-to-any-file: "apps/portal/**"
+      - any-glob-to-any-file: "apps/api/**"
 
-web:
+worker:
   - changed-files:
-      - any-glob-to-any-file: "apps/web/**"
+      - any-glob-to-any-file: "services/worker/**"
 
 packages:
   - changed-files:
       - any-glob-to-any-file: "packages/**"
 
-api-client:
+tooling:
   - changed-files:
-      - any-glob-to-any-file: "packages/api-client/**"
+      - any-glob-to-any-file: "tooling/**"
+      - any-glob-to-any-file: "scripts/**"
 
-ui:
+infra:
   - changed-files:
-      - any-glob-to-any-file: "packages/ui/**"
-
-types:
-  - changed-files:
-      - any-glob-to-any-file: "packages/types/**"
-
-utils:
-  - changed-files:
-      - any-glob-to-any-file: "packages/utils/**"
-
-config:
-  - changed-files:
-      - any-glob-to-any-file: "packages/config/**"
-
-constants:
-  - changed-files:
-      - any-glob-to-any-file: "packages/constants/**"
+      - any-glob-to-any-file: "infra/**"
+      - any-glob-to-any-file: ".dockerignore"
 
 docs:
   - changed-files:
       - any-glob-to-any-file: "docs/**"
       - any-glob-to-any-file: "**/*.md"
-
-infra:
-  - changed-files:
-      - any-glob-to-any-file: "infra/**"
 
 ci:
   - changed-files:
@@ -60,8 +43,12 @@ ci:
 
 dependencies:
   - changed-files:
-      - any-glob-to-any-file: "package.json"
-      - any-glob-to-any-file: "pnpm-lock.yaml"
-      - any-glob-to-any-file: "pnpm-workspace.yaml"
-      - any-glob-to-any-file: "apps/*/package.json"
-      - any-glob-to-any-file: "packages/*/package.json"
+      - any-glob-to-any-file:
+          - "package.json"
+          - "pnpm-lock.yaml"
+          - "pnpm-workspace.yaml"
+          - "apps/*/package.json"
+          - "services/*/package.json"
+          - "packages/*/package.json"
+          - "apps/api/composer.json"
+          - "apps/api/composer.lock"

@@ -1,7 +1,9 @@
-import { createApiClient } from "@workforce-erp/api-client"
+import { createApiClient, type ApiClientOptions } from "@workforce-erp/api-client";
+import { apiConfig } from "#config/api";
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "/"
-
-export const apiClient = createApiClient({
-  baseUrl: apiBaseUrl,
-})
+export function createAppApiClient(options: Omit<ApiClientOptions, "baseUrl"> = {}) {
+  return createApiClient({
+    ...apiConfig,
+    ...options,
+  });
+}

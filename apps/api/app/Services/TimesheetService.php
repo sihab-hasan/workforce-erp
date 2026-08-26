@@ -26,6 +26,13 @@ class TimesheetService
         $ownEmployeeIds = $this->access->ownEmployeeIds($actor, $organizationIds);
         $query = Timesheet::query()->with(['employee', 'organization']);
 
+        if (! empty($filters['organization_id'])) {
+            $query->where('organization_id', (int) $filters['organization_id']);
+        }
+        if (! empty($filters['branch_id'])) {
+            $query->whereHas('employee', fn ($q) => $q->where('branch_id', (int) $filters['branch_id']));
+        }
+
         if ($manageableOrganizationIds === [] && $ownEmployeeIds === []) {
             $query->whereRaw('1 = 0');
         } else {

@@ -1,0 +1,13 @@
+{
+  "name": "Workforce ERP Admin",
+  "short_name": "ERP Admin",
+  "description": "Secure Workforce ERP platform administration.",
+  "start_url": "/admin/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#111827",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

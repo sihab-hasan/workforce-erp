@@ -1,19 +1,16 @@
-import { useRef } from "react"
+import { useRef } from "react";
 
-import { useGSAP } from "@workforce-erp/ui/motion/config"
-import { useReducedMotion } from "@workforce-erp/ui/motion/hooks/use-reduced-motion"
-import { type MotionPresetName } from "@workforce-erp/ui/motion/presets"
-import {
-  revealOnScroll,
-  type ScrollRevealOptions,
-} from "@workforce-erp/ui/motion/scroll"
+import { useGSAP } from "@workforce-erp/ui/motion/config";
+import { useReducedMotion } from "@workforce-erp/ui/motion/hooks/use-reduced-motion";
+import { type MotionPresetName } from "@workforce-erp/ui/motion/presets";
+import { revealOnScroll, type ScrollRevealOptions } from "@workforce-erp/ui/motion/scroll";
 
 export function useReveal<TElement extends HTMLElement = HTMLDivElement>(
   preset: MotionPresetName = "fade-up",
-  options: Omit<ScrollRevealOptions, "preset" | "trigger"> = {}
+  options: Omit<ScrollRevealOptions, "preset" | "trigger"> = {},
 ) {
-  const ref = useRef<TElement>(null)
-  const reducedMotion = useReducedMotion()
+  const ref = useRef<TElement>(null);
+  const reducedMotion = useReducedMotion();
 
   useGSAP(
     () => {
@@ -22,7 +19,7 @@ export function useReveal<TElement extends HTMLElement = HTMLDivElement>(
           ...options,
           preset,
           trigger: ref.current,
-        })
+        });
       }
     },
     {
@@ -40,8 +37,8 @@ export function useReveal<TElement extends HTMLElement = HTMLDivElement>(
       ],
       revertOnUpdate: true,
       scope: ref,
-    }
-  )
+    },
+  );
 
-  return ref
+  return ref;
 }

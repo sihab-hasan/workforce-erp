@@ -1,0 +1,2 @@
+/** home.schema.ts: generated architecture placeholder. */
+export {};

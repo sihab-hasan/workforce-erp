@@ -22,10 +22,22 @@ class Employee extends Model
         'last_name',
         'email',
         'phone',
+        'date_of_birth',
+        'gender',
+        'address',
+        'emergency_contact_name',
+        'emergency_contact_phone',
+        'notes',
         'hire_date',
         'termination_date',
         'status',
         'employment_type',
+    ];
+
+    protected $casts = [
+        'hire_date' => 'date',
+        'termination_date' => 'date',
+        'date_of_birth' => 'date',
     ];
 
     protected $appends = [
@@ -80,5 +92,10 @@ class Employee extends Model
     public function timesheets()
     {
         return $this->hasMany(Timesheet::class);
+    }
+
+    public function leaveRequests()
+    {
+        return $this->hasMany(LeaveRequest::class);
     }
 }

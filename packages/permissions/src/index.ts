@@ -1,5 +1,0 @@
-export { buildPermissionCheck, canAccess } from "./ability/ability"
-export { defaultPermissionMap } from "./ability/permission-map"
-export { Can, RequirePermission } from "./components/index"
-export { usePermission } from "./hooks/use-permission"
-export type { PermissionCheck, PermissionMap } from "./types/permission.types"

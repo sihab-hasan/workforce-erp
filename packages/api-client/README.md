@@ -1,9 +1,15 @@
 # @workforce-erp/api-client
 
-Canonical frontend-to-backend HTTP transport for Workforce ERP.
+Small fetch-based HTTP client shared by Web, ERP, and Admin.
 
-First-party browser requests use Laravel Sanctum stateful SPA authentication: `credentials: include`, the HttpOnly Laravel session cookie, and automatic `XSRF-TOKEN` / `X-XSRF-TOKEN` handling for unsafe methods. No browser credential is read from or written to localStorage.
+It is backend-framework neutral but intentionally compatible with the Laravel API in `apps/api`:
 
-The package exports `createApiClient(options)` and the feature-module compatibility facade `createHttpClient()`. Both share query serialization, cancellation, normalized `ApiError` handling, credentialed requests, and CSRF initialization.
+- JSON requests and responses
+- Bearer token authentication when used
+- cookie credentials for Laravel Sanctum-style SPA authentication
+- optional `X-XSRF-TOKEN`
+- `X-Tenant-Key` and `X-Company-Key` context headers
+- Laravel 422 `{ message, errors }` validation responses normalized to `ApiError`
+- correlation and idempotency headers
 
-Personal access tokens remain a backend capability for explicitly non-browser API clients; the browser transport does not create or persist them.
+Business endpoints do **not** belong in this package. They stay in app features or the Laravel API.

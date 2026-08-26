@@ -1,2 +1,0 @@
-/** designations.schema.ts: generated architecture placeholder. */
-export {}

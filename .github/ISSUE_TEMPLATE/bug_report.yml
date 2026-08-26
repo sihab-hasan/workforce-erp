@@ -13,13 +13,14 @@ body:
     id: affected-area
     attributes:
       label: Affected area
-      description: Select the application or repository area where the problem occurs.
       options:
-        - Public website (apps/web)
-        - Customer portal (apps/portal)
-        - Administration app (apps/admin)
+        - Public web app (apps/web)
+        - ERP app (apps/erp)
+        - Admin app (apps/admin)
         - Laravel API (apps/api)
-        - Shared package
+        - Worker service (services/worker)
+        - Shared package (packages/*)
+        - Tooling or scripts
         - CI or GitHub Actions
         - Documentation
         - Infrastructure
@@ -68,8 +69,8 @@ body:
     id: environment
     attributes:
       label: Environment
-      description: Include the browser, operating system, app environment, or commit when relevant.
-      placeholder: Chrome 126 on Windows 11, local development, commit abc123
+      description: Include browser, operating system, app environment, or commit when relevant.
+      placeholder: Chrome on Windows 11, local development, commit abc123
 
   - type: textarea
     id: evidence

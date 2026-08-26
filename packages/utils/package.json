@@ -1,21 +1,27 @@
 {
   "name": "@workforce-erp/utils",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
+  "sideEffects": false,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./array": "./src/array.ts",
+    "./assert": "./src/assert.ts",
+    "./async": "./src/async.ts",
+    "./object": "./src/object.ts",
+    "./string": "./src/string.ts"
   },
+  "types": "./src/index.ts",
   "scripts": {
-    "lint": "eslint .",
-    "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --max-warnings=0"
   },
-  "devDependencies": {
-    "@workforce-erp/eslint-config": "workspace:*",
-    "@workforce-erp/typescript-config": "workspace:*",
-    "eslint": "^10",
-    "typescript": "~6"
-  },
-  "license": "UNLICENSED"
+  "nx": {
+    "tags": [
+      "type:lib",
+      "scope:shared",
+      "domain:utils"
+    ]
+  }
 }

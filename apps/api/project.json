@@ -1,0 +1,49 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "@workforce-erp/api",
+  "projectType": "application",
+  "sourceRoot": "apps/api/app",
+  "tags": ["type:app", "platform:php", "scope:api"],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "php artisan serve --host=127.0.0.1 --port=8000"
+      }
+    },
+    "validate": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "command": "composer --working-dir=apps/api validate --strict --no-check-publish"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "command": "composer --working-dir=apps/api pint -- --test"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "command": "composer --working-dir=apps/api test"
+      }
+    },
+    "check": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "parallel": false,
+        "commands": [
+          "composer --working-dir=apps/api validate --strict --no-check-publish",
+          "composer --working-dir=apps/api pint -- --test",
+          "composer --working-dir=apps/api test"
+        ]
+      }
+    }
+  }
+}

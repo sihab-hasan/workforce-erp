@@ -10,11 +10,20 @@ class Branch extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $casts = [
+        'is_active' => 'boolean',
+        'settings' => 'array',
+    ];
+
     protected $fillable = [
         'organization_id',
         'name',
         'code',
         'address',
+        'email',
+        'phone',
+        'timezone',
+        'settings',
         'is_active',
     ];
 

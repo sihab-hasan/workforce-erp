@@ -10,10 +10,21 @@ class Organization extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $casts = [
+        'settings' => 'array',
+    ];
+
     protected $fillable = [
         'name',
+        'legal_name',
         'slug',
         'subdomain',
+        'email',
+        'phone',
+        'address',
+        'timezone',
+        'locale',
+        'settings',
         'status',
     ];
 
@@ -57,5 +68,20 @@ class Organization extends Model
     public function timesheets()
     {
         return $this->hasMany(Timesheet::class);
+    }
+
+    public function leaveTypes()
+    {
+        return $this->hasMany(LeaveType::class);
+    }
+
+    public function leaveRequests()
+    {
+        return $this->hasMany(LeaveRequest::class);
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
     }
 }

@@ -1,0 +1,4 @@
+{
+  "extends": "@workforce-erp/typescript-config/react-library.json",
+  "include": ["src"]
+}

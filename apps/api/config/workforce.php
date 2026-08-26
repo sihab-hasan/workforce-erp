@@ -18,11 +18,11 @@ return [
     |
     */
     'local_bootstrap' => [
-        'enabled' => env('LOCAL_BOOTSTRAP_ENABLED', true),
+        'enabled' => env('LOCAL_BOOTSTRAP_ENABLED', false),
         'organization_name' => env('LOCAL_BOOTSTRAP_ORGANIZATION_NAME', 'Workforce Local'),
         'organization_slug' => env('LOCAL_BOOTSTRAP_ORGANIZATION_SLUG', 'workforce-local'),
         'owner_name' => env('LOCAL_BOOTSTRAP_OWNER_NAME', 'Local Owner'),
         'owner_email' => env('LOCAL_BOOTSTRAP_OWNER_EMAIL', 'owner@workforce.local'),
-        'owner_password' => env('LOCAL_BOOTSTRAP_OWNER_PASSWORD', 'ChangeMe123!'),
+        'owner_password' => env('LOCAL_BOOTSTRAP_OWNER_PASSWORD', ''),
     ],
 ];

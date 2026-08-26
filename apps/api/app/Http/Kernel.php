@@ -66,5 +66,6 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'workforce.active' => \App\Http\Middleware\EnsureActiveWorkforceUser::class,
+        'workforce.scope' => \App\Http\Middleware\ResolveWorkforceScope::class,
     ];
 }

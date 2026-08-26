@@ -11,15 +11,19 @@ on:
       - develop
   workflow_dispatch:
 
+permissions:
+  actions: read
+  contents: read
+
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  frontend:
-    name: Frontend
+  node-workspace:
+    name: Node workspace
     uses: ./.github/workflows/frontend.yml
 
   api:
-    name: API
+    name: Laravel API
     uses: ./.github/workflows/api.yml

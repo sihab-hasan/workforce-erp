@@ -1,4 +1,4 @@
-name: API validation
+name: Laravel API validation
 
 on:
   workflow_call:
@@ -8,19 +8,24 @@ permissions:
 
 jobs:
   validate:
-    name: Format and test Laravel API
+    name: Validate and test Laravel API
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup PHP and Composer
         uses: ./.github/actions/setup-php-composer
+        with:
+          install: "false"
 
-      - name: Check formatting
-        run: composer --working-dir=apps/api exec pint -- --test
+      - name: Validate Composer metadata
+        run: composer --working-dir=apps/api validate --strict --no-check-publish
 
-      - name: Run tests
+      - name: Install PHP dependencies
+        run: composer --working-dir=apps/api install --no-interaction --prefer-dist --no-progress
+
+      - name: Run API test suite
         run: composer --working-dir=apps/api test

@@ -21,6 +21,13 @@ class EmployeeService
         $organizationIds = $this->access->organizationIds($actor);
         $query = Employee::query()->with(['organization', 'branch', 'department', 'designation', 'manager']);
 
+        if (! empty($filters['organization_id'])) {
+            $query->where('organization_id', (int) $filters['organization_id']);
+        }
+        if (! empty($filters['branch_id'])) {
+            $query->where('branch_id', (int) $filters['branch_id']);
+        }
+
         if ($organizationIds === []) {
             $query->whereRaw('1 = 0');
         } else {
@@ -65,32 +72,32 @@ class EmployeeService
     /**
      * @return array{departments:Collection<int,string>,locations:Collection<int,string>}
      */
-    public function options(User $actor): array
+    public function options(User $actor, ?int $organizationId = null, ?int $branchId = null): array
     {
-        $organizationIds = $this->access->organizationIds($actor);
+        $organizationIds = $organizationId ? [$organizationId] : $this->access->organizationIds($actor);
+
+        $departments = Department::query()->whereIn('organization_id', $organizationIds)->when($branchId, fn ($q) => $q->where('branch_id', $branchId))->where('is_active', true)->orderBy('name')->get(['id','name','code','branch_id']);
+        $branches = Branch::query()->whereIn('organization_id', $organizationIds)->where('is_active', true)->orderBy('name')->get(['id','name','code']);
+        $designations = \App\Models\Designation::query()->whereIn('organization_id', $organizationIds)->where('is_active', true)->orderBy('name')->get(['id','name','code']);
+        $managers = Employee::query()->whereIn('organization_id', $organizationIds)->when($branchId, fn ($q) => $q->where('branch_id', $branchId))->where('status', 'active')->orderBy('first_name')->orderBy('last_name')->get(['id','employee_id','first_name','last_name']);
 
         return [
-            'departments' => Department::query()
-                ->whereIn('organization_id', $organizationIds)
-                ->orderBy('name')
-                ->pluck('name')
-                ->unique()
-                ->values(),
-            'locations' => Branch::query()
-                ->whereIn('organization_id', $organizationIds)
-                ->orderBy('name')
-                ->pluck('name')
-                ->unique()
-                ->values(),
+            'departments' => $departments->pluck('name')->unique()->values(),
+            'locations' => $branches->pluck('name')->unique()->values(),
+            'department_records' => $departments->map(fn ($item) => ['id'=>(string)$item->id,'name'=>$item->name,'code'=>$item->code,'branch_id'=>$item->branch_id ? (string)$item->branch_id : null])->values(),
+            'branches' => $branches->map(fn ($item) => ['id'=>(string)$item->id,'name'=>$item->name,'code'=>$item->code])->values(),
+            'designations' => $designations->map(fn ($item) => ['id'=>(string)$item->id,'name'=>$item->name,'code'=>$item->code])->values(),
+            'managers' => $managers->map(fn ($item) => ['id'=>(string)$item->id,'employee_id'=>$item->employee_id,'name'=>trim($item->first_name.' '.$item->last_name)])->values(),
         ];
     }
 
     /**
      * @return array{total:int,active:int,on_leave:int,probation:int,new_this_month:int}
      */
-    public function summary(User $actor): array
+    public function summary(User $actor, ?int $organizationId = null, ?int $branchId = null): array
     {
-        $query = Employee::query()->whereIn('organization_id', $this->access->organizationIds($actor));
+        $query = Employee::query()->whereIn('organization_id', $organizationId ? [$organizationId] : $this->access->organizationIds($actor));
+        if ($branchId) $query->where('branch_id', $branchId);
 
         return [
             'total' => (clone $query)->count(),

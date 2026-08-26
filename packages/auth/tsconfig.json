@@ -1,0 +1,7 @@
+{
+  "extends": "@workforce-erp/typescript-config/react-library.json",
+  "compilerOptions": {
+    "rootDir": "src"
+  },
+  "include": ["src"]
+}

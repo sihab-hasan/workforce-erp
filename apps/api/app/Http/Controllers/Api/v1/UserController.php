@@ -10,16 +10,20 @@ use App\Http\Requests\Users\UserMembershipActionRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\UserService;
+use App\Services\WorkforceScopeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function __construct(private readonly UserService $userService) {}
+    public function __construct(private readonly UserService $userService, private readonly WorkforceScopeService $scope) {}
 
     public function index(ListUsersRequest $request): JsonResponse
     {
-        $paginator = $this->userService->paginate($request->user(), $request->validated());
+        $filters = $request->validated();
+        $org = $this->scope->organization($request, false);
+        if ($org) $filters['organization_id'] = $org->id;
+        $paginator = $this->userService->paginate($request->user(), $filters);
 
         return $this->successResponse(UserResource::collection($paginator), 'Users retrieved successfully');
     }

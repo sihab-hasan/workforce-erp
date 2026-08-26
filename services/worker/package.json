@@ -1,0 +1,28 @@
+{
+  "name": "@workforce-erp/worker",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "start": "tsx src/main.ts",
+    "lint": "eslint src --max-warnings=0",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@workforce-erp/api-client": "workspace:*",
+    "@workforce-erp/contracts": "workspace:*",
+    "@workforce-erp/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "tsx": "^4.20.5"
+  },
+  "nx": {
+    "tags": [
+      "type:service",
+      "platform:node",
+      "scope:worker"
+    ]
+  }
+}

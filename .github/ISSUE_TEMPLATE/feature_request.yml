@@ -1,5 +1,6 @@
 name: Feature request
 description: Propose a new capability or improvement
+title: "[Feature]: "
 labels:
   - enhancement
 body:
@@ -7,13 +8,14 @@ body:
     id: affected-area
     attributes:
       label: Affected area
-      description: Select where the feature belongs.
       options:
-        - Public website (apps/web)
-        - ERP portal (apps/portal)
-        - Administration app (apps/admin)
+        - Public web app (apps/web)
+        - ERP app (apps/erp)
+        - Admin app (apps/admin)
         - Laravel API (apps/api)
+        - Worker service (services/worker)
         - Shared package (packages/*)
+        - Tooling or scripts
         - CI or GitHub Actions
         - Documentation
         - Infrastructure
@@ -34,26 +36,14 @@ body:
   - type: input
     id: work-location
     attributes:
-      label: Contributor work location
-      description: Specify the primary app, package, directory, or file where the contributor must work.
-      placeholder: apps/web/src/modules/home/components/HeroSection.tsx
-    validations:
-      required: true
-
-  - type: textarea
-    id: related-files
-    attributes:
-      label: Related files
-      description: List relevant files or directories if known. This field may be left empty.
-      placeholder: |
-        apps/web/src/modules/home/components/HeroSection.tsx
-        apps/web/src/modules/home/pages/HomePage.tsx
+      label: Primary work location
+      description: Specify the main app, package, directory, or file when known.
+      placeholder: apps/erp/src/...
 
   - type: textarea
     id: acceptance-criteria
     attributes:
       label: Acceptance criteria
-      description: List the testable requirements if known. This field may be left empty.
       placeholder: |
         - ...
         - ...

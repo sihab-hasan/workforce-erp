@@ -1,0 +1,7 @@
+{
+  "extends": "@workforce-erp/typescript-config/worker.json",
+  "compilerOptions": {
+    "baseUrl": "."
+  },
+  "include": ["src"]
+}

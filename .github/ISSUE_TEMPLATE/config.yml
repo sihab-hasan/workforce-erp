@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Contribution Guide
-    url: https://github.com/sihab-hasan/workforce-erp/blob/develop/CONTRIBUTING.md
-    about: Review the contribution and pull request workflow before opening collaboration-related issues.
-  - name: Security Reporting
-    url: https://github.com/sihab-hasan/workforce-erp/blob/develop/.github/SECURITY.md
+  - name: Project documentation
+    url: https://github.com/sihab-hasan/workforce-erp/blob/main/README.md
+    about: Review project setup, workspace structure, and shared commands before opening an issue.
+  - name: Security reporting
+    url: https://github.com/sihab-hasan/workforce-erp/blob/main/.github/SECURITY.md
     about: Report security issues privately using the repository security guidance.
-  - name: Support Guidance
-    url: https://github.com/sihab-hasan/workforce-erp/blob/develop/.github/SUPPORT.md
+  - name: Support guidance
+    url: https://github.com/sihab-hasan/workforce-erp/blob/main/.github/SUPPORT.md
     about: Check the repository support guidance before opening a new issue.

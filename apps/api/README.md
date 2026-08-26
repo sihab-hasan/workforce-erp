@@ -49,7 +49,7 @@ php artisan db:seed
 php artisan serve --host=localhost --port=8000
 ```
 
-On XAMPP, start MySQL before running the migration. The local seeder is intentionally disabled outside `APP_ENV=local` and can be disabled locally with `LOCAL_BOOTSTRAP_ENABLED=false`. With the default `.env.example`, the local login is `owner@workforce.local` / `ChangeMe123!`; change those values for your own development machine.
+On XAMPP, start MySQL before running the migration. The local bootstrap seeder is disabled by default. To create a local owner, set `LOCAL_BOOTSTRAP_ENABLED=true` and choose a non-empty `LOCAL_BOOTSTRAP_OWNER_PASSWORD` in your untracked `apps/api/.env` before running the seeder.
 
 The Portal Vite dev server proxies `/api` to `http://localhost:8000`. To target another backend, set `VITE_API_BASE_URL` for the Portal.
 
@@ -103,18 +103,18 @@ curl -H "Accept: application/json" \
 
 Use a generated high-entropy value outside local testing. Never commit the real token. If no internal token is configured, `/api/v1/internal/ping` fails closed with HTTP 503.
 
-## Portal + API development
+## ERP + API development
 
 Terminal 1:
 
 ```bash
-php apps/api/artisan serve --host=localhost --port=8000
+pnpm dev:api
 ```
 
 Terminal 2:
 
 ```bash
-pnpm --filter @workforce-erp/portal dev
+pnpm dev:erp
 ```
 
 Open `http://localhost:5174/`.
