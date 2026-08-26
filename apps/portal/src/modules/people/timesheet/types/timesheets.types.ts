@@ -49,4 +49,7 @@ export interface TodayTimesheetStatus {
   active_timesheet: Timesheet | null
   today: string
   total_today_hours?: number
+  scheduled_hours?: number
+  remaining_hours?: number
+  current_session_seconds?: number
 }
