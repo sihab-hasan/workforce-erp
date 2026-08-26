@@ -37,8 +37,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/v1/auth/me', [\App\Http\Controllers\Api\v1\AuthController::class, 'me']);
     Route::post('/v1/auth/logout', [\App\Http\Controllers\Api\v1\AuthController::class, 'logout']);
 
-    // Paginated list routes
+    // Timesheets routes
     Route::get('/v1/timesheets', [\App\Http\Controllers\Api\v1\TimesheetController::class, 'index']);
+    Route::get('/v1/timesheets/today', [\App\Http\Controllers\Api\v1\TimesheetController::class, 'today']);
+    Route::post('/v1/timesheets/clock-in', [\App\Http\Controllers\Api\v1\TimesheetController::class, 'clockIn']);
+    Route::post('/v1/timesheets/clock-out', [\App\Http\Controllers\Api\v1\TimesheetController::class, 'clockOut']);
+    Route::post('/v1/timesheets', [\App\Http\Controllers\Api\v1\TimesheetController::class, 'store']);
+    Route::get('/v1/timesheets/{id}', [\App\Http\Controllers\Api\v1\TimesheetController::class, 'show']);
+    Route::put('/v1/timesheets/{id}', [\App\Http\Controllers\Api\v1\TimesheetController::class, 'update']);
+    Route::delete('/v1/timesheets/{id}', [\App\Http\Controllers\Api\v1\TimesheetController::class, 'destroy']);
+
     Route::get('/v1/employees', [\App\Http\Controllers\Api\v1\EmployeeController::class, 'index']);
     Route::get('/users', [\App\Http\Controllers\Api\v1\UserController::class, 'index']);
 });
