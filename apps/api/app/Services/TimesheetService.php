@@ -18,10 +18,9 @@ class TimesheetService
     /**
      * Validate that the requested time span for an employee does not overlap with any existing records.
      *
-     * @param int $employeeId
-     * @param Carbon|string $clockIn
-     * @param Carbon|string|null $clockOut
-     * @param int|null $ignoreId
+     * @param  Carbon|string  $clockIn
+     * @param  Carbon|string|null  $clockOut
+     *
      * @throws ValidationException|ConflictHttpException
      */
     public function validateNoOverlap(int $employeeId, mixed $clockIn, mixed $clockOut = null, ?int $ignoreId = null): void
@@ -58,7 +57,7 @@ class TimesheetService
                 ->whereNotNull('clock_out')
                 ->where(function ($q) use ($clockInTime) {
                     $q->where('clock_in', '<=', $clockInTime)
-                      ->where('clock_out', '>', $clockInTime);
+                        ->where('clock_out', '>', $clockInTime);
                 });
 
             if ($ignoreId) {
@@ -71,6 +70,7 @@ class TimesheetService
                 $conflictEnd = Carbon::parse($closedConflict->clock_out)->format('H:i:s');
                 throw new ConflictHttpException("The clock-in time overlaps with an existing completed shift ({$conflictStart} - {$conflictEnd}).");
             }
+
             return;
         }
 
@@ -105,7 +105,7 @@ class TimesheetService
 
             throw ValidationException::withMessages([
                 'time_span' => [
-                    "The time span ({$proposedStart} to {$proposedEnd}) overlaps with an existing timesheet record ({$overlapStart} to {$overlapEnd})."
+                    "The time span ({$proposedStart} to {$proposedEnd}) overlaps with an existing timesheet record ({$overlapStart} to {$overlapEnd}).",
                 ],
             ]);
         }

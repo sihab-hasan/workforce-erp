@@ -9,7 +9,6 @@ use App\Models\Employee;
 use App\Models\Organization;
 use App\Models\Timesheet;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -18,8 +17,11 @@ class TimesheetOverlapAndTrackerTest extends TestCase
     use RefreshDatabase;
 
     protected Organization $organization;
+
     protected Employee $employee;
+
     protected User $user;
+
     protected string $token;
 
     protected function setUp(): void
