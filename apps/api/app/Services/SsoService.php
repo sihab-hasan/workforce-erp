@@ -50,7 +50,7 @@ class SsoService
             || ($transaction['provider'] ?? null) !== $provider
             || ! is_string($transaction['code_verifier'] ?? null)
         ) {
-            abort(419, 'Invalid or expired SSO state. Start sign-in again.');
+            abort(419, 'Invalid or expired SSO state.');
         }
 
         try {
@@ -90,6 +90,10 @@ class SsoService
         // never silently create a tenant-less ERP account.
         if (! $user || $this->authService->isBlockedFromSignIn($user, true)) {
             abort(403, 'No eligible Workforce account is available for this identity.');
+        }
+
+        if ($user->sso_provider && $user->sso_provider !== $provider) {
+            abort(409, 'This email is already associated with another login provider.');
         }
 
         $providerIdentity = UserSsoIdentity::query()
@@ -199,7 +203,7 @@ class SsoService
                 'status' => $tokenResponse->status(),
                 'provider_error' => $tokenResponse->json('error'),
             ]);
-            abort(400, 'Google rejected the sign-in callback. Verify the Client ID, Client Secret, and exact redirect URI, then try again.');
+            abort(400, 'Failed to exchange authorization code.');
         }
 
         $accessToken = $tokenResponse->json('access_token');
@@ -219,7 +223,7 @@ class SsoService
         $profile = $profileResponse->json();
 
         if (($profile['email_verified'] ?? false) !== true) {
-            abort(403, 'The Google email address is not verified.');
+            abort(403, 'The SSO provider email address is not verified.');
         }
 
         return [
@@ -252,7 +256,7 @@ class SsoService
                 'provider_error' => $tokenResponse->json('error'),
                 'provider_error_codes' => $tokenResponse->json('error_codes'),
             ]);
-            abort(400, 'Microsoft rejected the sign-in callback. Verify the App ID, Client Secret, tenant setting, and exact redirect URI, then try again.');
+            abort(400, 'Failed to exchange authorization code.');
         }
 
         $accessToken = $tokenResponse->json('access_token');
@@ -263,7 +267,7 @@ class SsoService
         $profileResponse = Http::withToken($accessToken)
             ->connectTimeout(5)
             ->timeout(10)
-            ->get('https://graph.microsoft.com/v1.0/me?$select=id,displayName,mail,userPrincipalName');
+            ->get('https://graph.microsoft.com/v1.0/me');
 
         if ($profileResponse->failed()) {
             abort(400, 'Failed to retrieve the Microsoft user profile. Confirm Microsoft Graph delegated User.Read permission is available.');

@@ -19,6 +19,13 @@ class LeaveType extends Model
         'is_active' => 'boolean',
     ];
 
-    public function organization() { return $this->belongsTo(Organization::class); }
-    public function requests() { return $this->hasMany(LeaveRequest::class); }
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
+
+    public function requests()
+    {
+        return $this->hasMany(LeaveRequest::class);
+    }
 }

@@ -19,14 +19,19 @@ class DocumentController extends Controller
         $org = $this->scope->organization($request, true);
         $branch = $this->scope->branch($request, false);
         $query = Document::query()->where('organization_id', $org->id)->with('uploader');
-        if ($branch) $query->where('branch_id', $branch->id);
-        if ($request->filled('category') && $request->input('category') !== 'all') $query->where('category', $request->input('category'));
+        if ($branch) {
+            $query->where('branch_id', $branch->id);
+        }
+        if ($request->filled('category') && $request->input('category') !== 'all') {
+            $query->where('category', $request->input('category'));
+        }
         if ($request->filled('search')) {
             $term = trim((string) $request->input('search'));
-            $query->where(fn ($q) => $q->where('name','like',"%{$term}%")->orWhere('description','like',"%{$term}%"));
+            $query->where(fn ($q) => $q->where('name', 'like', "%{$term}%")->orWhere('description', 'like', "%{$term}%"));
         }
         $paginator = $query->orderByDesc('created_at')->paginate(min(100, max(1, (int) $request->input('per_page', 20))));
         $paginator->setCollection($paginator->getCollection()->map(fn ($doc) => $this->serialize($doc)));
+
         return $this->successResponse($paginator);
     }
 
@@ -36,9 +41,9 @@ class DocumentController extends Controller
         $branch = $this->scope->branch($request, false);
         $data = $request->validate([
             'file' => ['required', 'file', 'max:20480', 'mimes:pdf,doc,docx,xls,xlsx,csv,txt,png,jpg,jpeg,webp'],
-            'name' => ['nullable','string','max:255'],
-            'category' => ['nullable','string','max:64'],
-            'description' => ['nullable','string','max:5000'],
+            'name' => ['nullable', 'string', 'max:255'],
+            'category' => ['nullable', 'string', 'max:64'],
+            'description' => ['nullable', 'string', 'max:5000'],
         ]);
         $file = $request->file('file');
         $safeName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
@@ -55,12 +60,14 @@ class DocumentController extends Controller
             'mime_type' => $file->getMimeType(),
             'size_bytes' => $file->getSize(),
         ])->load('uploader');
+
         return $this->successResponse($this->serialize($document), 'Document uploaded successfully', 201);
     }
 
     public function show(Request $request, Document $document): JsonResponse
     {
         $this->assertScoped($request, $document);
+
         return $this->successResponse($this->serialize($document->load('uploader')));
     }
 
@@ -70,6 +77,7 @@ class DocumentController extends Controller
         abort_unless(Storage::disk($document->disk)->exists($document->path), 404, 'Document file was not found.');
         $extension = pathinfo($document->path, PATHINFO_EXTENSION);
         $filename = $document->name.($extension ? '.'.$extension : '');
+
         return Storage::disk($document->disk)->download($document->path, $filename, ['Content-Type' => $document->mime_type ?? 'application/octet-stream']);
     }
 
@@ -77,10 +85,13 @@ class DocumentController extends Controller
     {
         $this->assertScoped($request, $document);
         $role = $this->scope->role($request);
-        $canDelete = in_array($role, ['owner','admin','manager'], true) || (int) $document->uploaded_by === (int) $request->user()->id;
+        $canDelete = in_array($role, ['owner', 'admin', 'manager'], true) || (int) $document->uploaded_by === (int) $request->user()->id;
         abort_unless($canDelete, 403);
-        if (Storage::disk($document->disk)->exists($document->path)) Storage::disk($document->disk)->delete($document->path);
+        if (Storage::disk($document->disk)->exists($document->path)) {
+            Storage::disk($document->disk)->delete($document->path);
+        }
         $document->delete();
+
         return $this->successResponse(null, 'Document deleted successfully');
     }
 
@@ -89,7 +100,9 @@ class DocumentController extends Controller
         $org = $this->scope->organization($request, true);
         $branch = $this->scope->branch($request, false);
         abort_unless((int) $document->organization_id === (int) $org->id, 404);
-        if ($branch && $document->branch_id) abort_unless((int) $document->branch_id === (int) $branch->id, 404);
+        if ($branch && $document->branch_id) {
+            abort_unless((int) $document->branch_id === (int) $branch->id, 404);
+        }
     }
 
     private function serialize(Document $document): array
@@ -103,7 +116,7 @@ class DocumentController extends Controller
             'size_bytes' => (int) $document->size_bytes,
             'size_label' => $this->formatBytes((int) $document->size_bytes),
             'version' => (int) $document->version,
-            'uploader' => $document->uploader ? ['id'=>(string)$document->uploader->id,'name'=>$document->uploader->name] : null,
+            'uploader' => $document->uploader ? ['id' => (string) $document->uploader->id, 'name' => $document->uploader->name] : null,
             'download_url' => '/api/v1/documents/'.$document->id.'/download',
             'created_at' => $document->created_at?->toIso8601String(),
             'updated_at' => $document->updated_at?->toIso8601String(),
@@ -112,8 +125,13 @@ class DocumentController extends Controller
 
     private function formatBytes(int $bytes): string
     {
-        if ($bytes < 1024) return $bytes.' B';
-        if ($bytes < 1048576) return round($bytes / 1024, 1).' KB';
+        if ($bytes < 1024) {
+            return $bytes.' B';
+        }
+        if ($bytes < 1048576) {
+            return round($bytes / 1024, 1).' KB';
+        }
+
         return round($bytes / 1048576, 1).' MB';
     }
 }

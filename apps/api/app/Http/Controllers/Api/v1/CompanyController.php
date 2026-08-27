@@ -25,6 +25,7 @@ class CompanyController extends Controller
             $query->where('is_active', $request->input('status') === 'active');
         }
         $data = $query->orderBy('name')->get()->map(fn ($company) => $this->serialize($company));
+
         return $this->successResponse($data);
     }
 
@@ -35,6 +36,7 @@ class CompanyController extends Controller
         $data = $this->validatePayload($request, null, (int) $org->id);
         $data['organization_id'] = $org->id;
         $company = Branch::create($data);
+
         return $this->successResponse($this->serialize($company->loadCount(['departments', 'employees'])), 'Company created successfully', 201);
     }
 
@@ -42,6 +44,7 @@ class CompanyController extends Controller
     {
         $org = $this->scope->organization($request, true);
         abort_unless((int) $company->organization_id === (int) $org->id, 404);
+
         return $this->successResponse($this->serialize($company->loadCount(['departments', 'employees'])));
     }
 
@@ -51,6 +54,7 @@ class CompanyController extends Controller
         abort_unless((int) $company->organization_id === (int) $org->id, 404);
         $this->scope->assertRole($request, ['owner', 'admin']);
         $company->update($this->validatePayload($request, $company, (int) $org->id));
+
         return $this->successResponse($this->serialize($company->fresh()->loadCount(['departments', 'employees'])), 'Company updated successfully');
     }
 
@@ -63,12 +67,14 @@ class CompanyController extends Controller
             abort(409, 'Move or archive the company employees and departments before deleting it.');
         }
         $company->delete();
+
         return $this->successResponse(null, 'Company deleted successfully');
     }
 
     private function validatePayload(Request $request, ?Branch $company, int $organizationId): array
     {
         $id = $company?->id;
+
         return $request->validate([
             'name' => ['required', 'string', 'max:255', Rule::unique('branches', 'name')->where('organization_id', $organizationId)->ignore($id)],
             'code' => ['nullable', 'string', 'max:64'],

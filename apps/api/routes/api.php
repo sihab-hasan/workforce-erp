@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     Route::middleware(['api.key', 'throttle:service'])->get('/internal/ping', function () {
-        return response()->json(['success'=>true,'data'=>['service'=>'workforce-erp-api','authenticated_via'=>config('api.shared_token_header','X-API-TOKEN')]]);
+        return response()->json(['success' => true, 'data' => ['service' => 'workforce-erp-api', 'authenticated_via' => config('api.shared_token_header', 'X-API-TOKEN')]]);
     });
 
     Route::prefix('auth')->group(function () {
@@ -144,16 +144,29 @@ if (app()->environment('testing', 'local')) {
                 case '409': throw new \Symfony\Component\HttpKernel\Exception\ConflictHttpException('Conflict occurred.');
                 case '500': throw new \Exception('Fatal database crash.');
             }
+
             return response()->json(['message' => 'Ok']);
         });
-        Route::get('/test-contract/success', fn () => response()->json(['success'=>true,'message'=>'Item retrieved successfully','data'=>['id'=>2,'name'=>'Item 2','description'=>'Description for item 2','created_at'=>now()->toIso8601String(),'updated_at'=>now()->toIso8601String()]]));
+        Route::get('/test-contract/success', fn () => response()->json(['success' => true, 'message' => 'Item retrieved successfully', 'data' => ['id' => 2, 'name' => 'Item 2', 'description' => 'Description for item 2', 'created_at' => now()->toIso8601String(), 'updated_at' => now()->toIso8601String()]]));
         Route::get('/test-contract/paginate', function (Request $request) {
-            $page=(int)$request->input('page',1); $perPage=(int)$request->input('per_page',5); $total=12; $items=[];
-            for($i=($page-1)*$perPage+1;$i<=min($page*$perPage,$total);$i++) $items[]=['id'=>$i,'name'=>'Item '.$i,'description'=>'Description for item '.$i,'created_at'=>now()->toIso8601String(),'updated_at'=>now()->toIso8601String()];
-            $paginator=new \Illuminate\Pagination\LengthAwarePaginator($items,$total,$perPage,$page,['path'=>$request->url()]);
-            return response()->json(['success'=>true,'message'=>'Items retrieved successfully','data'=>$paginator->items(),'meta'=>['current_page'=>$paginator->currentPage(),'from'=>$paginator->firstItem(),'last_page'=>$paginator->lastPage(),'path'=>$paginator->path(),'per_page'=>$paginator->perPage(),'to'=>$paginator->lastItem(),'total'=>$paginator->total()],'links'=>['first'=>$paginator->url(1),'last'=>$paginator->url($paginator->lastPage()),'prev'=>$paginator->previousPageUrl(),'next'=>$paginator->nextPageUrl()]]);
+            $page = (int) $request->input('page', 1);
+            $perPage = (int) $request->input('per_page', 5);
+            $total = 12;
+            $items = [];
+            for ($i = ($page - 1) * $perPage + 1; $i <= min($page * $perPage, $total); $i++) {
+                $items[] = ['id' => $i, 'name' => 'Item '.$i, 'description' => 'Description for item '.$i, 'created_at' => now()->toIso8601String(), 'updated_at' => now()->toIso8601String()];
+            }
+            $paginator = new \Illuminate\Pagination\LengthAwarePaginator($items, $total, $perPage, $page, ['path' => $request->url()]);
+
+            return response()->json(['success' => true, 'message' => 'Items retrieved successfully', 'data' => $paginator->items(), 'meta' => ['current_page' => $paginator->currentPage(), 'from' => $paginator->firstItem(), 'last_page' => $paginator->lastPage(), 'path' => $paginator->path(), 'per_page' => $paginator->perPage(), 'to' => $paginator->lastItem(), 'total' => $paginator->total()], 'links' => ['first' => $paginator->url(1), 'last' => $paginator->url($paginator->lastPage()), 'prev' => $paginator->previousPageUrl(), 'next' => $paginator->nextPageUrl()]]);
         });
-        Route::post('/test-contract/validate', function (Request $request) { $validated=$request->validate(['name'=>'required|string|max:255']); return response()->json(['success'=>true,'data'=>$validated]); });
-        Route::get('/test-contract/not-found', function () { throw new \Illuminate\Database\Eloquent\ModelNotFoundException('Resource not found.'); });
+        Route::post('/test-contract/validate', function (Request $request) {
+            $validated = $request->validate(['name' => 'required|string|max:255']);
+
+            return response()->json(['success' => true, 'data' => $validated]);
+        });
+        Route::get('/test-contract/not-found', function () {
+            throw new \Illuminate\Database\Eloquent\ModelNotFoundException('Resource not found.');
+        });
     });
 }

@@ -88,7 +88,7 @@ class AuthController extends Controller
                 abort(404, 'Session not found.');
             }
         } else {
-            $isCurrent = hash_equals($request->session()->getId(), $sessionId);
+            $isCurrent = $request->hasSession() && hash_equals($request->session()->getId(), $sessionId);
             if ($isCurrent) {
                 $this->authService->logoutBrowserSession($request);
             } elseif (! $this->authService->revokeBrowserSession($request->user(), $sessionId)) {

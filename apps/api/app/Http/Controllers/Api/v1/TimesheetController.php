@@ -29,8 +29,11 @@ class TimesheetController extends Controller
         $branch = $this->scope->branch($request, false);
         $filters = $request->validated();
         $filters['organization_id'] = $org->id;
-        if ($branch) $filters['branch_id'] = $branch->id;
+        if ($branch) {
+            $filters['branch_id'] = $branch->id;
+        }
         $paginator = $this->timesheetService->paginate($request->user(), $filters);
+
         return $this->successResponse(TimesheetResource::collection($paginator), 'Timesheets retrieved successfully');
     }
 
@@ -39,6 +42,7 @@ class TimesheetController extends Controller
         $this->scope->organization($request, true);
         $validated = $request->validated();
         $state = $this->timesheetService->today($request->user(), isset($validated['employee_id']) ? (int) $validated['employee_id'] : null);
+
         return $this->successResponse([
             'employee_profile_linked' => $state['employee_profile_linked'],
             'is_clocked_in' => $state['is_clocked_in'],
@@ -51,6 +55,7 @@ class TimesheetController extends Controller
     public function show(Request $request, Timesheet $timesheet): JsonResponse
     {
         $this->assertScoped($request, $timesheet);
+
         return $this->successResponse(new TimesheetResource($this->timesheetService->accessible($request->user(), $timesheet)));
     }
 
@@ -60,6 +65,7 @@ class TimesheetController extends Controller
         $validated = $request->validated();
         $timesheet = $this->timesheetService->clockIn($request->user(), isset($validated['employee_id']) ? (int) $validated['employee_id'] : null);
         $this->assertScoped($request, $timesheet);
+
         return $this->successResponse(new TimesheetResource($timesheet), 'Clocked in successfully', 201);
     }
 
@@ -69,6 +75,7 @@ class TimesheetController extends Controller
         $validated = $request->validated();
         $timesheet = $this->timesheetService->clockOut($request->user(), isset($validated['employee_id']) ? (int) $validated['employee_id'] : null);
         $this->assertScoped($request, $timesheet);
+
         return $this->successResponse(new TimesheetResource($timesheet), 'Clocked out successfully');
     }
 
@@ -77,6 +84,7 @@ class TimesheetController extends Controller
         $this->scope->organization($request, true);
         $timesheet = $this->timesheetService->create($request->user(), $request->validated());
         $this->assertScoped($request, $timesheet);
+
         return $this->successResponse(new TimesheetResource($timesheet), 'Timesheet created successfully', 201);
     }
 
@@ -84,6 +92,7 @@ class TimesheetController extends Controller
     {
         $this->assertScoped($request, $timesheet);
         $timesheet = $this->timesheetService->update($request->user(), $timesheet, $request->validated());
+
         return $this->successResponse(new TimesheetResource($timesheet), 'Timesheet updated successfully');
     }
 
@@ -91,6 +100,7 @@ class TimesheetController extends Controller
     {
         $this->assertScoped($request, $timesheet);
         $this->timesheetService->delete($request->user(), $timesheet);
+
         return $this->successResponse(null, 'Timesheet deleted successfully');
     }
 

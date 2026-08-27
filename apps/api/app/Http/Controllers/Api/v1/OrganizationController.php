@@ -35,12 +35,14 @@ class OrganizationController extends Controller
     public function current(Request $request): JsonResponse
     {
         $organization = $this->scope->organization($request, true);
+
         return $this->successResponse($this->serialize($organization, $this->scope->role($request), true));
     }
 
     public function show(Request $request, Organization $organization): JsonResponse
     {
         $this->access->assertCanManage($request->user(), (int) $organization->id, ['owner', 'admin', 'manager', 'staff', 'readonly'], 'You do not have access to this organization.');
+
         return $this->successResponse($this->serialize($organization, $this->access->activeRole($request->user(), (int) $organization->id), true));
     }
 
@@ -60,6 +62,7 @@ class OrganizationController extends Controller
             'settings' => ['sometimes', 'nullable', 'array'],
         ]);
         $organization->update($data);
+
         return $this->successResponse($this->serialize($organization->fresh(), $this->access->activeRole($request->user(), (int) $organization->id), true), 'Organization updated successfully');
     }
 
@@ -88,6 +91,7 @@ class OrganizationController extends Controller
                 'users' => $organization->memberships()->where('status', 'active')->count(),
             ];
         }
+
         return $data;
     }
 }

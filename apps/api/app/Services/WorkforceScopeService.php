@@ -24,6 +24,7 @@ class WorkforceScopeService
             if ($required) {
                 throw new AuthorizationException('Authentication is required.');
             }
+
             return null;
         }
 
@@ -73,6 +74,7 @@ class WorkforceScopeService
             if ($required) {
                 abort(422, 'A company scope is required for this action.');
             }
+
             return null;
         }
 
@@ -93,6 +95,7 @@ class WorkforceScopeService
         }
 
         $request->attributes->set('workforce.branch', $branch);
+
         return $branch;
     }
 
@@ -104,12 +107,14 @@ class WorkforceScopeService
         if (! $role || ! in_array($role, $roles, true)) {
             throw new AuthorizationException($message);
         }
+
         return $role;
     }
 
     public function role(Request $request): ?string
     {
         $organization = $this->organization($request, false);
+
         return $organization ? $this->access->activeRole($request->user(), (int) $organization->id) : null;
     }
 }

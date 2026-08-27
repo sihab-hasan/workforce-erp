@@ -21,9 +21,28 @@ class LeaveRequest extends Model
         'reviewed_at' => 'datetime',
     ];
 
-    public function organization() { return $this->belongsTo(Organization::class); }
-    public function branch() { return $this->belongsTo(Branch::class); }
-    public function employee() { return $this->belongsTo(Employee::class); }
-    public function leaveType() { return $this->belongsTo(LeaveType::class); }
-    public function reviewer() { return $this->belongsTo(User::class, 'reviewed_by'); }
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
+    }
+
+    public function leaveType()
+    {
+        return $this->belongsTo(LeaveType::class);
+    }
+
+    public function reviewer()
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
 }

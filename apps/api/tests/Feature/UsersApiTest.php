@@ -74,7 +74,7 @@ class UsersApiTest extends TestCase
 
         $this->withHeader('Authorization', "Bearer {$token}")
             ->getJson('/api/v1/users')
-            ->assertForbidden();
+            ->assertUnauthorized();
     }
 
     public function test_staff_membership_cannot_access_users_directory(): void

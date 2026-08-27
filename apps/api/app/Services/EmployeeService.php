@@ -76,18 +76,18 @@ class EmployeeService
     {
         $organizationIds = $organizationId ? [$organizationId] : $this->access->organizationIds($actor);
 
-        $departments = Department::query()->whereIn('organization_id', $organizationIds)->when($branchId, fn ($q) => $q->where('branch_id', $branchId))->where('is_active', true)->orderBy('name')->get(['id','name','code','branch_id']);
-        $branches = Branch::query()->whereIn('organization_id', $organizationIds)->where('is_active', true)->orderBy('name')->get(['id','name','code']);
-        $designations = \App\Models\Designation::query()->whereIn('organization_id', $organizationIds)->where('is_active', true)->orderBy('name')->get(['id','name','code']);
-        $managers = Employee::query()->whereIn('organization_id', $organizationIds)->when($branchId, fn ($q) => $q->where('branch_id', $branchId))->where('status', 'active')->orderBy('first_name')->orderBy('last_name')->get(['id','employee_id','first_name','last_name']);
+        $departments = Department::query()->whereIn('organization_id', $organizationIds)->when($branchId, fn ($q) => $q->where('branch_id', $branchId))->where('is_active', true)->orderBy('name')->get(['id', 'name', 'code', 'branch_id']);
+        $branches = Branch::query()->whereIn('organization_id', $organizationIds)->where('is_active', true)->orderBy('name')->get(['id', 'name', 'code']);
+        $designations = \App\Models\Designation::query()->whereIn('organization_id', $organizationIds)->where('is_active', true)->orderBy('name')->get(['id', 'name', 'code']);
+        $managers = Employee::query()->whereIn('organization_id', $organizationIds)->when($branchId, fn ($q) => $q->where('branch_id', $branchId))->where('status', 'active')->orderBy('first_name')->orderBy('last_name')->get(['id', 'employee_id', 'first_name', 'last_name']);
 
         return [
             'departments' => $departments->pluck('name')->unique()->values(),
             'locations' => $branches->pluck('name')->unique()->values(),
-            'department_records' => $departments->map(fn ($item) => ['id'=>(string)$item->id,'name'=>$item->name,'code'=>$item->code,'branch_id'=>$item->branch_id ? (string)$item->branch_id : null])->values(),
-            'branches' => $branches->map(fn ($item) => ['id'=>(string)$item->id,'name'=>$item->name,'code'=>$item->code])->values(),
-            'designations' => $designations->map(fn ($item) => ['id'=>(string)$item->id,'name'=>$item->name,'code'=>$item->code])->values(),
-            'managers' => $managers->map(fn ($item) => ['id'=>(string)$item->id,'employee_id'=>$item->employee_id,'name'=>trim($item->first_name.' '.$item->last_name)])->values(),
+            'department_records' => $departments->map(fn ($item) => ['id' => (string) $item->id, 'name' => $item->name, 'code' => $item->code, 'branch_id' => $item->branch_id ? (string) $item->branch_id : null])->values(),
+            'branches' => $branches->map(fn ($item) => ['id' => (string) $item->id, 'name' => $item->name, 'code' => $item->code])->values(),
+            'designations' => $designations->map(fn ($item) => ['id' => (string) $item->id, 'name' => $item->name, 'code' => $item->code])->values(),
+            'managers' => $managers->map(fn ($item) => ['id' => (string) $item->id, 'employee_id' => $item->employee_id, 'name' => trim($item->first_name.' '.$item->last_name)])->values(),
         ];
     }
 
@@ -97,7 +97,9 @@ class EmployeeService
     public function summary(User $actor, ?int $organizationId = null, ?int $branchId = null): array
     {
         $query = Employee::query()->whereIn('organization_id', $organizationId ? [$organizationId] : $this->access->organizationIds($actor));
-        if ($branchId) $query->where('branch_id', $branchId);
+        if ($branchId) {
+            $query->where('branch_id', $branchId);
+        }
 
         return [
             'total' => (clone $query)->count(),

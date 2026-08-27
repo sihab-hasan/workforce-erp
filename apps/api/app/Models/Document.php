@@ -15,7 +15,18 @@ class Document extends Model
         'disk', 'path', 'mime_type', 'size_bytes', 'version',
     ];
 
-    public function organization() { return $this->belongsTo(Organization::class); }
-    public function branch() { return $this->belongsTo(Branch::class); }
-    public function uploader() { return $this->belongsTo(User::class, 'uploaded_by'); }
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    public function uploader()
+    {
+        return $this->belongsTo(User::class, 'uploaded_by');
+    }
 }

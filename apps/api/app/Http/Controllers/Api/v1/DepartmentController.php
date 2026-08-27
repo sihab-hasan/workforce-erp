@@ -19,14 +19,19 @@ class DepartmentController extends Controller
         $org = $this->scope->organization($request, true);
         $branch = $this->scope->branch($request, false);
         $query = Department::query()->where('organization_id', $org->id)->with(['branch', 'manager'])->withCount('employees');
-        if ($branch) $query->where('branch_id', $branch->id);
+        if ($branch) {
+            $query->where('branch_id', $branch->id);
+        }
         if ($request->filled('search')) {
             $term = trim((string) $request->input('search'));
             $query->where(fn ($q) => $q->where('name', 'like', "%{$term}%")->orWhere('code', 'like', "%{$term}%"));
         }
-        if ($request->filled('status') && $request->input('status') !== 'all') $query->where('is_active', $request->input('status') === 'active');
+        if ($request->filled('status') && $request->input('status') !== 'all') {
+            $query->where('is_active', $request->input('status') === 'active');
+        }
         $paginator = $query->orderBy('name')->paginate(min(100, max(1, (int) $request->input('per_page', 20))));
         $paginator->setCollection($paginator->getCollection()->map(fn ($department) => $this->serialize($department)));
+
         return $this->successResponse($paginator);
     }
 
@@ -40,12 +45,14 @@ class DepartmentController extends Controller
         $data['branch_id'] = $branch?->id ?? ($data['branch_id'] ?? null);
         $this->validateManager($data['manager_id'] ?? null, (int) $org->id, $data['branch_id'] ?? null);
         $department = Department::create($data);
+
         return $this->successResponse($this->serialize($department->load(['branch', 'manager'])->loadCount('employees')), 'Department created successfully', 201);
     }
 
     public function show(Request $request, Department $department): JsonResponse
     {
         $this->assertScoped($request, $department);
+
         return $this->successResponse($this->serialize($department->load(['branch', 'manager'])->loadCount('employees')));
     }
 
@@ -56,6 +63,7 @@ class DepartmentController extends Controller
         $data = $this->validatePayload($request, $department, (int) $org->id);
         $this->validateManager($data['manager_id'] ?? $department->manager_id, (int) $org->id, $data['branch_id'] ?? $department->branch_id);
         $department->update($data);
+
         return $this->successResponse($this->serialize($department->fresh()->load(['branch', 'manager'])->loadCount('employees')), 'Department updated successfully');
     }
 
@@ -63,8 +71,11 @@ class DepartmentController extends Controller
     {
         $this->assertScoped($request, $department);
         $this->scope->assertRole($request, ['owner', 'admin']);
-        if ($department->employees()->exists()) abort(409, 'Move the employees before deleting this department.');
+        if ($department->employees()->exists()) {
+            abort(409, 'Move the employees before deleting this department.');
+        }
         $department->delete();
+
         return $this->successResponse(null, 'Department deleted successfully');
     }
 
@@ -73,7 +84,10 @@ class DepartmentController extends Controller
         $org = $this->scope->organization($request, true);
         $branch = $this->scope->branch($request, false);
         abort_unless((int) $department->organization_id === (int) $org->id, 404);
-        if ($branch) abort_unless((int) $department->branch_id === (int) $branch->id, 404);
+        if ($branch) {
+            abort_unless((int) $department->branch_id === (int) $branch->id, 404);
+        }
+
         return $org;
     }
 
@@ -90,9 +104,13 @@ class DepartmentController extends Controller
 
     private function validateManager(?int $managerId, int $organizationId, ?int $branchId): void
     {
-        if (! $managerId) return;
+        if (! $managerId) {
+            return;
+        }
         $query = Employee::query()->whereKey($managerId)->where('organization_id', $organizationId);
-        if ($branchId) $query->where('branch_id', $branchId);
+        if ($branchId) {
+            $query->where('branch_id', $branchId);
+        }
         abort_unless($query->exists(), 422, 'The selected manager is not available in this organization/company.');
     }
 

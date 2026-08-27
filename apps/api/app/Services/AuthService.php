@@ -40,7 +40,9 @@ class AuthService
     {
         $this->assertActiveSignInAllowed($user);
         Auth::guard('web')->login($user);
-        $request->session()->regenerate();
+        if ($request->hasSession()) {
+            $request->session()->regenerate();
+        }
         $user->forceFill(['last_login_at' => now()])->save();
 
         return $this->userPayload($user);
@@ -91,8 +93,10 @@ class AuthService
     public function logoutBrowserSession(Request $request): void
     {
         Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
     }
 
     public function revokeAllBrowserSessions(User $user): void
@@ -118,7 +122,7 @@ class AuthService
     {
         if (config('session.driver') !== 'database') {
             return [[
-                'id' => $request->session()->getId(),
+                'id' => $request->hasSession() ? $request->session()->getId() : 'session',
                 'name' => 'Current browser',
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
@@ -127,7 +131,7 @@ class AuthService
             ]];
         }
 
-        $currentId = $request->session()->getId();
+        $currentId = $request->hasSession() ? $request->session()->getId() : '';
 
         return DB::table(config('session.table', 'sessions'))
             ->where('user_id', $user->getAuthIdentifier())

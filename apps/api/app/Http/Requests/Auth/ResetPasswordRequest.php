@@ -32,6 +32,7 @@ class ResetPasswordRequest extends FormRequest
                 'confirmed',
                 Password::min(10)->mixedCase()->numbers()->symbols(),
             ],
+            'password_confirmation' => ['required', 'string', 'max:4096'],
         ];
     }
 }

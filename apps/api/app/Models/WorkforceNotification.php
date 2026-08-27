@@ -20,6 +20,13 @@ class WorkforceNotification extends Model
         'read_at' => 'datetime',
     ];
 
-    public function organization() { return $this->belongsTo(Organization::class); }
-    public function user() { return $this->belongsTo(User::class); }
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

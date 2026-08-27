@@ -22,7 +22,9 @@ class UserController extends Controller
     {
         $filters = $request->validated();
         $org = $this->scope->organization($request, false);
-        if ($org) $filters['organization_id'] = $org->id;
+        if ($org) {
+            $filters['organization_id'] = $org->id;
+        }
         $paginator = $this->userService->paginate($request->user(), $filters);
 
         return $this->successResponse(UserResource::collection($paginator), 'Users retrieved successfully');
