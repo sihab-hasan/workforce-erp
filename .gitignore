@@ -31,6 +31,7 @@ yarn-error.log*
 **/.env.*
 !.env.example
 !**/.env.example
+!.env.docker.example
 
 # Laravel local/runtime artifacts
 apps/api/.phpunit.result.cache
@@ -52,3 +53,6 @@ apps/api/public/storage
 
 # Local repository inventories
 PROJECT_TREE.txt
+
+# Docker runtime secrets
+.env.docker

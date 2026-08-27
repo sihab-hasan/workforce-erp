@@ -1,35 +1,62 @@
 # Deployment
 
-## Local development
+## Local source development
 
 1. Copy `.env.example` to `.env`.
 2. Run `pnpm validate` (or `pnpm connections:check`).
 3. Start the Laravel API with `pnpm dev:api`.
-4. Start the JavaScript applications and worker with `pnpm dev`.
+4. Start the JavaScript applications with `pnpm dev`.
 
-Default URLs:
+Default source-development URLs remain:
 
 - Web: `http://localhost:5173`
 - ERP: `http://localhost:5174`
 - Admin: `http://localhost:5175`
 - API: `http://127.0.0.1:8000`
 
-Vite uses strict ports and proxies `/api` plus `/sanctum` to the API server.
+## Complete Docker deployment
 
-## Docker frontends + worker
+The production-style Docker stack is defined in `infra/docker-compose.yml` and includes Nginx gateway, all frontends, Laravel PHP-FPM, Laravel Nginx, MySQL, Redis, queue worker, scheduler, migrations, persistent storage, and optional Let's Encrypt services.
 
-Run:
+Initialize secure local secrets once:
 
 ```bash
-docker compose -f infra/docker-compose.yml up --build
+bash scripts/docker-setup.sh
 ```
 
-The Compose file builds Web, ERP, Admin, and Worker. The Laravel API is intentionally run/deployed separately so its database, queue, cache, scheduler, and secret lifecycle can be managed independently.
+Start everything:
 
-Frontend host ports are controlled by `WEB_PORT`, `ERP_PORT`, and `ADMIN_PORT`. Build-time public endpoints use `PUBLIC_WEB_URL`, `PUBLIC_ERP_URL`, `PUBLIC_ADMIN_URL`, `PUBLIC_API_BASE_URL`, and `PUBLIC_API_URL`. The worker uses `WORKER_API_URL` because its server-to-server network path is different from browser routing.
+```bash
+docker compose --env-file .env.docker -f infra/docker-compose.yml up -d --build
+```
 
-Each frontend image exposes `/healthz`; Compose/Docker can use the image health check without treating a running Nginx process as proof that the static app is serving correctly.
+Default Docker URLs:
 
-## Production
+- Web: `http://web.localhost`
+- ERP: `http://erp.localhost`
+- Admin: `http://admin.localhost`
+- API: `http://api.localhost`
 
-Use HTTPS URLs for every public application. If the applications and API are sibling subdomains, configure the Laravel API with the exact browser origins/stateful domains, a shared parent session domain when required, secure cookies, and trusted proxy/host settings. Do not ship `localhost` public URLs in a production build.
+The public Nginx gateway proxies `/api` and `/sanctum` from each frontend host to Laravel, keeping browser authentication same-origin. Laravel runs behind a private `api-nginx` + PHP-FPM pair and is not bound directly to a host port.
+
+## Persistent data
+
+Named volumes preserve:
+
+- MySQL database data
+- Redis AOF data
+- Laravel `storage/app` uploads
+- Certbot ACME webroot
+- Let's Encrypt certificates
+
+Use normal `docker compose down` for shutdown. `docker compose down -v` destroys these volumes and should not be used for routine deployment.
+
+## Production HTTPS
+
+Set real public hostnames and HTTPS public URLs in `.env.docker`, configure `TRUSTED_HOSTS`, `SANCTUM_STATEFUL_DOMAINS`, CORS origins, secure cookies, mail/SSO values, and DNS. Then set `LETSENCRYPT_EMAIL` and run:
+
+```bash
+bash scripts/docker-certbot.sh init
+```
+
+See `infra/README.md` for the complete runbook.

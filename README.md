@@ -72,6 +72,24 @@ Default local URLs:
 - Admin: `http://localhost:5175`
 - API: `http://127.0.0.1:8000`
 
+## Complete Docker + Nginx deployment
+
+The repository includes a full production-style Docker stack with a public Nginx gateway, Web/ERP/Admin frontends, Laravel PHP-FPM + internal Nginx, MySQL, Redis, queue worker, scheduler, migrations, persistent uploads, and optional Let's Encrypt TLS.
+
+```bash
+bash scripts/docker-setup.sh
+docker compose --env-file .env.docker -f infra/docker-compose.yml up -d --build
+```
+
+Default Docker URLs:
+
+- Web: `http://web.localhost`
+- ERP: `http://erp.localhost`
+- Admin: `http://admin.localhost`
+- API health: `http://api.localhost/api/health`
+
+For real domains and HTTPS, configure `.env.docker` and run `bash scripts/docker-certbot.sh init`. See `infra/README.md` and `docs/deployment.md` for the full deployment runbook.
+
 ## Nx commands
 
 ```bash

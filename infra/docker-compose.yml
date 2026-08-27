@@ -1,11 +1,11 @@
 name: workforce-erp
 
 x-frontend-build-args: &frontend-build-args
-  VITE_API_BASE_URL: ${PUBLIC_API_BASE_URL:-http://localhost:8000}
-  VITE_API_URL: ${PUBLIC_API_URL:-http://localhost:8000/api}
-  VITE_WEB_URL: ${PUBLIC_WEB_URL:-http://localhost:5173}
-  VITE_ERP_URL: ${PUBLIC_ERP_URL:-http://localhost:5174}
-  VITE_ADMIN_URL: ${PUBLIC_ADMIN_URL:-http://localhost:5175}
+  VITE_API_BASE_URL: "${PUBLIC_API_BASE_URL:-}"
+  VITE_API_URL: "${PUBLIC_API_URL:-/api}"
+  VITE_WEB_URL: "${PUBLIC_WEB_URL:-http://web.localhost}"
+  VITE_ERP_URL: "${PUBLIC_ERP_URL:-http://erp.localhost}"
+  VITE_ADMIN_URL: "${PUBLIC_ADMIN_URL:-http://admin.localhost}"
 
 x-frontend-runtime: &frontend-runtime
   restart: unless-stopped
@@ -13,15 +13,129 @@ x-frontend-runtime: &frontend-runtime
   networks:
     - workforce
 
+x-api-runtime: &api-runtime
+  build:
+    context: ..
+    dockerfile: infra/docker/api.Dockerfile
+  env_file:
+    - ../.env.docker
+  init: true
+  networks:
+    - workforce
+  volumes:
+    - api_storage:/var/www/html/storage/app
+
 services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-workforce_erp}
+      MYSQL_USER: ${MYSQL_USER:-workforce}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        ["CMD-SHELL", 'mysqladmin ping -h 127.0.0.1 -uroot -p"$${MYSQL_ROOT_PASSWORD}" --silent']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - workforce
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+    command: ["sh", "-c", 'exec redis-server --appendonly yes --requirepass "$${REDIS_PASSWORD}"']
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", 'redis-cli -a "$${REDIS_PASSWORD}" ping | grep -q PONG']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - workforce
+
+  api-migrate:
+    <<: *api-runtime
+    restart: "no"
+    command: ["php", "artisan", "migrate", "--force"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  api:
+    <<: *api-runtime
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api-migrate:
+        condition: service_completed_successfully
+
+  api-nginx:
+    build:
+      context: ..
+      dockerfile: infra/docker/api-nginx.Dockerfile
+    restart: unless-stopped
+    init: true
+    depends_on:
+      api:
+        condition: service_healthy
+    volumes:
+      - api_storage:/var/www/html/storage/app:ro
+    networks:
+      - workforce
+
+  queue:
+    <<: *api-runtime
+    restart: unless-stopped
+    command:
+      - php
+      - artisan
+      - queue:work
+      - redis
+      - --sleep=3
+      - --tries=3
+      - --timeout=90
+      - --max-time=3600
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api-migrate:
+        condition: service_completed_successfully
+
+  scheduler:
+    <<: *api-runtime
+    restart: unless-stopped
+    command: ["php", "artisan", "schedule:work"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api-migrate:
+        condition: service_completed_successfully
+
   web:
     <<: *frontend-runtime
     build:
       context: ..
       dockerfile: infra/docker/web.Dockerfile
       args: *frontend-build-args
-    ports:
-      - "${WEB_PORT:-5173}:80"
 
   erp:
     <<: *frontend-runtime
@@ -29,8 +143,6 @@ services:
       context: ..
       dockerfile: infra/docker/erp.Dockerfile
       args: *frontend-build-args
-    ports:
-      - "${ERP_PORT:-5174}:80"
 
   admin:
     <<: *frontend-runtime
@@ -38,24 +150,89 @@ services:
       context: ..
       dockerfile: infra/docker/admin.Dockerfile
       args: *frontend-build-args
-    ports:
-      - "${ADMIN_PORT:-5175}:80"
 
   worker:
-    profiles: ["worker"]
-    init: true
+    profiles: ["node-worker"]
     build:
       context: ..
       dockerfile: infra/docker/worker.Dockerfile
+    restart: on-failure
+    init: true
     environment:
-      API_URL: ${WORKER_API_URL:-http://host.docker.internal:8000/api}
-      API_TOKEN: ${API_TOKEN:-}
-      API_TOKEN_HEADER: ${API_TOKEN_HEADER:-X-API-TOKEN}
-      WORKER_ENABLED: ${WORKER_ENABLED:-false}
-      WORKER_JOBS_PATH: ${WORKER_JOBS_PATH:-}
-      WORKER_POLL_INTERVAL_MS: ${WORKER_POLL_INTERVAL_MS:-15000}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      API_URL: "${WORKER_API_URL:-http://api-nginx/api}"
+      API_TOKEN: "${API_SHARED_TOKEN:-}"
+      API_TOKEN_HEADER: "${API_SHARED_TOKEN_HEADER:-X-API-TOKEN}"
+      WORKER_ENABLED: "${WORKER_ENABLED:-false}"
+      WORKER_JOBS_PATH: "${WORKER_JOBS_PATH:-}"
+      WORKER_POLL_INTERVAL_MS: "${WORKER_POLL_INTERVAL_MS:-15000}"
+    depends_on:
+      api-nginx:
+        condition: service_healthy
+    networks:
+      - workforce
+
+  gateway:
+    build:
+      context: ..
+      dockerfile: infra/docker/gateway.Dockerfile
+    restart: unless-stopped
+    init: true
+    environment:
+      WEB_HOST: "${WEB_HOST:-web.localhost}"
+      ERP_HOST: "${ERP_HOST:-erp.localhost}"
+      ADMIN_HOST: "${ADMIN_HOST:-admin.localhost}"
+      API_HOST: "${API_HOST:-api.localhost}"
+      NGINX_CLIENT_MAX_BODY_SIZE: "${NGINX_CLIENT_MAX_BODY_SIZE:-25m}"
+      ENABLE_TLS: "${ENABLE_TLS:-false}"
+      TLS_CERT_NAME: "${TLS_CERT_NAME:-}"
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - certbot_www:/var/www/certbot:ro
+      - letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      web:
+        condition: service_healthy
+      erp:
+        condition: service_healthy
+      admin:
+        condition: service_healthy
+      api-nginx:
+        condition: service_healthy
+    networks:
+      - workforce
+
+  certbot:
+    image: certbot/certbot:latest
+    profiles: ["tls-tools"]
+    volumes:
+      - certbot_www:/var/www/certbot
+      - letsencrypt:/etc/letsencrypt
+
+  certbot-renew:
+    image: certbot/certbot:latest
+    profiles: ["tls"]
+    restart: unless-stopped
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        while true; do
+          certbot renew --webroot -w /var/www/certbot --quiet || true
+          sleep 43200
+        done
+    volumes:
+      - certbot_www:/var/www/certbot
+      - letsencrypt:/etc/letsencrypt
+
+  mailpit:
+    image: axllent/mailpit:v1.21
+    profiles: ["dev"]
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
     networks:
       - workforce
 
@@ -63,3 +240,15 @@ networks:
   workforce:
     name: workforce-erp-network
     driver: bridge
+
+volumes:
+  mysql_data:
+    name: workforce-erp-mysql
+  redis_data:
+    name: workforce-erp-redis
+  api_storage:
+    name: workforce-erp-api-storage
+  certbot_www:
+    name: workforce-erp-certbot-www
+  letsencrypt:
+    name: workforce-erp-letsencrypt
