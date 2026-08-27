@@ -12,33 +12,22 @@ class OtpMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public string $code;
+    public function __construct(
+        public readonly string $code,
+        public readonly int $expiresInMinutes,
+    ) {}
 
-    /**
-     * Create a new message instance.
-     */
-    public function __construct(string $code)
-    {
-        $this->code = $code;
-    }
-
-    /**
-     * Get the message envelope.
-     */
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your One-Time Password',
+            subject: 'Your Workforce ERP sign-in code',
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
         return new Content(
-            htmlString: "Your one-time password (OTP) is: <strong>{$this->code}</strong>. It will expire in 10 minutes.",
+            htmlString: "Your one-time sign-in code is: <strong>{$this->code}</strong>. It expires in {$this->expiresInMinutes} minutes and can be used only once.",
         );
     }
 }

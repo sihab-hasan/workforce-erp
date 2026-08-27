@@ -1,0 +1,49 @@
+{
+  "name": "@workforce-erp/ui-patterns",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": [
+    "./src/styles/ui-patterns.css"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./data-table": "./src/data-table/index.ts",
+    "./forms": "./src/forms/index.ts",
+    "./attachments": "./src/attachments/index.ts",
+    "./filters": "./src/filters/index.ts",
+    "./reporting": "./src/reporting/index.ts",
+    "./entity": "./src/entity/index.ts",
+    "./activity": "./src/activity/index.ts",
+    "./selectors": "./src/selectors/index.ts",
+    "./workflow": "./src/workflow/index.ts",
+    "./navigation": "./src/navigation/index.ts",
+    "./layout": "./src/layout/index.ts",
+    "./dashboard": "./src/dashboard/index.ts",
+    "./search": "./src/search/index.ts",
+    "./overlays": "./src/overlays/index.ts",
+    "./feedback": "./src/feedback/index.ts",
+    "./hooks": "./src/hooks/index.ts",
+    "./ui-patterns.css": "./src/styles/ui-patterns.css"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --max-warnings=0"
+  },
+  "dependencies": {
+    "@workforce-erp/ui": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": ">=18 <20"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18"
+  },
+  "nx": {
+    "tags": [
+      "type:lib",
+      "scope:shared",
+      "domain:ui"
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "base-nova",
+  "style": "base-luma",
   "rsc": false,
   "tsx": true,
   "tailwind": {
@@ -11,13 +11,13 @@
   },
   "iconLibrary": "lucide",
   "aliases": {
-    "components": "@workforce-erp/ui/components",
-    "utils": "@workforce-erp/ui/lib/utils",
-    "hooks": "@workforce-erp/ui/hooks",
-    "lib": "@workforce-erp/ui/lib",
-    "ui": "@workforce-erp/ui/components"
+    "components": "#components",
+    "utils": "#lib/utils",
+    "hooks": "#hooks",
+    "lib": "#lib",
+    "ui": "#components"
   },
   "rtl": false,
-  "menuColor": "default",
+  "menuColor": "default-translucent",
   "menuAccent": "subtle"
 }

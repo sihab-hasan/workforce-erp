@@ -1,0 +1,67 @@
+{
+  "name": "@workforce-erp/eslint-config",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./runtime/index.mjs"
+    },
+    "./base": {
+      "types": "./src/base.ts",
+      "default": "./runtime/base.mjs"
+    },
+    "./browser": {
+      "types": "./src/browser.ts",
+      "default": "./runtime/browser.mjs"
+    },
+    "./react": {
+      "types": "./src/react.ts",
+      "default": "./runtime/react.mjs"
+    },
+    "./node": {
+      "types": "./src/node.ts",
+      "default": "./runtime/node.mjs"
+    },
+    "./typescript": {
+      "types": "./src/typescript.ts",
+      "default": "./runtime/typescript.mjs"
+    },
+    "./boundaries": {
+      "types": "./src/boundaries.ts",
+      "default": "./runtime/boundaries.mjs"
+    }
+  },
+  "files": [
+    "src",
+    "runtime",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "clean": "node -e \"import('node:fs').then(fs=>fs.rmSync('dist',{recursive:true,force:true}))\""
+  },
+  "peerDependencies": {
+    "eslint": ">=9.33.0 <11",
+    "typescript": ">=5.9 <7"
+  },
+  "dependencies": {
+    "@eslint/js": "^9.33.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "typescript-eslint": "^8.39.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.1.0"
+  },
+  "nx": {
+    "tags": [
+      "type:tooling",
+      "scope:repo"
+    ]
+  }
+}

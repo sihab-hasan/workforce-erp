@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -12,180 +14,229 @@ class SSOTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * Test redirect endpoint returns correct provider URLs.
-     */
-    public function test_sso_redirect_generation(): void
+    protected function setUp(): void
     {
-        // Google redirect URL
-        $response = $this->getJson('/api/v1/auth/sso/redirect/google');
-        $response->assertStatus(200)
-            ->assertJson([
-                'success' => true,
-            ]);
+        parent::setUp();
 
-        $redirectUrl = $response->json()['redirect_url'];
-        $this->assertStringContainsString('https://accounts.google.com/o/oauth2/v2/auth', $redirectUrl);
-        $this->assertStringContainsString('client_id=mock-google-client-id', $redirectUrl);
-
-        // Microsoft redirect URL
-        $response = $this->getJson('/api/v1/auth/sso/redirect/microsoft');
-        $response->assertStatus(200)
-            ->assertJson([
-                'success' => true,
-            ]);
-
-        $redirectUrl = $response->json()['redirect_url'];
-        $this->assertStringContainsString('https://login.microsoftonline.com/common/oauth2/v2.0/authorize', $redirectUrl);
-        $this->assertStringContainsString('client_id=mock-microsoft-client-id', $redirectUrl);
-
-        // Unsupported provider
-        $response = $this->getJson('/api/v1/auth/sso/redirect/github');
-        $response->assertStatus(400);
+        config([
+            'services.google.client_id' => 'mock-google-client-id',
+            'services.google.client_secret' => 'mock-google-client-secret',
+            'services.google.redirect' => 'http://localhost:5174/auth/callback/google',
+            'services.microsoft.client_id' => 'mock-microsoft-client-id',
+            'services.microsoft.client_secret' => 'mock-microsoft-client-secret',
+            'services.microsoft.redirect' => 'http://localhost:5174/auth/callback/microsoft',
+        ]);
     }
 
-    /**
-     * Test successful Google SSO registration/login.
-     */
-    public function test_google_sso_success_flow(): void
+    public function test_sso_redirect_generation_includes_pkce_and_state(): void
     {
-        // Fake Google auth endpoints
+        foreach (['google', 'microsoft'] as $provider) {
+            $response = $this->getJson("/api/v1/auth/sso/redirect/{$provider}")
+                ->assertOk()
+                ->assertJsonPath('success', true)
+                ->assertJsonStructure(['redirect_url', 'state']);
+
+            $redirectUrl = (string) $response->json('redirect_url');
+            $this->assertStringContainsString('code_challenge=', $redirectUrl);
+            $this->assertStringContainsString('code_challenge_method=S256', $redirectUrl);
+            $this->assertStringContainsString('state=', $redirectUrl);
+        }
+
+        $this->getJson('/api/v1/auth/sso/redirect/github')->assertStatus(400);
+    }
+
+    public function test_google_sso_activates_existing_invited_account(): void
+    {
+        $user = $this->eligibleUser('google-user@example.com', 'invited');
+
         Http::fake([
             'https://oauth2.googleapis.com/token' => Http::response([
                 'access_token' => 'mock-google-access-token',
             ], 200),
             'https://www.googleapis.com/oauth2/v3/userinfo' => Http::response([
-                'email' => 'new-google-user@example.com',
+                'email' => 'GOOGLE-USER@example.com',
+                'email_verified' => true,
                 'name' => 'Google User',
                 'sub' => 'google-1234567890',
             ], 200),
         ]);
 
-        $response = $this->postJson('/api/v1/auth/sso/callback/google', [
+        $redirect = $this->getJson('/api/v1/auth/sso/redirect/google')->assertOk();
+        $state = (string) $redirect->json('state');
+        parse_str((string) parse_url((string) $redirect->json('redirect_url'), PHP_URL_QUERY), $query);
+        $expectedChallenge = $query['code_challenge'] ?? null;
+
+        $this->postJson('/api/v1/auth/sso/callback/google', [
             'code' => 'valid-google-code',
-        ]);
+            'state' => $state,
+        ])->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('user.email', 'google-user@example.com')
+            ->assertJsonPath('user.sso_provider', 'google');
 
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'success',
-                'token',
-                'user' => ['id', 'name', 'email', 'sso_provider'],
-            ])
-            ->assertJson([
-                'success' => true,
-                'user' => [
-                    'email' => 'new-google-user@example.com',
-                    'sso_provider' => 'google',
-                ],
-            ]);
-
-        // Verify user was created in the database
         $this->assertDatabaseHas('users', [
-            'email' => 'new-google-user@example.com',
+            'id' => $user->id,
+            'email' => 'google-user@example.com',
             'sso_provider' => 'google',
             'sso_provider_id' => 'google-1234567890',
         ]);
+        $this->assertNotNull($user->fresh()->email_verified_at);
+        $this->assertDatabaseHas('organization_members', [
+            'user_id' => $user->id,
+            'status' => 'active',
+        ]);
+
+        Http::assertSent(function (HttpRequest $request) use ($expectedChallenge): bool {
+            if ($request->url() !== 'https://oauth2.googleapis.com/token') {
+                return false;
+            }
+            $verifier = $request->data()['code_verifier'] ?? null;
+            if (! is_string($verifier) || $verifier === '') {
+                return false;
+            }
+            $actual = rtrim(strtr(base64_encode(hash('sha256', $verifier, true)), '+/', '-_'), '=');
+
+            return hash_equals((string) $expectedChallenge, $actual);
+        });
     }
 
-    /**
-     * Test successful Microsoft SSO registration/login.
-     */
-    public function test_microsoft_sso_success_flow(): void
+    public function test_microsoft_sso_activates_existing_invited_account(): void
     {
-        // Fake Microsoft Graph endpoints
+        $user = $this->eligibleUser('ms-user@example.com', 'invited');
+
         Http::fake([
             'https://login.microsoftonline.com/common/oauth2/v2.0/token' => Http::response([
                 'access_token' => 'mock-ms-access-token',
             ], 200),
             'https://graph.microsoft.com/v1.0/me' => Http::response([
-                'mail' => 'new-ms-user@example.com',
+                'mail' => 'ms-user@example.com',
                 'displayName' => 'Microsoft User',
                 'id' => 'ms-987654321',
             ], 200),
         ]);
 
-        $response = $this->postJson('/api/v1/auth/sso/callback/microsoft', [
+        $this->postJson('/api/v1/auth/sso/callback/microsoft', [
             'code' => 'valid-ms-code',
-        ]);
+            'state' => $this->stateFor('microsoft'),
+        ])->assertOk()
+            ->assertJsonPath('user.email', 'ms-user@example.com')
+            ->assertJsonPath('user.sso_provider', 'microsoft');
 
-        $response->assertStatus(200)
-            ->assertJson([
-                'success' => true,
-                'user' => [
-                    'email' => 'new-ms-user@example.com',
-                    'sso_provider' => 'microsoft',
-                ],
-            ]);
-
-        // Verify user was created
         $this->assertDatabaseHas('users', [
-            'email' => 'new-ms-user@example.com',
+            'id' => $user->id,
             'sso_provider' => 'microsoft',
             'sso_provider_id' => 'ms-987654321',
         ]);
+        $this->assertDatabaseHas('organization_members', [
+            'user_id' => $user->id,
+            'status' => 'active',
+        ]);
     }
 
-    /**
-     * Test linking existing email accounts to new SSO sign-ins.
-     */
-    public function test_linking_existing_user_on_sso_login(): void
+    public function test_unknown_sso_identity_cannot_self_register(): void
     {
-        // Create an existing user
-        $user = User::create([
-            'name' => 'Existing User',
-            'email' => 'existing-user@example.com',
+        Http::fake([
+            'https://oauth2.googleapis.com/token' => Http::response(['access_token' => 'token'], 200),
+            'https://www.googleapis.com/oauth2/v3/userinfo' => Http::response([
+                'email' => 'unknown@example.com',
+                'email_verified' => true,
+                'name' => 'Unknown',
+                'sub' => 'unknown-google-id',
+            ], 200),
+        ]);
+
+        $this->postJson('/api/v1/auth/sso/callback/google', [
+            'code' => 'code',
+            'state' => $this->stateFor('google'),
+        ])->assertForbidden()->assertJson([
+            'success' => false,
+            'message' => 'No eligible Workforce account is available for this identity.',
+        ]);
+
+        $this->assertDatabaseMissing('users', ['email' => 'unknown@example.com']);
+    }
+
+    public function test_existing_user_without_membership_cannot_use_sso(): void
+    {
+        User::create([
+            'name' => 'No Tenant',
+            'email' => 'no-tenant@example.com',
             'password' => Hash::make('password'),
         ]);
 
         Http::fake([
-            'https://oauth2.googleapis.com/token' => Http::response([
-                'access_token' => 'mock-google-token',
+            'https://oauth2.googleapis.com/token' => Http::response(['access_token' => 'token'], 200),
+            'https://www.googleapis.com/oauth2/v3/userinfo' => Http::response([
+                'email' => 'no-tenant@example.com',
+                'email_verified' => true,
+                'name' => 'No Tenant',
+                'sub' => 'google-no-tenant',
             ], 200),
+        ]);
+
+        $this->postJson('/api/v1/auth/sso/callback/google', [
+            'code' => 'code',
+            'state' => $this->stateFor('google'),
+        ])->assertForbidden();
+    }
+
+    public function test_google_sso_requires_verified_email(): void
+    {
+        $this->eligibleUser('unverified@example.com');
+
+        Http::fake([
+            'https://oauth2.googleapis.com/token' => Http::response(['access_token' => 'token'], 200),
+            'https://www.googleapis.com/oauth2/v3/userinfo' => Http::response([
+                'email' => 'unverified@example.com',
+                'email_verified' => false,
+                'name' => 'Unverified',
+                'sub' => 'unverified-google-id',
+            ], 200),
+        ]);
+
+        $this->postJson('/api/v1/auth/sso/callback/google', [
+            'code' => 'code',
+            'state' => $this->stateFor('google'),
+        ])->assertForbidden()->assertJson([
+            'success' => false,
+            'message' => 'The SSO provider email address is not verified.',
+        ]);
+    }
+
+    public function test_linking_existing_active_account_to_sso(): void
+    {
+        $user = $this->eligibleUser('existing-user@example.com');
+
+        Http::fake([
+            'https://oauth2.googleapis.com/token' => Http::response(['access_token' => 'token'], 200),
             'https://www.googleapis.com/oauth2/v3/userinfo' => Http::response([
                 'email' => 'existing-user@example.com',
+                'email_verified' => true,
                 'name' => 'Google Name',
                 'sub' => 'google-user-999',
             ], 200),
         ]);
 
-        $response = $this->postJson('/api/v1/auth/sso/callback/google', [
+        $this->postJson('/api/v1/auth/sso/callback/google', [
             'code' => 'existing-user-code',
-        ]);
+            'state' => $this->stateFor('google'),
+        ])->assertOk()->assertJsonPath('user.sso_provider', 'google');
 
-        $response->assertStatus(200)
-            ->assertJson([
-                'success' => true,
-                'user' => [
-                    'email' => 'existing-user@example.com',
-                    'sso_provider' => 'google',
-                ],
-            ]);
-
-        // Verify the existing account has been linked
         $user->refresh();
-        $this->assertEquals('google', $user->sso_provider);
-        $this->assertEquals('google-user-999', $user->sso_provider_id);
+        $this->assertSame('google', $user->sso_provider);
+        $this->assertSame('google-user-999', $user->sso_provider_id);
     }
 
-    /**
-     * Test login fails if email is already linked to another provider.
-     */
-    public function test_linking_fails_if_different_sso_provider_linked(): void
+    public function test_linking_fails_if_different_sso_provider_is_already_linked(): void
     {
-        // User already linked to Google
-        User::create([
-            'name' => 'SSO User',
-            'email' => 'sso-conflict@example.com',
-            'password' => Hash::make('password'),
+        $user = $this->eligibleUser('sso-conflict@example.com');
+        $user->forceFill([
             'sso_provider' => 'google',
             'sso_provider_id' => 'google-id-123',
-        ]);
+        ])->save();
 
-        // Attempt callback via Microsoft for the same email
         Http::fake([
-            'https://login.microsoftonline.com/common/oauth2/v2.0/token' => Http::response([
-                'access_token' => 'mock-ms-token',
-            ], 200),
+            'https://login.microsoftonline.com/common/oauth2/v2.0/token' => Http::response(['access_token' => 'token'], 200),
             'https://graph.microsoft.com/v1.0/me' => Http::response([
                 'mail' => 'sso-conflict@example.com',
                 'displayName' => 'Microsoft Name',
@@ -193,36 +244,57 @@ class SSOTest extends TestCase
             ], 200),
         ]);
 
-        $response = $this->postJson('/api/v1/auth/sso/callback/microsoft', [
+        $this->postJson('/api/v1/auth/sso/callback/microsoft', [
             'code' => 'conflict-code',
+            'state' => $this->stateFor('microsoft'),
+        ])->assertStatus(409)->assertJson([
+            'success' => false,
+            'message' => 'This email is already associated with another login provider.',
         ]);
-
-        $response->assertStatus(409)
-            ->assertJson([
-                'success' => false,
-                'message' => 'This email is already associated with another login provider.',
-            ]);
     }
 
-    /**
-     * Test authentication code failures.
-     */
-    public function test_sso_code_exchange_failure(): void
+    public function test_sso_code_exchange_failure_and_state_replay_protection(): void
     {
         Http::fake([
-            'https://oauth2.googleapis.com/token' => Http::response([
-                'error' => 'invalid_grant',
-            ], 400),
+            'https://oauth2.googleapis.com/token' => Http::response(['error' => 'invalid_grant'], 400),
         ]);
 
-        $response = $this->postJson('/api/v1/auth/sso/callback/google', [
+        $state = $this->stateFor('google');
+        $this->postJson('/api/v1/auth/sso/callback/google', [
             'code' => 'invalid-google-code',
+            'state' => $state,
+        ])->assertStatus(400)->assertJsonPath('message', 'Failed to exchange authorization code.');
+
+        // State is pull-once, so the same transaction cannot be replayed.
+        $this->postJson('/api/v1/auth/sso/callback/google', [
+            'code' => 'anything',
+            'state' => $state,
+        ])->assertStatus(419)->assertJsonPath('message', 'Invalid or expired SSO state.');
+    }
+
+    private function stateFor(string $provider): string
+    {
+        return (string) $this->getJson("/api/v1/auth/sso/redirect/{$provider}")
+            ->assertOk()
+            ->json('state');
+    }
+
+    private function eligibleUser(string $email, string $status = 'active'): User
+    {
+        $organization = Organization::create([
+            'name' => 'Org '.uniqid(),
+            'slug' => 'org-'.uniqid(),
+        ]);
+        $user = User::create([
+            'name' => 'SSO User',
+            'email' => $email,
+            'password' => Hash::make('password'),
+        ]);
+        $organization->members()->attach($user->id, [
+            'role' => 'staff',
+            'status' => $status,
         ]);
 
-        $response->assertStatus(400)
-            ->assertJson([
-                'success' => false,
-                'message' => 'Failed to exchange authorization code.',
-            ]);
+        return $user;
     }
 }

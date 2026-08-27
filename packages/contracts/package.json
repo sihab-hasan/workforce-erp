@@ -1,0 +1,28 @@
+{
+  "name": "@workforce-erp/contracts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./api": "./src/api.ts",
+    "./auth": "./src/auth.ts",
+    "./authorization": "./src/authorization.ts",
+    "./common": "./src/common.ts",
+    "./events": "./src/events.ts",
+    "./tenancy": "./src/tenancy.ts"
+  },
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --max-warnings=0"
+  },
+  "nx": {
+    "tags": [
+      "type:lib",
+      "scope:shared",
+      "domain:contracts"
+    ]
+  }
+}

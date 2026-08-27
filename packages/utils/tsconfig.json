@@ -1,8 +1,7 @@
 {
-  "extends": "../config/typescript-config/base.json",
+  "extends": "@workforce-erp/typescript-config/browser.json",
   "compilerOptions": {
-    "noEmit": true
+    "rootDir": "src"
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src"]
 }

@@ -1,10 +1,10 @@
-import { AppProviders } from "@/app/providers/AppProviders"
-import { WebRouter } from "@/app/router/router.tsx"
-
+import { RouterProvider } from "react-router-dom";
+import { AppProviders } from "#app/providers";
+import { router } from "#routes/index";
 export function App() {
   return (
     <AppProviders>
-      <WebRouter />
+      <RouterProvider router={router} />
     </AppProviders>
-  )
+  );
 }

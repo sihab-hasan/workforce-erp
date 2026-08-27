@@ -94,12 +94,11 @@ class PaginationTest extends TestCase
             ]);
         }
 
-        // Test GET /api/users with page=1 & per_page=5
+        // Test GET /api/v1/users with page=1 & per_page=5
         $token = $this->user->createToken('test_token')->plainTextToken;
         $response = $this->withHeaders([
             'Authorization' => "Bearer {$token}",
-            'X-API-TOKEN' => 'my-secret-token',
-        ])->getJson('/api/users?page=1&per_page=5');
+        ])->getJson('/api/v1/users?page=1&per_page=5');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -130,8 +129,7 @@ class PaginationTest extends TestCase
         // Test Filter by Role (manager)
         $responseRole = $this->withHeaders([
             'Authorization' => "Bearer {$token}",
-            'X-API-TOKEN' => 'my-secret-token',
-        ])->getJson('/api/users?role=manager');
+        ])->getJson('/api/v1/users?role=manager');
 
         $responseRole->assertStatus(200);
         foreach ($responseRole->json()['data'] as $userData) {
@@ -141,8 +139,7 @@ class PaginationTest extends TestCase
         // Test Filter by Status (suspended)
         $responseStatus = $this->withHeaders([
             'Authorization' => "Bearer {$token}",
-            'X-API-TOKEN' => 'my-secret-token',
-        ])->getJson('/api/users?status=suspended');
+        ])->getJson('/api/v1/users?status=suspended');
 
         $responseStatus->assertStatus(200);
         foreach ($responseStatus->json()['data'] as $userData) {
@@ -152,8 +149,7 @@ class PaginationTest extends TestCase
         // Test Search parameter
         $responseSearch = $this->withHeaders([
             'Authorization' => "Bearer {$token}",
-            'X-API-TOKEN' => 'my-secret-token',
-        ])->getJson('/api/users?search=User 10');
+        ])->getJson('/api/v1/users?search=User 10');
 
         $responseSearch->assertStatus(200)
             ->assertJsonFragment(['name' => 'User 10']);
@@ -200,7 +196,6 @@ class PaginationTest extends TestCase
         // Test GET /api/v1/employees
         $response = $this->withHeaders([
             'Authorization' => "Bearer {$token}",
-            'X-API-TOKEN' => 'my-secret-token',
         ])->getJson('/api/v1/employees?page=2&per_page=5');
 
         $response->assertStatus(200)
@@ -221,7 +216,6 @@ class PaginationTest extends TestCase
         // Test filter by department (Marketing)
         $responseDept = $this->withHeaders([
             'Authorization' => "Bearer {$token}",
-            'X-API-TOKEN' => 'my-secret-token',
         ])->getJson('/api/v1/employees?department=Marketing');
 
         $responseDept->assertStatus(200);
@@ -232,7 +226,6 @@ class PaginationTest extends TestCase
         // Test filter by branch/location (London)
         $responseLoc = $this->withHeaders([
             'Authorization' => "Bearer {$token}",
-            'X-API-TOKEN' => 'my-secret-token',
         ])->getJson('/api/v1/employees?location=London');
 
         $responseLoc->assertStatus(200);
@@ -243,7 +236,6 @@ class PaginationTest extends TestCase
         // Test filter by status (on-leave)
         $responseStatus = $this->withHeaders([
             'Authorization' => "Bearer {$token}",
-            'X-API-TOKEN' => 'my-secret-token',
         ])->getJson('/api/v1/employees?status=on-leave');
 
         $responseStatus->assertStatus(200);
@@ -254,7 +246,6 @@ class PaginationTest extends TestCase
         // Test search
         $responseSearch = $this->withHeaders([
             'Authorization' => "Bearer {$token}",
-            'X-API-TOKEN' => 'my-secret-token',
         ])->getJson('/api/v1/employees?search=FirstName5');
 
         $responseSearch->assertStatus(200);
@@ -326,7 +317,6 @@ class PaginationTest extends TestCase
         // Test GET /api/v1/timesheets
         $response = $this->withHeaders([
             'Authorization' => "Bearer {$token}",
-            'X-API-TOKEN' => 'my-secret-token',
         ])->getJson('/api/v1/timesheets?page=1&per_page=6');
 
         $response->assertStatus(200)
@@ -343,7 +333,6 @@ class PaginationTest extends TestCase
         // Test filter by employee_id (Bob's records only)
         $responseBob = $this->withHeaders([
             'Authorization' => "Bearer {$token}",
-            'X-API-TOKEN' => 'my-secret-token',
         ])->getJson("/api/v1/timesheets?employee_id={$emp2->id}");
 
         $responseBob->assertStatus(200);
@@ -355,7 +344,6 @@ class PaginationTest extends TestCase
         // Test search by employee name (Alice)
         $responseSearch = $this->withHeaders([
             'Authorization' => "Bearer {$token}",
-            'X-API-TOKEN' => 'my-secret-token',
         ])->getJson('/api/v1/timesheets?search=Alice');
 
         $responseSearch->assertStatus(200);
@@ -364,7 +352,6 @@ class PaginationTest extends TestCase
         // Test date range filter (start_date=2026-08-05 & end_date=2026-08-12)
         $responseDates = $this->withHeaders([
             'Authorization' => "Bearer {$token}",
-            'X-API-TOKEN' => 'my-secret-token',
         ])->getJson('/api/v1/timesheets?start_date=2026-08-05&end_date=2026-08-12');
 
         $responseDates->assertStatus(200);
@@ -373,7 +360,6 @@ class PaginationTest extends TestCase
         // Test filter by status (pending)
         $responseStatus = $this->withHeaders([
             'Authorization' => "Bearer {$token}",
-            'X-API-TOKEN' => 'my-secret-token',
         ])->getJson('/api/v1/timesheets?status=pending');
 
         $responseStatus->assertStatus(200);

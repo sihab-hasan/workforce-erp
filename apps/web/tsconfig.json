@@ -1,30 +1,19 @@
 {
-  "extends": "../../packages/config/typescript-config/base.json",
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ],
+  "extends": "@workforce-erp/typescript-config/react-app.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@workforce-erp/api-client": ["../../packages/api-client/src/index.ts"],
-      "@workforce-erp/api-client/*": ["../../packages/api-client/src/*"],
-      "@workforce-erp/auth-client": ["../../packages/auth-client/src/index.ts"],
-      "@workforce-erp/auth-client/*": ["../../packages/auth-client/src/*"],
-      "@workforce-erp/constants": ["../../packages/constants/src/index.ts"],
-      "@workforce-erp/constants/*": ["../../packages/constants/src/*"],
-      "@workforce-erp/permissions": ["../../packages/permissions/src/index.ts"],
-      "@workforce-erp/permissions/*": ["../../packages/permissions/src/*"],
-      "@workforce-erp/types": ["../../packages/types/src/index.ts"],
-      "@workforce-erp/types/*": ["../../packages/types/src/*"],
-      "@workforce-erp/ui/*": ["../../packages/ui/src/*"],
-      "@workforce-erp/utils": ["../../packages/utils/src/index.ts"],
-      "@workforce-erp/utils/*": ["../../packages/utils/src/*"]
+      "#app/*": ["src/app/*"],
+      "#routes/*": ["src/routes/*"],
+      "#pages/*": ["src/pages/*"],
+      "#features/*": ["src/features/*"],
+      "#components/*": ["src/components/*"],
+      "#layouts/*": ["src/layouts/*"],
+      "#lib/*": ["src/lib/*"],
+      "#access/*": ["src/access/*"],
+      "#config/*": ["src/config/*"],
+      "#hooks/*": ["src/hooks/*"]
     }
-  }
+  },
+  "include": ["src", "vite.config.ts"]
 }

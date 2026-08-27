@@ -23,12 +23,12 @@ scroll-driven animation.
 ## React reveal
 
 ```tsx
-import { useReveal } from "@workforce-erp/ui/motion"
+import { useReveal } from "@workforce-erp/ui/motion";
 
 export function Example() {
-  const ref = useReveal<HTMLElement>("fade-up")
+  const ref = useReveal<HTMLElement>("fade-up");
 
-  return <section ref={ref}>Content</section>
+  return <section ref={ref}>Content</section>;
 }
 ```
 
@@ -37,23 +37,23 @@ Pass `{ once: true }` only when replaying the reveal would be confusing.
 ## Scoped timeline
 
 ```tsx
-import { useRef } from "react"
-import { gsap, useGSAP } from "@workforce-erp/ui/motion"
+import { useRef } from "react";
+import { gsap, useGSAP } from "@workforce-erp/ui/motion";
 
 export function Example() {
-  const scope = useRef<HTMLDivElement>(null)
+  const scope = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
       gsap
         .timeline()
         .from("[data-title]", { autoAlpha: 0, y: 24 })
-        .from("[data-action]", { autoAlpha: 0, y: 12 }, "-=0.25")
+        .from("[data-action]", { autoAlpha: 0, y: 12 }, "-=0.25");
     },
-    { scope }
-  )
+    { scope },
+  );
 
-  return <div ref={scope}>...</div>
+  return <div ref={scope}>...</div>;
 }
 ```
 
@@ -65,10 +65,10 @@ Call `revealOnScroll` inside `useGSAP`. Cleanup is automatic because
 ```tsx
 useGSAP(
   () => {
-    revealOnScroll("[data-reveal]", { start: "top 85%" })
+    revealOnScroll("[data-reveal]", { start: "top 85%" });
   },
-  { scope }
-)
+  { scope },
+);
 ```
 
 ## Reversible scoped timeline
@@ -79,18 +79,18 @@ shared binding handles reveal, unreveal, replay, and reduced motion.
 ```tsx
 useGSAP(
   () => {
-    const timeline = gsap.timeline({ paused: true })
+    const timeline = gsap.timeline({ paused: true });
 
     timeline
       .from("[data-title]", { autoAlpha: 0, y: 24 })
-      .from("[data-action]", { autoAlpha: 0, y: 12 }, "-=0.25")
+      .from("[data-action]", { autoAlpha: 0, y: 12 }, "-=0.25");
 
     bindScrollAnimation(timeline, {
       trigger: scope.current!,
-    })
+    });
   },
-  { scope }
-)
+  { scope },
+);
 ```
 
 The default `revealUnrevealToggleActions` value is

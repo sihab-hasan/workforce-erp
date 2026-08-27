@@ -2,26 +2,19 @@
 
 ## Where to ask for help
 
-Use the following paths depending on what you need:
-
-- bug reports: open a GitHub issue with the bug report template
-- feature requests: open a GitHub issue with the feature request template
-- contribution workflow questions: check `CONTRIBUTING.md`
-- repository automation or CI questions: check `.github/README.md`
-- local setup and helper script questions: check `infra/README.md`
+- Bug reports: use the bug report issue form.
+- Feature requests: use the feature request issue form.
+- Project setup and shared commands: check the root `README.md`.
+- Repository automation or CI questions: check `.github/GITHUB-CONFIG.md`.
+- Infrastructure questions: check `infra/README.md`.
 
 ## Before opening an issue
 
-- confirm the problem is reproducible
-- check whether the relevant documentation already covers it
-- gather logs, screenshots, or steps to reproduce when applicable
+- Confirm the problem is reproducible.
+- Check whether the documentation already covers it.
+- Gather relevant logs, screenshots, and reproduction steps.
+- Remove credentials, tokens, personal data, and other secrets.
 
 ## Security issues
 
-Do not report security issues in public issues.
-
-Use the process described in [`SECURITY.md`](./SECURITY.md).
-
-## Collaboration note
-
-This repository is public for visibility, but it is not open source and remains `UNLICENSED`. Support and contribution should happen through approved collaboration channels.
+Do not report security vulnerabilities in public issues. Follow the process in [`SECURITY.md`](./SECURITY.md).

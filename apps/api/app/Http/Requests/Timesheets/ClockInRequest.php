@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Http\Requests\Timesheets;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class ClockInRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'employee_id' => ['nullable', 'integer', 'min:1'],
+            'clock_in' => ['prohibited'],
+            'clock_out' => ['prohibited'],
+            'notes' => ['prohibited'],
+            'location' => ['prohibited'],
+            'latitude' => ['prohibited'],
+            'longitude' => ['prohibited'],
+        ];
+    }
+}

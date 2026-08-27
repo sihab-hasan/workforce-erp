@@ -7,41 +7,55 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     */
     public function toArray(Request $request): array
     {
-        $user = $request->user();
-        $orgIds = $user ? $user->organizations()->pluck('organizations.id')->toArray() : [];
+        // Services load only the organizations the current actor is allowed to manage.
+        // Avoid querying authorization state inside each resource to prevent N+1 queries.
+        $organizations = $this->relationLoaded('organizations')
+            ? $this->organizations
+            : collect();
 
-        // Find the first organization this user belongs to, scoped to user's orgs
-        $org = $this->organizations
-            ->when(! empty($orgIds), function ($collection) use ($orgIds) {
-                return $collection->whereIn('id', $orgIds);
-            })
-            ->first();
+        $requestedOrganizationId = $request->integer('organization_id') ?: null;
+        $organization = $requestedOrganizationId
+            ? $organizations->firstWhere('id', $requestedOrganizationId)
+            : $organizations->first();
 
-        // Get the employee linked to this user and organization
-        $employee = $this->employees
-            ->when($org, function ($collection) use ($org) {
-                return $collection->where('organization_id', $org->id);
-            })
-            ->first();
+        $employees = $this->relationLoaded('employees')
+            ? $this->employees
+            : collect();
+        $employee = $organization
+            ? $employees->firstWhere('organization_id', $organization->id)
+            : $employees->first();
+
+        $employeeLink = $employee ? [
+            'employee_id' => (string) $employee->id,
+            'employee_name' => trim("{$employee->first_name} {$employee->last_name}"),
+            'department' => $employee->department?->name,
+            'designation' => $employee->designation?->name,
+        ] : null;
+
+        $organizationLink = $organization ? [
+            'id' => (string) $organization->id,
+            'name' => $organization->name,
+            'slug' => $organization->slug,
+        ] : null;
 
         return [
             'id' => (string) $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'role' => $org?->pivot?->role ?? 'staff',
-            'status' => $org?->pivot?->status ?? 'active',
-            'organization_id' => $org ? (string) $org->id : null,
-            'organization_name' => $org?->name ?? '',
-            'employee_id' => $employee ? (string) $employee->id : null,
-            'employee_name' => $employee ? trim("{$employee->first_name} {$employee->last_name}") : null,
+            'role' => $organization?->pivot?->role ?? 'staff',
+            'status' => $organization?->pivot?->status ?? 'inactive',
+            'organization' => $organizationLink,
+            'employee' => $employeeLink,
+            'organization_id' => $organizationLink['id'] ?? null,
+            'organization_name' => $organizationLink['name'] ?? '',
+            'employee_id' => $employeeLink['employee_id'] ?? null,
+            'employee_name' => $employeeLink['employee_name'] ?? null,
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
-            'last_login_at' => null,
+            'last_login_at' => $this->last_login_at?->toIso8601String(),
+            'invitation_delivered' => $this->getAttribute('invitation_delivered'),
         ];
     }
 }

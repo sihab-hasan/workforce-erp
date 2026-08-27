@@ -13,12 +13,12 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'id',
         'name',
         'email',
         'password',
         'sso_provider',
         'sso_provider_id',
+        'last_login_at',
     ];
 
     /**
@@ -31,10 +31,10 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    public function posts()
-    {
-        return $this->hasMany(Post::class); // One user has many posts
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'last_login_at' => 'datetime',
+    ];
 
     public function organizations()
     {
@@ -51,5 +51,10 @@ class User extends Authenticatable
     public function employees()
     {
         return $this->hasMany(Employee::class);
+    }
+
+    public function workforceNotifications()
+    {
+        return $this->hasMany(WorkforceNotification::class);
     }
 }

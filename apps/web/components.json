@@ -11,14 +11,13 @@
   },
   "iconLibrary": "lucide",
   "aliases": {
-    "components": "@/components",
-    "hooks": "@workforce-erp/ui/hooks",
-    "lib": "@workforce-erp/ui/lib",
+    "components": "#components",
+    "hooks": "#hooks",
+    "lib": "#lib",
     "utils": "@workforce-erp/ui/lib/utils",
     "ui": "@workforce-erp/ui/components"
   },
   "rtl": false,
-  "menuColor": "default",
-  "menuAccent": "subtle",
-  "registries": {}
+  "menuColor": "default-translucent",
+  "menuAccent": "subtle"
 }

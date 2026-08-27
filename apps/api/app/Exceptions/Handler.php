@@ -91,18 +91,10 @@ class Handler extends ExceptionHandler
             ], $exception->getStatusCode());
         }
 
-        // Default 500 response
-        $response = [
+        // Never expose exception messages, classes, or stack traces in API responses.
+        return response()->json([
             'success' => false,
             'message' => 'An unexpected error occurred.',
-        ];
-
-        if (config('app.debug')) {
-            $response['error'] = $exception->getMessage();
-            $response['exception'] = get_class($exception);
-            $response['trace'] = $exception->getTrace();
-        }
-
-        return response()->json($response, 500);
+        ], 500);
     }
 }

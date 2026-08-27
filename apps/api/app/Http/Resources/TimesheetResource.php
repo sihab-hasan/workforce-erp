@@ -14,6 +14,7 @@ class TimesheetResource extends JsonResource
     {
         return [
             'id' => (string) $this->id,
+            'organization_id' => (string) $this->organization_id,
             'employee_id' => (string) $this->employee_id,
             'employee' => $this->employee ? [
                 'id' => (string) $this->employee->id,

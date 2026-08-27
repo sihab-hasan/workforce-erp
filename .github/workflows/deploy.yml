@@ -1,90 +1,61 @@
-name: Deploy Scaffold
+name: Production deploy
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
-    inputs:
-      environment:
-        description: Target environment
-        required: true
-        type: choice
-        options:
-          - staging
-          - production
-      deploy_web:
-        description: Deploy the public web app
-        required: false
-        type: boolean
-        default: true
-      deploy_client:
-        description: Deploy the client app
-        required: false
-        type: boolean
-        default: true
-      deploy_admin:
-        description: Deploy the admin app
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   contents: read
 
 concurrency:
-  group: deploy-${{ github.event.inputs.environment }}
+  group: production-deploy
   cancel-in-progress: false
 
 jobs:
-  verify:
-    name: Verify before deploy
+  branch-policy:
+    name: Verify production branch
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Require main branch
+        shell: bash
+        run: |
+          if [ "${GITHUB_REF_NAME}" != "main" ]; then
+            echo "Production deployment is allowed only from the main branch."
+            exit 1
+          fi
 
-      - name: Setup Node.js and pnpm
-        uses: ./.github/actions/setup-node-pnpm
+  node-validation:
+    name: Validate Node workspace
+    needs: branch-policy
+    uses: ./.github/workflows/frontend.yml
 
-      - name: Setup PHP and Composer
-        uses: ./.github/actions/setup-php-composer
-
-      - name: Format check
-        run: pnpm format:check
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Build
-        run: pnpm build
+  api-validation:
+    name: Validate Laravel API
+    needs: branch-policy
+    uses: ./.github/workflows/api.yml
 
   deployment-guide:
-    name: Deployment handoff
+    name: Production deployment handoff
     runs-on: ubuntu-latest
-    needs: verify
-    environment: ${{ github.event.inputs.environment }}
+    needs:
+      - node-validation
+      - api-validation
+    environment: production
 
     steps:
-      - name: Summarize selected targets
+      - name: Summarize deployment status
         shell: bash
         run: |
           {
-            echo '## Deployment scaffold'
+            echo '## Production deployment'
             echo ''
-            echo 'This workflow intentionally verifies the repo and then stops at a manual handoff step.'
-            echo 'No provider-specific deployment is wired yet.'
+            echo 'Source branch: `main`'
+            echo 'Environment: `production`'
             echo ''
-            echo '## Selected targets'
+            echo 'Repository validation passed.'
             echo ''
-            echo "Environment: ${{ github.event.inputs.environment }}"
-            echo "Web: ${{ github.event.inputs.deploy_web }}"
-            echo "Client: ${{ github.event.inputs.deploy_client }}"
-            echo "Admin: ${{ github.event.inputs.deploy_admin }}"
-            echo ''
-            echo '## Next step'
-            echo ''
-            echo 'Add real deployment steps only after hosting targets, secrets, and ownership are finalized.'
+            echo '> Provider-specific deployment commands are not configured yet.'
+            echo '> Add the hosting/deployment step here once the production target and credentials are finalized.'
           } >> "$GITHUB_STEP_SUMMARY"

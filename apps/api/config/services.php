@@ -32,15 +32,16 @@ return [
     ],
 
     'google' => [
-        'client_id' => env('GOOGLE_CLIENT_ID', 'mock-google-client-id'),
-        'client_secret' => env('GOOGLE_CLIENT_SECRET', 'mock-google-client-secret'),
-        'redirect' => env('GOOGLE_REDIRECT_URI', 'http://localhost:5174/portal/auth/callback/google'),
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', 'http://localhost:5174/auth/callback/google'),
     ],
 
     'microsoft' => [
-        'client_id' => env('MICROSOFT_CLIENT_ID', 'mock-microsoft-client-id'),
-        'client_secret' => env('MICROSOFT_CLIENT_SECRET', 'mock-microsoft-client-secret'),
-        'redirect' => env('MICROSOFT_REDIRECT_URI', 'http://localhost:5174/portal/auth/callback/microsoft'),
+        'client_id' => env('MICROSOFT_CLIENT_ID'),
+        'client_secret' => env('MICROSOFT_CLIENT_SECRET'),
+        'redirect' => env('MICROSOFT_REDIRECT_URI', 'http://localhost:5174/auth/callback/microsoft'),
+        'tenant' => env('MICROSOFT_TENANT_ID', 'common'),
     ],
 
 ];

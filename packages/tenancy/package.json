@@ -1,0 +1,35 @@
+{
+  "name": "@workforce-erp/tenancy",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./provider": "./src/providers/TenancyProvider.tsx",
+    "./guards": "./src/guards/TenancyGuards.tsx",
+    "./hooks": "./src/hooks/use-tenancy.ts",
+    "./headers": "./src/lib/headers.ts"
+  },
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --max-warnings=0"
+  },
+  "dependencies": {
+    "@workforce-erp/contracts": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": ">=18 <20"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18"
+  },
+  "nx": {
+    "tags": [
+      "type:lib",
+      "scope:shared",
+      "domain:tenancy"
+    ]
+  }
+}

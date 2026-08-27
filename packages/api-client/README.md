@@ -1,28 +1,15 @@
 # @workforce-erp/api-client
 
-Frontend-to-backend API client utilities for Workforce ERP.
+Small fetch-based HTTP client shared by Web, ERP, and Admin.
 
-## Current surface
+It is backend-framework neutral but intentionally compatible with the Laravel API in `apps/api`:
 
-Today the package exports `createApiClient(options)`, which currently returns a simple client
-configuration object. That makes the package real but still early in its implementation maturity.
+- JSON requests and responses
+- Bearer token authentication when used
+- cookie credentials for Laravel Sanctum-style SPA authentication
+- optional `X-XSRF-TOKEN`
+- `X-Tenant-Key` and `X-Company-Key` context headers
+- Laravel 422 `{ message, errors }` validation responses normalized to `ApiError`
+- correlation and idempotency headers
 
-## Workspace notes
-
-- `openapi/workforce-api.yaml` is the current OpenAPI source artifact in the package.
-- `src/codegen/openapi.config.ts` is the current codegen configuration entry point.
-- `src/generated/` is reserved for generated client output.
-- `src/http/` is reserved for shared transport helpers.
-
-## Workspace notes
-
-- `openapi/workforce-api.yaml` is the current OpenAPI source artifact in the package.
-- `src/codegen/openapi.config.ts` is the current codegen placeholder.
-- `src/generated/` is reserved for generated client output.
-- `src/http/` is reserved for shared transport helpers.
-
-## Intended use
-
-This package is the canonical typed client boundary that frontend apps should use to talk to the API
-consistently. It still needs deeper transport, error-handling, and auth integration work as backend
-implementation matures.
+Business endpoints do **not** belong in this package. They stay in app features or the Laravel API.

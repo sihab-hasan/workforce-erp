@@ -1,11 +1,11 @@
 name: Setup PHP and Composer
-description: Configure PHP and install the Laravel API Composer dependencies.
+description: Configure PHP and Composer and optionally install Laravel API dependencies.
 
 inputs:
   php-version:
     description: PHP version to use
     required: false
-    default: "8.2"
+    default: "8.5"
   install:
     description: Whether to run Composer install
     required: false
@@ -18,9 +18,11 @@ runs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ inputs.php-version }}
+        extensions: mbstring, sqlite3, pdo_sqlite
         coverage: none
+        tools: composer:v2
 
     - name: Install API dependencies
       if: inputs.install == 'true'
       shell: bash
-      run: composer --working-dir=apps/api install --no-interaction --no-progress --prefer-dist
+      run: composer --working-dir=apps/api install --no-interaction --prefer-dist --no-progress

@@ -1,21 +1,30 @@
 {
   "name": "@workforce-erp/api-client",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
+  "sideEffects": false,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./errors": "./src/errors.ts",
+    "./query": "./src/query.ts",
+    "./types": "./src/types.ts",
+    "./compat": "./src/compat.ts"
   },
+  "types": "./src/index.ts",
   "scripts": {
-    "lint": "eslint .",
-    "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --max-warnings=0"
   },
-  "devDependencies": {
-    "@workforce-erp/eslint-config": "workspace:*",
-    "@workforce-erp/typescript-config": "workspace:*",
-    "eslint": "^10",
-    "typescript": "~6"
+  "dependencies": {
+    "@workforce-erp/contracts": "workspace:*"
   },
-  "license": "UNLICENSED"
+  "nx": {
+    "tags": [
+      "type:lib",
+      "scope:shared",
+      "domain:api"
+    ]
+  }
 }

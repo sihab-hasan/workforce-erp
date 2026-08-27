@@ -1,0 +1,20 @@
+{
+  "name": "@workforce-erp/prettier-config",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": "./prettier.config.mjs",
+  "files": [
+    "prettier.config.mjs",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "prettier": ">=3.6 <4"
+  },
+  "nx": {
+    "tags": [
+      "type:tooling",
+      "scope:repo"
+    ]
+  }
+}

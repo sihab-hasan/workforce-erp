@@ -1,6 +1,6 @@
-export { gsap, ScrollTrigger, useGSAP } from "@workforce-erp/ui/motion/config"
-export { useReducedMotion } from "@workforce-erp/ui/motion/hooks/use-reduced-motion"
-export { useReveal } from "@workforce-erp/ui/motion/hooks/use-reveal"
+export { gsap, ScrollTrigger, useGSAP } from "@workforce-erp/ui/motion/config";
+export { useReducedMotion } from "@workforce-erp/ui/motion/hooks/use-reduced-motion";
+export { useReveal } from "@workforce-erp/ui/motion/hooks/use-reveal";
 export {
   animateIn,
   animateOut,
@@ -8,20 +8,20 @@ export {
   type AnimateInOptions,
   type MotionPresetName,
   type MotionTarget,
-} from "@workforce-erp/ui/motion/presets"
+} from "@workforce-erp/ui/motion/presets";
 export {
   getReducedMotionMediaQuery,
   prefersReducedMotion,
-} from "@workforce-erp/ui/motion/preferences"
+} from "@workforce-erp/ui/motion/preferences";
 export {
   bindScrollAnimation,
   revealOnScroll,
   type ScrollAnimationOptions,
   type ScrollRevealOptions,
-} from "@workforce-erp/ui/motion/scroll"
+} from "@workforce-erp/ui/motion/scroll";
 export {
   motionDistance,
   motionDuration,
   motionEase,
   motionStagger,
-} from "@workforce-erp/ui/motion/tokens"
+} from "@workforce-erp/ui/motion/tokens";

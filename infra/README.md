@@ -1,79 +1,11 @@
-# Infrastructure Notes
+# Infrastructure
 
-This folder contains local helper scripts and infrastructure-related project files for Workforce ERP.
+`infra/docker-compose.yml` builds the three static frontend applications plus the Node worker. The Laravel API lives in `apps/api` but is intentionally run/deployed independently from this Compose stack so database, queue, cache, scheduler, migrations, and secrets can be operated as backend concerns.
 
-## Current contents
+Host ports default to Web `5173`, ERP `5174`, and Admin `5175`; each frontend container listens on port `80` internally and exposes `/healthz` for container health checks.
 
-- `scripts/`: local setup, cleanup, and stop helpers
-- `docker/`: container-related scaffolding
-- `nginx/`: reverse-proxy and hosting scaffolding
+Browser build-time endpoints use `PUBLIC_WEB_URL`, `PUBLIC_ERP_URL`, `PUBLIC_ADMIN_URL`, `PUBLIC_API_BASE_URL`, and `PUBLIC_API_URL`. The worker uses `WORKER_API_URL` because server-to-server routing is different from browser routing.
 
-## Local helper scripts
+For local Docker with the Laravel API running on the host, `WORKER_API_URL` defaults to `http://host.docker.internal:8000/api` and Compose registers `host.docker.internal:host-gateway` for Linux compatibility.
 
-The root workspace commands call the PowerShell scripts in `infra/scripts/`.
-
-### Setup
-
-Used by:
-
-```bash
-pnpm setup
-```
-
-Script:
-
-- `infra/scripts/setup.ps1`
-- `infra/scripts/setup.sh`
-
-Purpose:
-
-- verify local prerequisites such as `node` and `pnpm`
-- install workspace dependencies
-
-### Clean
-
-Used by:
-
-```bash
-pnpm clean
-```
-
-Script:
-
-- `infra/scripts/clean.ps1`
-- `infra/scripts/clean.sh`
-
-Purpose:
-
-- remove workspace build artifacts
-- remove generated install output such as local `node_modules`
-- reset the workspace to a cleaner local state
-
-### Stop
-
-Used by:
-
-```bash
-pnpm stop
-```
-
-Script:
-
-- `infra/scripts/stop.ps1`
-- `infra/scripts/stop.sh`
-
-Purpose:
-
-- stop local dev servers running on the workspace ports
-
-Current ports:
-
-- `5173`: web
-- `5174`: portal
-- `5175`: admin
-
-## Notes
-
-- The PowerShell scripts are the ones used directly by the root `package.json` commands.
-- Shell script variants exist for environments where the team wants equivalent non-PowerShell helpers.
-- Deployment-related files in this folder are still scaffold-level and are not yet a finalized production setup.
+For staging/production, set all public URLs to HTTPS endpoints and configure the API's CORS/Sanctum/session environment for exactly those origins.

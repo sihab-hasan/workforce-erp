@@ -1,2 +1,0 @@
-/** status.types.ts: generated architecture placeholder. */
-export {}

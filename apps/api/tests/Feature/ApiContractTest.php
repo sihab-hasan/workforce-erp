@@ -11,9 +11,7 @@ class ApiContractTest extends TestCase
      */
     public function test_api_health_endpoint(): void
     {
-        // 1. With X-API-TOKEN header
-        $response = $this->withHeader('X-API-TOKEN', 'my-secret-token')
-            ->getJson('/api/health');
+        $response = $this->getJson('/api/health');
 
         $response->assertStatus(200)
             ->assertJson([
@@ -21,14 +19,6 @@ class ApiContractTest extends TestCase
                 'service' => 'workforce-erp-api',
             ]);
 
-        // 2. Without X-API-TOKEN header (should still pass, health check is public)
-        $publicResponse = $this->getJson('/api/health');
-
-        $publicResponse->assertStatus(200)
-            ->assertJson([
-                'status' => 'ok',
-                'service' => 'workforce-erp-api',
-            ]);
     }
 
     /**
@@ -37,8 +27,7 @@ class ApiContractTest extends TestCase
     public function test_success_response_and_pagination_contract(): void
     {
         // Test Paginated List
-        $response = $this->withHeader('X-API-TOKEN', 'my-secret-token')
-            ->getJson('/api/v1/test-contract/paginate?page=1&per_page=5');
+        $response = $this->getJson('/api/v1/test-contract/paginate?page=1&per_page=5');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -61,8 +50,7 @@ class ApiContractTest extends TestCase
             ]);
 
         // Test Single Resource
-        $singleResponse = $this->withHeader('X-API-TOKEN', 'my-secret-token')
-            ->getJson('/api/v1/test-contract/success');
+        $singleResponse = $this->getJson('/api/v1/test-contract/success');
         $singleResponse->assertStatus(200)
             ->assertJsonStructure([
                 'success',
@@ -85,10 +73,9 @@ class ApiContractTest extends TestCase
     public function test_validation_error_contract(): void
     {
         // POST to /validate without required 'name' field
-        $response = $this->withHeader('X-API-TOKEN', 'my-secret-token')
-            ->postJson('/api/v1/test-contract/validate', [
-                'description' => 'Missing name field',
-            ]);
+        $response = $this->postJson('/api/v1/test-contract/validate', [
+            'description' => 'Missing name field',
+        ]);
 
         $response->assertStatus(422)
             ->assertJsonStructure([
@@ -107,8 +94,7 @@ class ApiContractTest extends TestCase
     public function test_not_found_error_contract(): void
     {
         // 404 for model/resource not found
-        $response = $this->withHeader('X-API-TOKEN', 'my-secret-token')
-            ->getJson('/api/v1/test-contract/not-found');
+        $response = $this->getJson('/api/v1/test-contract/not-found');
 
         $response->assertStatus(404)
             ->assertJson([
@@ -117,8 +103,7 @@ class ApiContractTest extends TestCase
             ]);
 
         // 404 for undefined routes
-        $routeResponse = $this->withHeader('X-API-TOKEN', 'my-secret-token')
-            ->getJson('/api/v1/non-existent-route-path');
+        $routeResponse = $this->getJson('/api/v1/non-existent-route-path');
         $routeResponse->assertStatus(404)
             ->assertJson([
                 'success' => false,
@@ -131,20 +116,14 @@ class ApiContractTest extends TestCase
      */
     public function test_unauthenticated_error_contract(): void
     {
-        // 1. Missing token (intercepted by TestMiddleware)
-        $response = $this->getJson('/api/v1/test-errors/401');
-
-        $response->assertStatus(401)
+        $this->getJson('/api/v1/auth/me')
+            ->assertStatus(401)
             ->assertJson([
                 'success' => false,
-                'message' => 'Invalid or missing token.',
             ]);
 
-        // 2. Custom 401 throw from controller/route (passes middleware, caught by Handler)
-        $responseWithToken = $this->withHeader('X-API-TOKEN', 'my-secret-token')
-            ->getJson('/api/v1/test-errors/401');
-
-        $responseWithToken->assertStatus(401)
+        $this->getJson('/api/v1/test-errors/401')
+            ->assertStatus(401)
             ->assertJson([
                 'success' => false,
                 'message' => 'Unauthenticated.',
@@ -156,8 +135,7 @@ class ApiContractTest extends TestCase
      */
     public function test_unauthorized_error_contract(): void
     {
-        $response = $this->withHeader('X-API-TOKEN', 'my-secret-token')
-            ->getJson('/api/v1/test-errors/403');
+        $response = $this->getJson('/api/v1/test-errors/403');
 
         $response->assertStatus(403)
             ->assertJson([
@@ -171,8 +149,7 @@ class ApiContractTest extends TestCase
      */
     public function test_conflict_error_contract(): void
     {
-        $response = $this->withHeader('X-API-TOKEN', 'my-secret-token')
-            ->getJson('/api/v1/test-errors/409');
+        $response = $this->getJson('/api/v1/test-errors/409');
 
         $response->assertStatus(409)
             ->assertJson([
@@ -189,8 +166,7 @@ class ApiContractTest extends TestCase
         // Ensure app debug is false to test production/generic formatting
         config(['app.debug' => false]);
 
-        $response = $this->withHeader('X-API-TOKEN', 'my-secret-token')
-            ->getJson('/api/v1/test-errors/500');
+        $response = $this->getJson('/api/v1/test-errors/500');
 
         $response->assertStatus(500)
             ->assertJson([

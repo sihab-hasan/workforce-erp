@@ -1,11 +1,10 @@
 packages:
-  - "apps/admin"
-  - "apps/api"
-  - "apps/portal"
-  - "apps/web"
+  - "apps/*"
+  - "!apps/api"
+  - "services/*"
   - "packages/*"
-  - "packages/config/*"
-
+  - "tooling/*"
 allowBuilds:
   esbuild: true
   msw: false
+  nx: true

@@ -4,269 +4,313 @@ namespace App\Services;
 
 use App\Models\Employee;
 use App\Models\Timesheet;
-use Carbon\Carbon;
-use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class TimesheetService
 {
-    /**
-     * Standard scheduled work hours per day.
-     */
-    public const DEFAULT_SCHEDULED_HOURS = 8.00;
+    public const STATUSES = ['present', 'absent', 'on-leave', 'half-day', 'pending', 'approved', 'rejected'];
+
+    public function __construct(private readonly OrganizationAccessService $access) {}
 
     /**
-     * Validate that the requested time span for an employee does not overlap with any existing records.
-     *
-     * @param  Carbon|string  $clockIn
-     * @param  Carbon|string|null  $clockOut
-     *
-     * @throws ValidationException|ConflictHttpException
+     * @param  array<string, mixed>  $filters
      */
-    public function validateNoOverlap(int $employeeId, mixed $clockIn, mixed $clockOut = null, ?int $ignoreId = null): void
+    public function paginate(User $actor, array $filters): LengthAwarePaginator
     {
-        $clockInTime = $clockIn instanceof Carbon ? $clockIn : Carbon::parse($clockIn);
-        $clockOutTime = $clockOut ? ($clockOut instanceof Carbon ? $clockOut : Carbon::parse($clockOut)) : null;
+        $organizationIds = $this->access->organizationIds($actor);
+        $manageableOrganizationIds = $this->access->organizationIds($actor, OrganizationAccessService::TIMESHEET_MANAGER_ROLES);
+        $ownEmployeeIds = $this->access->ownEmployeeIds($actor, $organizationIds);
+        $query = Timesheet::query()->with(['employee', 'organization']);
 
-        if ($clockOutTime !== null && $clockOutTime->lessThanOrEqualTo($clockInTime)) {
-            throw ValidationException::withMessages([
-                'clock_out' => ['Clock out time must be strictly after clock in time.'],
-            ]);
+        if (! empty($filters['organization_id'])) {
+            $query->where('organization_id', (int) $filters['organization_id']);
+        }
+        if (! empty($filters['branch_id'])) {
+            $query->whereHas('employee', fn ($q) => $q->where('branch_id', (int) $filters['branch_id']));
         }
 
-        // 1. Check for active/open sessions (clock_out IS NULL)
-        $openSessionQuery = Timesheet::query()
-            ->where('employee_id', $employeeId)
-            ->whereNull('clock_out');
+        if ($manageableOrganizationIds === [] && $ownEmployeeIds === []) {
+            $query->whereRaw('1 = 0');
+        } else {
+            $query->where(function ($scope) use ($manageableOrganizationIds, $ownEmployeeIds) {
+                if ($manageableOrganizationIds !== []) {
+                    $scope->whereIn('organization_id', $manageableOrganizationIds);
+                }
 
-        if ($ignoreId) {
-            $openSessionQuery->where('id', '!=', $ignoreId);
+                if ($ownEmployeeIds !== []) {
+                    $manageableOrganizationIds === []
+                        ? $scope->whereIn('employee_id', $ownEmployeeIds)
+                        : $scope->orWhereIn('employee_id', $ownEmployeeIds);
+                }
+            });
         }
 
-        $activeSession = $openSessionQuery->first();
-
-        // If the new/updated entry is an open session (clock_out IS NULL)
-        if ($clockOutTime === null) {
-            if ($activeSession) {
-                throw new ConflictHttpException('An active work session is already in progress. Please clock out before starting a new session.');
-            }
-
-            // Ensure the open session start time doesn't fall inside or before any existing closed session
-            $overlappingClosed = Timesheet::query()
-                ->where('employee_id', $employeeId)
-                ->whereNotNull('clock_out')
-                ->where(function ($q) use ($clockInTime) {
-                    $q->where('clock_in', '<=', $clockInTime)
-                        ->where('clock_out', '>', $clockInTime);
-                });
-
-            if ($ignoreId) {
-                $overlappingClosed->where('id', '!=', $ignoreId);
-            }
-
-            $closedConflict = $overlappingClosed->first();
-            if ($closedConflict) {
-                $conflictStart = Carbon::parse($closedConflict->clock_in)->format('H:i:s');
-                $conflictEnd = Carbon::parse($closedConflict->clock_out)->format('H:i:s');
-                throw new ConflictHttpException("The clock-in time overlaps with an existing completed shift ({$conflictStart} - {$conflictEnd}).");
-            }
-
-            return;
+        if (! empty($filters['employee_id'])) {
+            $query->where('employee_id', (int) $filters['employee_id']);
+        }
+        if (! empty($filters['start_date'])) {
+            $query->whereDate('date', '>=', $filters['start_date']);
+        }
+        if (! empty($filters['end_date'])) {
+            $query->whereDate('date', '<=', $filters['end_date']);
+        }
+        if (! empty($filters['status']) && $filters['status'] !== 'all') {
+            $query->where('status', $filters['status']);
+        }
+        if (! empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->whereHas('employee', fn ($q) => $q
+                ->where('first_name', 'like', "%{$search}%")
+                ->orWhere('last_name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%"));
         }
 
-        // If the entry has both clock_in and clock_out (closed session)
-        // Check if an existing open session conflicts with this range
-        if ($activeSession) {
-            $activeStart = Carbon::parse($activeSession->clock_in);
-            // If the active session started before or during this span
-            if ($activeStart->lessThan($clockOutTime)) {
-                throw new ConflictHttpException('The specified time span overlaps with the current active open session.');
-            }
-        }
-
-        // Check against all closed records for overlap:
-        // Overlap exists if: (existing.clock_in < new.clock_out) AND (existing.clock_out > new.clock_in)
-        $overlapQuery = Timesheet::query()
-            ->where('employee_id', $employeeId)
-            ->whereNotNull('clock_out')
-            ->where('clock_in', '<', $clockOutTime)
-            ->where('clock_out', '>', $clockInTime);
-
-        if ($ignoreId) {
-            $overlapQuery->where('id', '!=', $ignoreId);
-        }
-
-        $overlapRecord = $overlapQuery->first();
-        if ($overlapRecord) {
-            $overlapStart = Carbon::parse($overlapRecord->clock_in)->format('Y-m-d H:i:s');
-            $overlapEnd = Carbon::parse($overlapRecord->clock_out)->format('Y-m-d H:i:s');
-            $proposedStart = $clockInTime->format('Y-m-d H:i:s');
-            $proposedEnd = $clockOutTime->format('Y-m-d H:i:s');
-
-            throw ValidationException::withMessages([
-                'time_span' => [
-                    "The time span ({$proposedStart} to {$proposedEnd}) overlaps with an existing timesheet record ({$overlapStart} to {$overlapEnd}).",
-                ],
-            ]);
-        }
+        return $query
+            ->orderByDesc('date')
+            ->orderByDesc('clock_in')
+            ->paginate((int) ($filters['per_page'] ?? 15));
     }
 
     /**
-     * Start a new live work session (clock in).
+     * @return array{employee_profile_linked:bool,is_clocked_in:bool,active_timesheet:?Timesheet,today:string,total_today_hours:float}
      */
-    public function clockIn(int $employeeId, array $data = []): Timesheet
+    public function today(User $actor, ?int $employeeId = null): array
     {
-        $employee = Employee::findOrFail($employeeId);
-        $now = isset($data['clock_in']) ? Carbon::parse($data['clock_in']) : Carbon::now();
-        $date = isset($data['date']) ? Carbon::parse($data['date'])->toDateString() : $now->toDateString();
+        $employee = $this->resolveEmployeeForToday($actor, $employeeId);
 
-        $this->validateNoOverlap($employeeId, $now, null);
+        if (! $employee) {
+            return [
+                'employee_profile_linked' => false,
+                'is_clocked_in' => false,
+                'active_timesheet' => null,
+                'today' => today()->toDateString(),
+                'total_today_hours' => 0.0,
+            ];
+        }
 
-        return Timesheet::create([
-            'organization_id' => $employee->organization_id,
-            'employee_id' => $employee->id,
-            'date' => $date,
-            'clock_in' => $now,
-            'clock_out' => null,
-            'total_hours' => 0.00,
-            'status' => $data['status'] ?? 'present',
-        ]);
-    }
-
-    /**
-     * End the current active work session (clock out).
-     */
-    public function clockOut(int $employeeId, array $data = []): Timesheet
-    {
-        $activeSession = Timesheet::query()
-            ->where('employee_id', $employeeId)
-            ->whereNull('clock_out')
-            ->orderBy('clock_in', 'desc')
+        $timesheet = Timesheet::query()
+            ->with('employee')
+            ->where('employee_id', $employee->id)
+            ->whereDate('date', today())
             ->first();
-
-        if (! $activeSession) {
-            throw new ConflictHttpException('No active work session found to clock out from.');
-        }
-
-        $clockOutTime = isset($data['clock_out']) ? Carbon::parse($data['clock_out']) : Carbon::now();
-        $clockInTime = Carbon::parse($activeSession->clock_in);
-
-        $this->validateNoOverlap($employeeId, $clockInTime, $clockOutTime, $activeSession->id);
-
-        $diffInSeconds = max(0, $clockOutTime->diffInSeconds($clockInTime));
-        $totalHours = round($diffInSeconds / 3600, 2);
-
-        $activeSession->update([
-            'clock_out' => $clockOutTime,
-            'total_hours' => $totalHours,
-            'status' => $data['status'] ?? $activeSession->status ?? 'present',
-        ]);
-
-        return $activeSession->fresh(['employee', 'organization']);
-    }
-
-    /**
-     * Create a manual historical or pre-scheduled timesheet entry.
-     */
-    public function createTimesheet(array $data): Timesheet
-    {
-        $employee = Employee::findOrFail($data['employee_id']);
-        $clockIn = Carbon::parse($data['clock_in']);
-        $clockOut = isset($data['clock_out']) && ! empty($data['clock_out']) ? Carbon::parse($data['clock_out']) : null;
-        $date = isset($data['date']) ? Carbon::parse($data['date'])->toDateString() : $clockIn->toDateString();
-
-        $this->validateNoOverlap($employee->id, $clockIn, $clockOut);
-
-        $totalHours = 0.00;
-        if ($clockOut !== null) {
-            $diffInSeconds = max(0, $clockOut->diffInSeconds($clockIn));
-            $totalHours = round($diffInSeconds / 3600, 2);
-        }
-
-        return Timesheet::create([
-            'organization_id' => $data['organization_id'] ?? $employee->organization_id,
-            'employee_id' => $employee->id,
-            'date' => $date,
-            'clock_in' => $clockIn,
-            'clock_out' => $clockOut,
-            'total_hours' => $data['total_hours'] ?? $totalHours,
-            'status' => $data['status'] ?? 'present',
-        ]);
-    }
-
-    /**
-     * Update an existing timesheet record.
-     */
-    public function updateTimesheet(Timesheet $timesheet, array $data): Timesheet
-    {
-        $employeeId = $data['employee_id'] ?? $timesheet->employee_id;
-        $clockIn = isset($data['clock_in']) ? Carbon::parse($data['clock_in']) : Carbon::parse($timesheet->clock_in);
-        $clockOut = array_key_exists('clock_out', $data)
-            ? ($data['clock_out'] ? Carbon::parse($data['clock_out']) : null)
-            : ($timesheet->clock_out ? Carbon::parse($timesheet->clock_out) : null);
-        $date = isset($data['date']) ? Carbon::parse($data['date'])->toDateString() : $timesheet->date?->toDateString() ?? $clockIn->toDateString();
-
-        $this->validateNoOverlap($employeeId, $clockIn, $clockOut, $timesheet->id);
-
-        $totalHours = $timesheet->total_hours;
-        if ($clockOut !== null) {
-            $diffInSeconds = max(0, $clockOut->diffInSeconds($clockIn));
-            $totalHours = round($diffInSeconds / 3600, 2);
-        }
-
-        $timesheet->update([
-            'employee_id' => $employeeId,
-            'date' => $date,
-            'clock_in' => $clockIn,
-            'clock_out' => $clockOut,
-            'total_hours' => $data['total_hours'] ?? $totalHours,
-            'status' => $data['status'] ?? $timesheet->status,
-        ]);
-
-        return $timesheet->fresh(['employee', 'organization']);
-    }
-
-    /**
-     * Retrieve today's work summary, active session, live elapsed time, and remaining scheduled hours.
-     */
-    public function getTodaySummary(int $employeeId, mixed $date = null): array
-    {
-        $targetDate = $date ? Carbon::parse($date)->toDateString() : Carbon::today()->toDateString();
-
-        $activeSession = Timesheet::query()
-            ->where('employee_id', $employeeId)
-            ->whereNull('clock_out')
-            ->with(['employee', 'organization'])
-            ->first();
-
-        // Calculate completed shift hours for today
-        $closedHoursToday = (float) Timesheet::query()
-            ->where('employee_id', $employeeId)
-            ->whereDate('date', $targetDate)
-            ->whereNotNull('clock_out')
-            ->sum('total_hours');
-
-        $activeSessionSeconds = 0;
-        $activeSessionHours = 0.00;
-
-        if ($activeSession && $activeSession->clock_in) {
-            $clockInTime = Carbon::parse($activeSession->clock_in);
-            $activeSessionSeconds = max(0, Carbon::now()->diffInSeconds($clockInTime));
-            $activeSessionHours = round($activeSessionSeconds / 3600, 2);
-        }
-
-        $totalTodayHours = round($closedHoursToday + $activeSessionHours, 2);
-        $scheduledHours = self::DEFAULT_SCHEDULED_HOURS;
-        $remainingHours = max(0.00, round($scheduledHours - $totalTodayHours, 2));
 
         return [
-            'is_clocked_in' => $activeSession !== null,
-            'active_timesheet' => $activeSession,
-            'today' => $targetDate,
-            'total_today_hours' => $totalTodayHours,
-            'scheduled_hours' => $scheduledHours,
-            'remaining_hours' => $remainingHours,
-            'current_session_seconds' => $activeSessionSeconds,
+            'employee_profile_linked' => true,
+            'is_clocked_in' => (bool) ($timesheet?->clock_in && ! $timesheet?->clock_out),
+            'active_timesheet' => $timesheet,
+            'today' => today()->toDateString(),
+            'total_today_hours' => (float) ($timesheet?->total_hours ?? 0),
         ];
+    }
+
+    public function accessible(User $actor, Timesheet $timesheet): Timesheet
+    {
+        $this->assertTimesheetAccess($actor, $timesheet);
+
+        return $timesheet->load('employee');
+    }
+
+    public function clockIn(User $actor, ?int $employeeId = null): Timesheet
+    {
+        $employee = $this->resolveEmployee($actor, $employeeId);
+        $clockIn = now();
+        $date = $clockIn->toDateString();
+
+        return DB::transaction(function () use ($employee, $clockIn, $date) {
+            $timesheet = Timesheet::query()
+                ->where('employee_id', $employee->id)
+                ->whereDate('date', $date)
+                ->lockForUpdate()
+                ->first();
+
+            if ($timesheet?->clock_in && ! $timesheet->clock_out) {
+                abort(409, 'Employee is already clocked in.');
+            }
+            if ($timesheet?->clock_out) {
+                abort(409, 'Today\'s timesheet is already completed.');
+            }
+
+            $timesheet ??= new Timesheet([
+                'organization_id' => $employee->organization_id,
+                'employee_id' => $employee->id,
+                'date' => $date,
+                'status' => 'present',
+            ]);
+
+            $timesheet->clock_in = $clockIn;
+            $timesheet->clock_out = null;
+            $timesheet->total_hours = 0;
+            $timesheet->save();
+
+            return $timesheet->load('employee');
+        });
+    }
+
+    public function clockOut(User $actor, ?int $employeeId = null): Timesheet
+    {
+        $employee = $this->resolveEmployee($actor, $employeeId);
+        $clockOut = now();
+
+        return DB::transaction(function () use ($employee, $clockOut) {
+            $timesheet = Timesheet::query()
+                ->where('employee_id', $employee->id)
+                ->whereNotNull('clock_in')
+                ->whereNull('clock_out')
+                ->orderByDesc('clock_in')
+                ->lockForUpdate()
+                ->first();
+
+            if (! $timesheet) {
+                abort(409, 'No active clock-in was found.');
+            }
+            if ($clockOut->lessThan($timesheet->clock_in)) {
+                abort(422, 'Clock-out time cannot be before clock-in time.');
+            }
+
+            $timesheet->clock_out = $clockOut;
+            $timesheet->total_hours = round($timesheet->clock_in->diffInMinutes($clockOut) / 60, 2);
+            $timesheet->save();
+
+            return $timesheet->load('employee');
+        });
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function create(User $actor, array $data): Timesheet
+    {
+        $employee = $this->resolveEmployee($actor, (int) $data['employee_id']);
+        $this->assertCanManage($actor, (int) $employee->organization_id);
+
+        $payload = $this->normalizedPayload($data);
+        $payload['organization_id'] = $employee->organization_id;
+
+        $timesheet = Timesheet::create($payload);
+
+        return $timesheet->load('employee');
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function update(User $actor, Timesheet $timesheet, array $data): Timesheet
+    {
+        $this->assertTimesheetAccess($actor, $timesheet);
+        $this->assertCanManage($actor, (int) $timesheet->organization_id);
+
+        if (isset($data['employee_id'])) {
+            $employee = $this->resolveEmployee($actor, (int) $data['employee_id']);
+            $this->assertCanManage($actor, (int) $employee->organization_id);
+            $data['organization_id'] = $employee->organization_id;
+        }
+
+        $payload = $this->normalizedPayload($data, $timesheet);
+        $timesheet->update($payload);
+
+        return $timesheet->load('employee');
+    }
+
+    public function delete(User $actor, Timesheet $timesheet): void
+    {
+        $this->assertTimesheetAccess($actor, $timesheet);
+        $this->assertCanManage($actor, (int) $timesheet->organization_id);
+        $timesheet->delete();
+    }
+
+    private function resolveEmployeeForToday(User $actor, ?int $employeeId): ?Employee
+    {
+        if ($employeeId !== null) {
+            return $this->resolveEmployee($actor, $employeeId);
+        }
+
+        $organizationIds = $this->access->organizationIds($actor);
+
+        if ($organizationIds === []) {
+            return null;
+        }
+
+        return Employee::query()
+            ->whereIn('organization_id', $organizationIds)
+            ->where('user_id', $actor->id)
+            ->first();
+    }
+
+    private function resolveEmployee(User $actor, ?int $employeeId): Employee
+    {
+        $organizationIds = $this->access->organizationIds($actor);
+        $query = Employee::query()->whereIn('organization_id', $organizationIds);
+        $employee = $employeeId
+            ? $query->find($employeeId)
+            : $query->where('user_id', $actor->id)->first();
+
+        if (! $employee) {
+            throw new AuthorizationException('No accessible employee profile was found for this action.');
+        }
+
+        $isOwnProfile = (int) $employee->user_id === (int) $actor->id;
+        $manageableOrganizationIds = $this->access->organizationIds($actor, OrganizationAccessService::TIMESHEET_MANAGER_ROLES);
+        $canManage = in_array((int) $employee->organization_id, $manageableOrganizationIds, true);
+
+        if (! $isOwnProfile && ! $canManage) {
+            throw new AuthorizationException('You do not have permission to act for this employee.');
+        }
+
+        return $employee;
+    }
+
+    private function assertTimesheetAccess(User $actor, Timesheet $timesheet): void
+    {
+        $manageableOrganizationIds = $this->access->organizationIds($actor, OrganizationAccessService::TIMESHEET_MANAGER_ROLES);
+        $canManage = in_array((int) $timesheet->organization_id, $manageableOrganizationIds, true);
+        $isOwnTimesheet = Employee::query()
+            ->whereKey($timesheet->employee_id)
+            ->where('user_id', $actor->id)
+            ->exists();
+
+        if (! $canManage && ! $isOwnTimesheet) {
+            throw new AuthorizationException('You do not have access to this timesheet.');
+        }
+    }
+
+    private function assertCanManage(User $actor, int $organizationId): void
+    {
+        $this->access->assertCanManage(
+            $actor,
+            $organizationId,
+            OrganizationAccessService::TIMESHEET_MANAGER_ROLES,
+            'You do not have permission to manage timesheets in this organization.'
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function normalizedPayload(array $data, ?Timesheet $existing = null): array
+    {
+        $clockInValue = array_key_exists('clock_in', $data) ? $data['clock_in'] : $existing?->clock_in;
+        $clockOutValue = array_key_exists('clock_out', $data) ? $data['clock_out'] : $existing?->clock_out;
+
+        $clockIn = $clockInValue ? Carbon::parse($clockInValue) : null;
+        $clockOut = $clockOutValue ? Carbon::parse($clockOutValue) : null;
+
+        if ($clockIn && $clockOut && $clockOut->lessThan($clockIn)) {
+            abort(422, 'Clock-out time cannot be before clock-in time.');
+        }
+
+        if ($clockIn && $clockOut && ! array_key_exists('total_hours', $data)) {
+            $data['total_hours'] = round($clockIn->diffInMinutes($clockOut) / 60, 2);
+        } elseif (array_key_exists('clock_in', $data) || array_key_exists('clock_out', $data)) {
+            if (! $clockIn || ! $clockOut) {
+                $data['total_hours'] = 0;
+            }
+        }
+
+        return $data;
     }
 }

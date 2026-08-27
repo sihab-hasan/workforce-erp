@@ -1,47 +1,30 @@
 # Architecture
 
-## Current shape
+Workforce ERP is a multi-tenant, multi-company workforce management system.
 
-The repository is a full-stack `pnpm` monorepo using Turborepo.
-The checked-in runtime currently contains three Vite + React applications, a set of shared internal
-packages, and a canonical backend lane at `apps/api`.
+`Tenant → Companies → Departments → Employees`
 
-## Application layer
+## Applications
 
-- `apps/web`: public-facing app on internal development port `5173`
-- `apps/portal`: tenant portal on port `5174`
-- `apps/admin`: admin-facing app on port `5175`
-- `infra/nginx`: local reverse proxy exposing all applications on port `3000`
+- `apps/web` — public website and authentication entry point (`5173` locally)
+- `apps/erp` — tenant/company workforce workspace (`5174` locally)
+- `apps/admin` — platform administration (`5175` locally)
+- `apps/api` — Laravel API and Sanctum authentication service (`8000` locally)
+- `services/worker` — background notifications/report jobs; no inbound HTTP port
 
-## Shared package layer
+The three browser applications are separate deployable frontends. Cross-app navigation is environment-driven through `VITE_WEB_URL`, `VITE_ERP_URL`, and `VITE_ADMIN_URL`.
 
-- `packages/ui`: shared components, styling primitives, and package-level shadcn/ui setup
-- `packages/config/*`: shared ESLint and TypeScript configuration packages
-- `packages/constants`: shared constants and route helpers
-- `packages/api-client`: shared API client foundation plus OpenAPI and codegen scaffolding
-- `packages/auth-client`: shared auth context, hooks, session helpers, and route guards
-- `packages/permissions`: shared permission checks, hooks, and guard components
-- `packages/types`: shared TypeScript contracts
-- `packages/utils`: utility functions and helpers
+## Browser/API boundary
 
-## Root support files
+Local browser requests use `/api` and `/sanctum` on the frontend origin. Vite proxies those paths to `VITE_API_PROXY_TARGET`, which defaults to `http://127.0.0.1:8000`. This preserves a clean Sanctum/CSRF flow during development.
 
-- `package.json`: root commands and dev dependencies
-- `pnpm-workspace.yaml`: workspace boundaries for `apps/*`, `packages/*`, and `packages/config/*`
-- `turbo.json`: task orchestration
-- `tsconfig.json`: base TypeScript config
-- `infra/`: local setup, cleanup, and dev-server helper scripts
-- `.github/`: CI, review routing, label automation, and deployment scaffolding
-- `.agents/`: agent-facing project memory and working notes
+For cross-origin staging/production, set `VITE_API_BASE_URL` and `VITE_API_URL` to the public API origin/prefix and configure the API's CORS, Sanctum stateful domains, trusted hosts, and session cookie domain consistently.
 
-## Current boundaries
+## Shared boundaries
 
-- The checked-in working tree currently contains frontend applications and shared packages
-- `apps/api` is the canonical Laravel API location, even though the backend working tree is not
-  present yet
+- `packages/api-client` owns generic HTTP transport and cookie/CSRF-aware compatibility clients.
+- `packages/contracts` owns cross-boundary TypeScript contracts.
+- `packages/auth`, `packages/authorization`, and `packages/tenancy` own frontend integration abstractions, not backend enforcement.
+- Laravel remains authoritative for authentication, authorization, validation, tenant/company isolation, and persistence.
 
-## Future expansion
-
-Likely future additions:
-
-- environment-specific runtime documentation
+See `docs/api-integration.md` for connection details.
