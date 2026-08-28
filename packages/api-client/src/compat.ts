@@ -7,11 +7,14 @@ export interface CompatRequestOptions {
   timeoutMs?: number;
   withAuth?: boolean;
   withCsrf?: boolean;
+  /** Internal guard used to prevent step-up retry loops. */
+  stepUpRetryCount?: number;
 }
 
 export interface CookieApiClientOptions {
   baseUrl: string;
   onUnauthorized?: (error: ApiError) => void;
+  onStepUpRequired?: (error: ApiError) => Promise<void>;
 }
 
 export interface CookieApiClient {
@@ -147,6 +150,19 @@ export function createCookieApiClient(options: CookieApiClientOptions): CookieAp
         const error = new ApiError(response, normalizeApiProblem(response, body));
         if (response.status === 401 && requestOptions.withAuth !== false)
           options.onUnauthorized?.(error);
+        if (
+          response.status === 428 &&
+          error.problem.code === "STEP_UP_REQUIRED" &&
+          requestOptions.withAuth !== false &&
+          (requestOptions.stepUpRetryCount ?? 0) < 1 &&
+          options.onStepUpRequired
+        ) {
+          await options.onStepUpRequired(error);
+          return request<T>(method, url, data, {
+            ...requestOptions,
+            stepUpRetryCount: (requestOptions.stepUpRetryCount ?? 0) + 1,
+          });
+        }
         throw error;
       }
       return body as T;
