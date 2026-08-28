@@ -16,7 +16,6 @@
     "@tailwindcss/vite": "^4.1.12",
     "@workforce-erp/api-client": "workspace:*",
     "@workforce-erp/ui": "workspace:*",
-    "@workforce-erp/ui-patterns": "workspace:*",
     "cmdk": "^1.1.1",
     "date-fns": "^4.4.0",
     "embla-carousel-react": "^8.6.0",

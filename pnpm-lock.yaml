@@ -65,9 +65,6 @@ importers:
       '@workforce-erp/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@workforce-erp/ui-patterns':
-        specifier: workspace:*
-        version: link:../../packages/ui-patterns
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -174,9 +171,6 @@ importers:
       '@workforce-erp/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@workforce-erp/ui-patterns':
-        specifier: workspace:*
-        version: link:../../packages/ui-patterns
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -262,9 +256,6 @@ importers:
       '@workforce-erp/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@workforce-erp/ui-patterns':
-        specifier: workspace:*
-        version: link:../../packages/ui-patterns
       cmdk:
         specifier: ^1.1.1
         version: 1.1.1(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -440,19 +431,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.4
         version: 19.2.4(@types/react@19.2.18)
-
-  packages/ui-patterns:
-    dependencies:
-      '@workforce-erp/ui':
-        specifier: workspace:*
-        version: link:../ui
-      react:
-        specifier: '>=18 <20'
-        version: 19.2.8
-    devDependencies:
-      '@types/react':
-        specifier: ^19.2.18
-        version: 19.2.18
 
   packages/utils: {}
 

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { AuthProvider, useAuth, type AuthSession } from "@workforce-erp/auth";
 import { Loader2 } from "lucide-react";
-import { StepUpVerificationDialog } from "@workforce-erp/ui-patterns/security";
+import { StepUpVerificationDialog } from "./components/StepUpVerificationDialog";
 import { apiClient, ADMIN_AUTH_UNAUTHORIZED_EVENT, registerAdminStepUpHandler } from "#lib/api";
 import { toAdminSession } from "./admin-auth";
 function UnauthorizedListener() {

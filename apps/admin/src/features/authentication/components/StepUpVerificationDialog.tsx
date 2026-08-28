@@ -7,8 +7,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@workforce-erp/ui/components/dialog";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@workforce-erp/ui/components/input-otp";
 import { Label } from "@workforce-erp/ui/components/label";
-import { OtpChallengeInput } from "./otp-challenge-input";
 
 export type StepUpVerificationMethod = "totp" | "email" | "sms";
 
@@ -201,18 +206,33 @@ export function StepUpVerificationDialog({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="step-up-code">Verification code</Label>
-                <OtpChallengeInput
-                  id="step-up-code"
-                  value={code}
-                  disabled={loading}
-                  autoComplete="one-time-code"
-                  inputMode="numeric"
-                  maxLength={6}
-                  onChange={(val) => {
-                    setCode(val.replace(/\D/g, "").slice(0, 6));
-                    setError(null);
-                  }}
-                />
+                <div className="flex justify-center">
+                  <InputOTP
+                    id="step-up-code"
+                    maxLength={6}
+                    value={code}
+                    disabled={loading}
+                    autoFocus
+                    autoComplete="one-time-code"
+                    inputMode="numeric"
+                    onChange={(val) => {
+                      setCode(val.replace(/\D/g, "").slice(0, 6));
+                      setError(null);
+                    }}
+                  >
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                    </InputOTPGroup>
+                    <InputOTPSeparator />
+                    <InputOTPGroup>
+                      <InputOTPSlot index={3} />
+                      <InputOTPSlot index={4} />
+                      <InputOTPSlot index={5} />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
               </div>
             </div>
           ) : null}

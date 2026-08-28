@@ -3,7 +3,7 @@ import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { AuthProvider as SharedAuthProvider, useAuth, type AuthSession } from "@workforce-erp/auth";
 import { ApiError } from "@workforce-erp/api-client";
 import { Button } from "@workforce-erp/ui/components/button";
-import { StepUpVerificationDialog } from "@workforce-erp/ui-patterns/security";
+import { StepUpVerificationDialog } from "./components/StepUpVerificationDialog";
 import { AUTH_UNAUTHORIZED_EVENT, registerStepUpHandler } from "#lib/api";
 import { authenticationApi, toAuthSession } from "./api/authentication.api";
 
