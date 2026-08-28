@@ -8,6 +8,7 @@ import { AppHeader } from "#components/shell/AppHeader";
 import { AppSidebar } from "#components/shell/AppSidebar";
 import { AppMobileNavigation } from "#components/shell/AppMobileNavigation";
 import { RouteMetadata } from "#components/metadata/RouteMetadata";
+import { FloatingClockWidget } from "#features/timesheets/components/FloatingClockWidget";
 
 /** Big-version PortalLayout presentation mapped onto the mini company scope. */
 export function CompanyLayout() {
@@ -58,6 +59,7 @@ export function CompanyLayout() {
             </div>
           </main>
           <AppMobileNavigation currentPath={pathname} />
+          <FloatingClockWidget />
         </SidebarInset>
       </SidebarProvider>
     </TenancyProvider>
