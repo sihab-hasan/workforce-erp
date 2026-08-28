@@ -24,7 +24,8 @@
     "./overlays": "./src/overlays/index.ts",
     "./feedback": "./src/feedback/index.ts",
     "./hooks": "./src/hooks/index.ts",
-    "./ui-patterns.css": "./src/styles/ui-patterns.css"
+    "./ui-patterns.css": "./src/styles/ui-patterns.css",
+    "./security": "./src/security/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

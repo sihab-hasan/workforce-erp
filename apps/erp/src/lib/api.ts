@@ -9,6 +9,26 @@ import { env } from "#config/env";
 
 export const AUTH_UNAUTHORIZED_EVENT = "workforce-erp:auth-unauthorized";
 
+let stepUpHandler: (() => Promise<void>) | null = null;
+let stepUpInFlight: Promise<void> | null = null;
+
+export function registerStepUpHandler(handler: () => Promise<void>) {
+  stepUpHandler = handler;
+  return () => {
+    if (stepUpHandler === handler) stepUpHandler = null;
+  };
+}
+
+async function handleStepUpRequired() {
+  if (!stepUpHandler) throw new Error("Identity verification is required for this action.");
+  if (!stepUpInFlight) {
+    stepUpInFlight = stepUpHandler().finally(() => {
+      stepUpInFlight = null;
+    });
+  }
+  await stepUpInFlight;
+}
+
 export function handleUnauthorized() {
   if (typeof window !== "undefined") window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT));
 }
@@ -56,6 +76,7 @@ export function createAppApiClient(options: Omit<ApiClientOptions, "baseUrl"> = 
 const rawApiClient = createCookieApiClient({
   baseUrl: env.legacyApiBaseUrl,
   onUnauthorized: handleUnauthorized,
+  onStepUpRequired: handleStepUpRequired,
 });
 
 /** Cookie/CSRF Laravel facade with automatic tenant/company route scope. */
@@ -73,6 +94,16 @@ export const apiClient = {
     rawApiClient.patch<T>(url, data, withScope(options)),
   delete: <T>(url: string, options?: CompatRequestOptions) =>
     rawApiClient.delete<T>(url, withScope(options)),
+};
+
+/** Scoped HttpClient compatible with module API factories (users, timesheets, etc.) */
+export const scopedHttpClient = {
+  get: <T>(path: string, params?: Record<string, string | number | boolean | undefined | null>) =>
+    apiClient.get<T>(path, params ? { params: params as Record<string, unknown> } : undefined),
+  post: <T>(path: string, body?: unknown) => apiClient.post<T>(path, body),
+  put: <T>(path: string, body?: unknown) => apiClient.put<T>(path, body),
+  patch: <T>(path: string, body?: unknown) => apiClient.patch<T>(path, body),
+  delete: <T>(path: string) => apiClient.delete<T>(path),
 };
 
 function readCookie(name: string): string | null {

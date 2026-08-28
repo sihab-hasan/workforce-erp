@@ -10,7 +10,7 @@ import { env } from "#config/env";
  * canonical ERP authentication route.
  */
 export function SignInPage() {
-  const destination = `${env.erpUrl}/auth/sign-in${window.location.search}`;
+  const destination = `${env.erpUrl}/sign-in${window.location.search}`;
 
   useEffect(() => {
     window.location.replace(destination);
