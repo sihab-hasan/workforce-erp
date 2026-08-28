@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Loader2, Building2, Shield, UserCheck, AlertCircle } from "lucide-react";
+import { Loader2, Building2, Shield, UserCheck } from "lucide-react";
 import { Input } from "@workforce-erp/ui/components/input";
 import { Label } from "@workforce-erp/ui/components/label";
 import { Button } from "@workforce-erp/ui/components/button";
@@ -52,10 +52,8 @@ export function UserForm({
   const {
     organizations,
     isOrgsPending,
-    isOrgsError,
     roles,
     isRolesPending,
-    isRolesError,
     employees,
     isEmployeesPending,
     isEmployeesError,
@@ -203,11 +201,6 @@ export function UserForm({
         </Label>
         {isRolesPending ? (
           <Skeleton className="h-9 w-full rounded-3xl" />
-        ) : isRolesError ? (
-          <div className="flex items-center gap-2 rounded-2xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-            <AlertCircle className="size-4 shrink-0" />
-            <span>Could not load roles. Defaulting to standard roles.</span>
-          </div>
         ) : (
           <Select
             value={role}
@@ -253,20 +246,6 @@ export function UserForm({
         </Label>
         {isOrgsPending ? (
           <Skeleton className="h-9 w-full rounded-3xl" />
-        ) : isOrgsError ? (
-          <div className="flex items-center gap-2 rounded-2xl border border-border bg-muted px-3 py-2 text-xs text-muted-foreground">
-            <AlertCircle className="size-4 shrink-0" />
-            <span>Organization will default to your current workspace.</span>
-          </div>
-        ) : organizations.length === 0 ? (
-          <Input
-            id="user-form-org"
-            type="text"
-            placeholder="Default Organization"
-            value={organizationId}
-            onChange={(e) => setOrganizationId(e.target.value)}
-            disabled={isPending}
-          />
         ) : (
           <Select
             value={organizationId || "default"}

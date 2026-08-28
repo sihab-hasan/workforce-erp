@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useParams } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { Button } from "@workforce-erp/ui/components/button";
 import { apiGet, apiPut, errorMessage } from "#features/erp-core/api";
 import type { OrganizationRecord } from "#features/erp-core/types";
 import {
@@ -8,7 +10,7 @@ import {
   type OrganizationPayload,
 } from "#features/erp-core/components/OrganizationForm";
 import { ErpPage, ErrorState, LoadingState, SectionCard } from "#components/erp/ErpPage";
-import { tenantRoutes } from "#routes/paths";
+import { ERP_PATHS, tenantRoutes } from "#routes/paths";
 
 type UpdateOrganizationInput = {
   id: string;
@@ -19,6 +21,7 @@ export default function OrganizationEditPage() {
   const { tenantKey = "" } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const backUrl = tenantKey ? tenantRoutes.settings(tenantKey) : ERP_PATHS.tenantSelect;
 
   const organizationQuery = useQuery({
     queryKey: ["organization", tenantKey],
@@ -41,7 +44,13 @@ export default function OrganizationEditPage() {
   return (
     <ErpPage
       title="Edit organization"
-      description="Update the organization identity and regional settings."
+      description="Update workspace identity, company address, and regional configuration."
+      actions={
+        <Button variant="outline" nativeButton={false} render={<Link to={backUrl} />}>
+          <ArrowLeft />
+          Back to settings
+        </Button>
+      }
     >
       {organizationQuery.isLoading ? (
         <LoadingState />

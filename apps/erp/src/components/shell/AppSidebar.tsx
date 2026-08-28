@@ -74,25 +74,25 @@ export function AppSidebar() {
           label: "Employees",
           path: companyRoutes.employees(validTenantKey, validCompanyKey),
           icon: Users,
-          permissions: ["employee.view"],
+          permissions: ["employee.read"],
         },
         {
           label: "Leave",
           path: companyRoutes.leave(validTenantKey, validCompanyKey),
           icon: ClipboardList,
-          permissions: ["leave.request", "leave.review"],
+          permissions: ["leave.manage", "leave.approve"],
         },
         {
           label: "Timesheets",
           path: companyRoutes.timesheets(validTenantKey, validCompanyKey),
           icon: Timer,
-          permissions: ["timesheet.manage", "timesheet.review"],
+          permissions: ["timesheet.manage", "timesheet.manage"],
         },
         {
           label: "Approvals",
           path: companyRoutes.approvals(validTenantKey, validCompanyKey),
           icon: CheckCircle2,
-          permissions: ["approval.review"],
+          permissions: ["approval.approve"],
         },
         {
           label: "Documents",
@@ -176,7 +176,7 @@ export function AppSidebar() {
               Workforce
             </span>
             <span className="truncate text-sm font-semibold text-sidebar-foreground">
-              ERP Portal
+              ERP Workspace
             </span>
           </span>
         </Link>
