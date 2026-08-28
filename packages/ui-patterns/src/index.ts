@@ -14,3 +14,4 @@ export * from "./reporting/index";
 export * from "./search/index";
 export * from "./selectors/index";
 export * from "./workflow/index";
+export * from "./security/index";

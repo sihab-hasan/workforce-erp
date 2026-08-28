@@ -3,6 +3,5 @@ export const WEB_PATHS = {
   features: "/features",
   about: "/about",
   contact: "/contact",
-  signIn: "/auth/sign-in",
-  loginAlias: "/auth/login",
+  signIn: "/sign-in",
 } as const;

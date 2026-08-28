@@ -41,13 +41,13 @@ const routes: RouteMetadataDefinition[] = [
       "Contact the Workforce ERP team for product, implementation, and support information.",
   },
   {
-    path: "/auth/sign-in",
+    path: "/sign-in",
     title: "Sign in | Workforce ERP",
     description: "Sign in to your Workforce ERP organization workspace.",
     robots: "noindex, nofollow, noarchive",
   },
   {
-    path: "/auth/login",
+    path: "/sign-in",
     title: "Sign in | Workforce ERP",
     description: "Sign in to your Workforce ERP organization workspace.",
     robots: "noindex, nofollow, noarchive",
