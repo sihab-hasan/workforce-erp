@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\Services\DataScopeService;
 use App\Services\WorkforceScopeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -11,12 +12,14 @@ use Illuminate\Validation\Rule;
 
 class CompanyController extends Controller
 {
-    public function __construct(private readonly WorkforceScopeService $scope) {}
+    public function __construct(private readonly WorkforceScopeService $scope, private readonly DataScopeService $dataScope) {}
 
     public function index(Request $request): JsonResponse
     {
         $org = $this->scope->organization($request, true);
-        $query = Branch::query()->where('organization_id', $org->id)->withCount(['departments', 'employees']);
+        $this->scope->authorize($request, 'company.view');
+        $query = Branch::query()->withCount(['departments', 'employees']);
+        $this->dataScope->applyBranchScope($query, $request->user(), (int) $org->id);
         if ($request->filled('search')) {
             $term = trim((string) $request->input('search'));
             $query->where(fn ($q) => $q->where('name', 'like', "%{$term}%")->orWhere('code', 'like', "%{$term}%"));
@@ -32,7 +35,8 @@ class CompanyController extends Controller
     public function store(Request $request): JsonResponse
     {
         $org = $this->scope->organization($request, true);
-        $this->scope->assertRole($request, ['owner', 'admin']);
+        $this->scope->authorize($request, 'company.manage');
+        abort_unless($this->dataScope->isOrganizationWide($request->user(), (int) $org->id), 403, 'Creating a company requires organization-wide data scope.');
         $data = $this->validatePayload($request, null, (int) $org->id);
         $data['organization_id'] = $org->id;
         $company = Branch::create($data);
@@ -44,6 +48,8 @@ class CompanyController extends Controller
     {
         $org = $this->scope->organization($request, true);
         abort_unless((int) $company->organization_id === (int) $org->id, 404);
+        $this->scope->authorize($request, 'company.view');
+        abort_unless($this->dataScope->allowsBranch($request->user(), (int) $org->id, (int) $company->id), 403);
 
         return $this->successResponse($this->serialize($company->loadCount(['departments', 'employees'])));
     }
@@ -52,7 +58,8 @@ class CompanyController extends Controller
     {
         $org = $this->scope->organization($request, true);
         abort_unless((int) $company->organization_id === (int) $org->id, 404);
-        $this->scope->assertRole($request, ['owner', 'admin']);
+        $this->scope->authorize($request, 'company.manage');
+        abort_unless($this->dataScope->allowsBranch($request->user(), (int) $org->id, (int) $company->id), 403);
         $company->update($this->validatePayload($request, $company, (int) $org->id));
 
         return $this->successResponse($this->serialize($company->fresh()->loadCount(['departments', 'employees'])), 'Company updated successfully');
@@ -62,7 +69,8 @@ class CompanyController extends Controller
     {
         $org = $this->scope->organization($request, true);
         abort_unless((int) $company->organization_id === (int) $org->id, 404);
-        $this->scope->assertRole($request, ['owner']);
+        $this->scope->authorize($request, 'company.manage');
+        abort_unless($this->dataScope->allowsBranch($request->user(), (int) $org->id, (int) $company->id), 403);
         if ($company->employees()->exists() || $company->departments()->exists()) {
             abort(409, 'Move or archive the company employees and departments before deleting it.');
         }

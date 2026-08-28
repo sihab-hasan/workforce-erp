@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Document;
+use App\Services\DataScopeService;
 use App\Services\WorkforceScopeService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -12,13 +14,18 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DocumentController extends Controller
 {
-    public function __construct(private readonly WorkforceScopeService $scope) {}
+    public function __construct(private readonly WorkforceScopeService $scope, private readonly DataScopeService $dataScope) {}
 
     public function index(Request $request): JsonResponse
     {
         $org = $this->scope->organization($request, true);
         $branch = $this->scope->branch($request, false);
+        $this->scope->authorize($request, 'document.view');
         $query = Document::query()->where('organization_id', $org->id)->with('uploader');
+        $allowedBranches = $this->dataScope->accessibleBranchIds($request->user(), (int) $org->id);
+        if ($allowedBranches !== null) {
+            $query->where(fn ($q) => $q->whereIn('branch_id', $allowedBranches ?: [-1])->orWhere(fn ($own) => $own->whereNull('branch_id')->where('uploaded_by', $request->user()->id)));
+        }
         if ($branch) {
             $query->where('branch_id', $branch->id);
         }
@@ -39,6 +46,10 @@ class DocumentController extends Controller
     {
         $org = $this->scope->organization($request, true);
         $branch = $this->scope->branch($request, false);
+        $this->scope->authorize($request, 'document.manage');
+        if ($branch) {
+            abort_unless($this->dataScope->allowsBranch($request->user(), (int) $org->id, (int) $branch->id), 403);
+        }
         $data = $request->validate([
             'file' => ['required', 'file', 'max:20480', 'mimes:pdf,doc,docx,xls,xlsx,csv,txt,png,jpg,jpeg,webp'],
             'name' => ['nullable', 'string', 'max:255'],
@@ -84,8 +95,15 @@ class DocumentController extends Controller
     public function destroy(Request $request, Document $document): JsonResponse
     {
         $this->assertScoped($request, $document);
-        $role = $this->scope->role($request);
-        $canDelete = in_array($role, ['owner', 'admin', 'manager'], true) || (int) $document->uploaded_by === (int) $request->user()->id;
+        $canDelete = (int) $document->uploaded_by === (int) $request->user()->id;
+        if (! $canDelete) {
+            try {
+                $this->scope->authorize($request, 'document.manage');
+                $canDelete = true;
+            } catch (AuthorizationException) {
+                $canDelete = false;
+            }
+        }
         abort_unless($canDelete, 403);
         if (Storage::disk($document->disk)->exists($document->path)) {
             Storage::disk($document->disk)->delete($document->path);
@@ -102,6 +120,11 @@ class DocumentController extends Controller
         abort_unless((int) $document->organization_id === (int) $org->id, 404);
         if ($branch && $document->branch_id) {
             abort_unless((int) $document->branch_id === (int) $branch->id, 404);
+        }
+        $this->scope->authorize($request, 'document.view');
+        if (! $this->dataScope->isOrganizationWide($request->user(), (int) $org->id)) {
+            $allowed = $document->branch_id ? $this->dataScope->allowsBranch($request->user(), (int) $org->id, (int) $document->branch_id) : (int) $document->uploaded_by === (int) $request->user()->id;
+            abort_unless($allowed, 403);
         }
     }
 

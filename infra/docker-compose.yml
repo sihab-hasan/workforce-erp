@@ -160,14 +160,25 @@ services:
     init: true
     environment:
       API_URL: "${WORKER_API_URL:-http://api-nginx/api}"
-      API_TOKEN: "${API_SHARED_TOKEN:-}"
-      API_TOKEN_HEADER: "${API_SHARED_TOKEN_HEADER:-X-API-TOKEN}"
+      SERVICE_CLIENT_ID: "${WORKER_SERVICE_CLIENT_ID:-}"
+      SERVICE_CLIENT_SECRET: "${WORKER_SERVICE_CLIENT_SECRET:-}"
+      SERVICE_AUDIENCE: "${WORKER_SERVICE_AUDIENCE:-workforce-api}"
       WORKER_ENABLED: "${WORKER_ENABLED:-false}"
       WORKER_JOBS_PATH: "${WORKER_JOBS_PATH:-}"
       WORKER_POLL_INTERVAL_MS: "${WORKER_POLL_INTERVAL_MS:-15000}"
     depends_on:
       api-nginx:
         condition: service_healthy
+    networks:
+      - workforce
+
+  mailpit:
+    image: axllent/mailpit:v1.21
+    profiles: ["dev"]
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
     networks:
       - workforce
 
@@ -225,16 +236,6 @@ services:
     volumes:
       - certbot_www:/var/www/certbot
       - letsencrypt:/etc/letsencrypt
-
-  mailpit:
-    image: axllent/mailpit:v1.21
-    profiles: ["dev"]
-    restart: unless-stopped
-    ports:
-      - "1025:1025"
-      - "8025:8025"
-    networks:
-      - workforce
 
 networks:
   workforce:

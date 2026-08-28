@@ -4,13 +4,13 @@ namespace App\Services;
 
 use App\Models\Branch;
 use App\Models\Organization;
-use App\Models\User;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 
 class WorkforceScopeService
 {
-    public function __construct(private readonly OrganizationAccessService $access) {}
+    public function __construct(
+        private readonly AuthorizationService $authorization,
+    ) {}
 
     public function organization(Request $request, bool $required = true): ?Organization
     {
@@ -19,79 +19,76 @@ class WorkforceScopeService
             return $existing;
         }
 
-        $user = $request->user();
-        if (! $user instanceof User) {
+        $key = trim((string) ($request->header('X-Tenant-Key') ?: $request->header('X-Company-Key') ?: $request->input('organization_id') ?: ''));
+        if ($key === '' && $request->user()) {
+            $hasActive = $request->user()->memberships()->where('status', 'active')->exists();
+            if (! $hasActive) {
+                abort(401, 'This account does not have active Workforce access.');
+            }
+            $firstOrg = $request->user()->organizations()->where('organizations.status', 'active')->first();
+            if ($firstOrg) {
+                $membership = $this->authorization->activeMembership($request->user(), (int) $firstOrg->id);
+                if ($membership) {
+                    $request->attributes->set('workforce.organization', $firstOrg);
+                    $request->attributes->set('workforce.membership', $membership);
+
+                    return $firstOrg;
+                }
+            }
+        }
+
+        if ($key === '') {
             if ($required) {
-                throw new AuthorizationException('Authentication is required.');
+                abort(400, 'X-Tenant-Key is required for this business endpoint.');
             }
 
             return null;
         }
 
-        $key = trim((string) $request->header('X-Tenant-Key', ''));
-        $organizationIds = $this->access->organizationIds($user);
-        if ($organizationIds === []) {
-            throw new AuthorizationException('No active organization membership was found.');
+        $org = Organization::query()
+            ->where(fn ($query) => $query->where('slug', $key)->orWhere('id', ctype_digit($key) ? (int) $key : 0))
+            ->where('status', 'active')
+            ->first();
+
+        if (! $org) {
+            abort(404, 'Organization not found.');
         }
 
-        $query = Organization::query()->whereIn('id', $organizationIds)->where('status', 'active');
-        if ($key !== '') {
-            $query->where(function ($q) use ($key) {
-                if (ctype_digit($key)) {
-                    $q->whereKey((int) $key)->orWhere('slug', $key);
-                } else {
-                    $q->where('slug', $key)->orWhere('subdomain', $key);
-                }
-            });
-        } elseif ($required) {
-            // Backwards-compatible fallback for non-route API clients. Browser ERP always sends the header.
-            $query->orderBy('id');
-        } else {
+        $membership = $this->authorization->activeMembership($request->user(), (int) $org->id);
+        if (! $membership) {
+            abort(403, 'You do not have active access to this organization.');
+        }
+
+        $request->attributes->set('workforce.organization', $org);
+        $request->attributes->set('workforce.membership', $membership);
+
+        return $org;
+    }
+
+    public function branch(Request $request, bool $required = true): ?Branch
+    {
+        $org = $this->organization($request, $required);
+        if (! $org) {
             return null;
         }
 
-        $organization = $query->first();
-        if (! $organization) {
-            throw new AuthorizationException('The selected organization is not accessible.');
-        }
-
-        $request->attributes->set('workforce.organization', $organization);
-        $request->attributes->set('workforce.role', $this->access->activeRole($user, (int) $organization->id));
-
-        return $organization;
-    }
-
-    public function branch(Request $request, bool $required = false): ?Branch
-    {
-        $existing = $request->attributes->get('workforce.branch');
-        if ($existing instanceof Branch) {
-            return $existing;
-        }
-
-        $organization = $this->organization($request, true);
         $key = trim((string) $request->header('X-Company-Key', ''));
         if ($key === '') {
             if ($required) {
-                abort(422, 'A company scope is required for this action.');
+                abort(400, 'X-Company-Key is required for this endpoint.');
             }
 
             return null;
         }
 
         $branch = Branch::query()
-            ->where('organization_id', $organization->id)
+            ->where('organization_id', $org->id)
+            ->where(fn ($query) => $query->where('code', $key)->orWhere('id', ctype_digit($key) ? (int) $key : 0))
             ->where('is_active', true)
-            ->where(function ($q) use ($key) {
-                if (ctype_digit($key)) {
-                    $q->whereKey((int) $key)->orWhere('code', $key);
-                } else {
-                    $q->where('code', $key)->orWhere('name', $key);
-                }
-            })
             ->first();
 
         if (! $branch) {
-            throw new AuthorizationException('The selected company is not accessible.');
+            abort(404, 'Company/branch not found.');
         }
 
         $request->attributes->set('workforce.branch', $branch);
@@ -99,22 +96,16 @@ class WorkforceScopeService
         return $branch;
     }
 
-    /** @param array<int,string> $roles */
-    public function assertRole(Request $request, array $roles, string $message = 'You do not have permission to perform this action.'): string
+    public function authorize(Request $request, string $permission, string $message = 'You do not have permission to perform this action.'): void
     {
-        $organization = $this->organization($request, true);
-        $role = $this->access->activeRole($request->user(), (int) $organization->id);
-        if (! $role || ! in_array($role, $roles, true)) {
-            throw new AuthorizationException($message);
-        }
-
-        return $role;
+        $org = $this->organization($request, true);
+        $this->authorization->authorize($request->user(), (int) $org->id, $permission, $message);
     }
 
     public function role(Request $request): ?string
     {
-        $organization = $this->organization($request, false);
+        $org = $this->organization($request, false);
 
-        return $organization ? $this->access->activeRole($request->user(), (int) $organization->id) : null;
+        return $org ? ($this->authorization->roles($request->user(), (int) $org->id)[0] ?? null) : null;
     }
 }
