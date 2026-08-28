@@ -113,7 +113,7 @@ class OTPTest extends TestCase
         $this->postJson('/api/v1/auth/otp/verify', [
             'email' => $this->user->email,
             'code' => $code,
-            'client' => 'admin',
+            'client' => 'erp',
         ])->assertOk();
 
         $this->assertSame(0, $this->user->tokens()->count());

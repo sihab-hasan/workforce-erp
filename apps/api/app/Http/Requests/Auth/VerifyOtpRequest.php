@@ -25,7 +25,7 @@ class VerifyOtpRequest extends FormRequest
         return [
             'email' => ['required', 'email', 'max:255'],
             'code' => ['required', 'string', 'size:6', 'regex:/^\d{6}$/'],
-            'client' => ['sometimes', 'string', 'in:portal,admin'],
+            'client' => ['sometimes', 'string', 'in:erp,web,admin,portal'],
         ];
     }
 }
