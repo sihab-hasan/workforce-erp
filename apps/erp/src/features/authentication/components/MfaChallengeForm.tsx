@@ -1,241 +1,221 @@
-import { useRef, useState } from "react";
-import { CheckCircle2, Loader2, Mail } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Loader2, Mail, MessageSquareText, ShieldCheck } from "lucide-react";
 import { useAuth } from "@workforce-erp/auth";
-
 import { Button } from "@workforce-erp/ui/components/button";
-import { Input } from "@workforce-erp/ui/components/input";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+  InputOTPSeparator,
+} from "@workforce-erp/ui/components/input-otp";
 import { Label } from "@workforce-erp/ui/components/label";
 import { cn } from "@workforce-erp/ui/lib/utils";
-import { authenticationApi, toAuthSession } from "#features/authentication/api/authentication.api";
+import {
+  authenticationApi,
+  toAuthSession,
+  type VerificationChallengePayload,
+  type VerificationMethod,
+} from "#features/authentication/api/authentication.api";
 
-const CODE_LENGTH = 6;
+const METHOD_LABELS: Record<VerificationMethod, string> = {
+  totp: "Authenticator App",
+  email: "Email Code",
+  sms: "SMS Code",
+};
+const METHOD_ICONS = {
+  totp: ShieldCheck,
+  email: Mail,
+  sms: MessageSquareText,
+} satisfies Record<VerificationMethod, typeof ShieldCheck>;
 
 export interface MfaChallengeFormProps {
   className?: string;
-  initialEmail?: string;
+  challengeId: string;
+  initialMethods?: VerificationMethod[];
   onSuccess?: () => void;
 }
 
 export function MfaChallengeForm({
   className,
-  initialEmail = "",
+  challengeId,
+  initialMethods = [],
   onSuccess,
 }: MfaChallengeFormProps) {
-  const [email, setEmail] = useState(initialEmail);
-  const [requested, setRequested] = useState(false);
-  const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(""));
-  const [isLoading, setIsLoading] = useState(false);
+  const [challenge, setChallenge] = useState<VerificationChallengePayload | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState<VerificationMethod | null>(null);
+  const [code, setCode] = useState("");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const { signIn } = useAuth();
-  const code = digits.join("");
 
-  async function requestCode() {
-    if (!email.trim()) {
-      setError("Enter your account email first.");
-      return;
-    }
+  const availableMethods = useMemo(
+    () => challenge?.available_methods ?? initialMethods,
+    [challenge, initialMethods],
+  );
 
-    setIsLoading(true);
+  useEffect(() => {
+    setSelectedMethod(null);
+    setCode("");
     setError(null);
-    setMessage(null);
+  }, [challengeId]);
 
+  async function chooseMethod(method: VerificationMethod) {
+    if (loading) return;
+    setLoading(true);
+    setError(null);
     try {
-      const response = await authenticationApi.requestOtp(email.trim());
-      setRequested(true);
-      setMessage(
-        response.message ??
-          "If the account is eligible, a 6-digit sign-in code will arrive shortly.",
-      );
-      window.setTimeout(() => inputRefs.current[0]?.focus(), 0);
-    } catch (err) {
+      const response = await authenticationApi.selectChallengeMethod(challengeId, method);
+      setChallenge(response.challenge);
+      setSelectedMethod(method);
+      setCode("");
+    } catch (error) {
       setError(
-        err instanceof Error ? err.message : "We couldn’t send a one-time code. Please try again.",
+        error instanceof Error ? error.message : "Verification method could not be selected.",
       );
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }
 
-  function updateDigit(index: number, value: string) {
-    const digit = value.replace(/\D/g, "").slice(-1);
-    const next = [...digits];
-    next[index] = digit;
-    setDigits(next);
-    setError(null);
-
-    if (digit && index < CODE_LENGTH - 1) {
-      inputRefs.current[index + 1]?.focus();
-    }
-  }
-
-  function handleKeyDown(index: number, e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Backspace" && !digits[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  }
-
-  function handlePaste(e: React.ClipboardEvent<HTMLInputElement>) {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, CODE_LENGTH);
-    const next = Array(CODE_LENGTH).fill("") as string[];
-
-    pasted.split("").forEach((char, index) => {
-      next[index] = char;
-    });
-
-    setDigits(next);
-    inputRefs.current[Math.min(Math.max(pasted.length - 1, 0), CODE_LENGTH - 1)]?.focus();
-  }
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    if (!requested) {
-      await requestCode();
+  async function verify(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (loading || !selectedMethod) return;
+    if (!/^\d{6}$/.test(code)) {
+      setError("Enter the 6-digit verification code.");
       return;
     }
-
-    if (code.length !== CODE_LENGTH) {
-      setError("Please enter all 6 digits.");
-      return;
-    }
-
-    setIsLoading(true);
+    setLoading(true);
     setError(null);
-
     try {
-      const response = await authenticationApi.verifyOtp(email.trim(), code);
+      const response = await authenticationApi.verifyLoginChallenge(challengeId, code);
       signIn(toAuthSession(response));
       onSuccess?.();
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "The one-time code could not be verified. Please try again.",
-      );
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Verification could not be completed.");
+      setCode("");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
+    }
+  }
+
+  async function resend() {
+    if (loading || !selectedMethod || selectedMethod === "totp") return;
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await authenticationApi.resendChallenge(challengeId);
+      setChallenge(response.challenge);
+      setCode("");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "A new code could not be sent yet.");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <form
-      id="mfa-challenge-form"
-      onSubmit={handleSubmit}
-      className={cn("flex flex-col gap-5", className)}
-      noValidate
-    >
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="otp-email">Account email</Label>
-        <div className="relative">
-          <Mail className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            id="otp-email"
-            type="email"
-            autoComplete="email"
-            inputMode="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setRequested(false);
-              setDigits(Array(CODE_LENGTH).fill(""));
-              setMessage(null);
-              setError(null);
-            }}
-            placeholder="you@company.com"
-            className="pl-8"
-            aria-required="true"
-            aria-describedby="otp-email-help"
-            disabled={isLoading}
-          />
-        </div>
-        <p id="otp-email-help" className="text-xs leading-5 text-muted-foreground">
-          We’ll send the code to the email associated with your account.
-        </p>
-      </div>
-
-      {requested && (
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between gap-3">
-            <Label>Verification code</Label>
-            <span className="text-xs text-muted-foreground">6 digits</span>
-          </div>
-          <div className="flex w-full justify-center gap-2" role="group" aria-label="One-time code">
-            {digits.map((digit, index) => (
-              <Input
-                key={index}
-                id={`mfa-digit-${index}`}
-                ref={(element) => {
-                  inputRefs.current[index] = element;
-                }}
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]"
-                maxLength={1}
-                value={digit}
-                onChange={(e) => updateDigit(index, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(index, e)}
-                onPaste={handlePaste}
-                aria-label={`Digit ${index + 1}`}
-                disabled={isLoading}
-                className="h-11 w-10 text-center text-lg font-semibold tracking-widest"
-              />
-            ))}
+    <form onSubmit={verify} className={cn("flex flex-col gap-5", className)} noValidate>
+      {!selectedMethod ? (
+        <div className="space-y-3">
+          <Label>Choose verification method</Label>
+          <div className="grid gap-2">
+            {availableMethods.map((method) => {
+              const Icon = METHOD_ICONS[method];
+              return (
+                <Button
+                  key={method}
+                  type="button"
+                  variant="outline"
+                  className="h-auto justify-start gap-3 px-4 py-3"
+                  disabled={loading}
+                  onClick={() => void chooseMethod(method)}
+                >
+                  <Icon className="size-4" />
+                  <span className="text-left">
+                    <span className="block font-medium">{METHOD_LABELS[method]}</span>
+                    <span className="block text-xs font-normal text-muted-foreground">
+                      {method === "totp"
+                        ? "Use the current code from your authenticator app."
+                        : method === "email"
+                          ? "Receive a single-use code at your verified work email."
+                          : "Receive a single-use code at your verified phone number."}
+                    </span>
+                  </span>
+                </Button>
+              );
+            })}
           </div>
         </div>
+      ) : (
+        <>
+          <div className="rounded-md border border-border bg-muted/30 px-3 py-2.5 text-sm">
+            <span className="font-medium">{METHOD_LABELS[selectedMethod]}</span>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedMethod(null);
+                setCode("");
+                setError(null);
+              }}
+              className="float-right text-xs font-medium text-primary underline-offset-4 hover:underline"
+              disabled={loading}
+            >
+              Change
+            </button>
+          </div>
+          <div className="flex flex-col items-center gap-3">
+            <Label htmlFor="verification-code">Verification code</Label>
+            <InputOTP
+              id="verification-code"
+              maxLength={6}
+              value={code}
+              onChange={(val) => {
+                setCode(val);
+                setError(null);
+              }}
+              disabled={loading}
+              autoFocus
+            >
+              <InputOTPGroup>
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+              </InputOTPGroup>
+              <InputOTPSeparator />
+              <InputOTPGroup>
+                <InputOTPSlot index={3} />
+                <InputOTPSlot index={4} />
+                <InputOTPSlot index={5} />
+              </InputOTPGroup>
+            </InputOTP>
+          </div>
+        </>
       )}
 
-      {message && (
-        <div className="flex gap-2 rounded-md bg-muted/50 px-3 py-2.5 text-sm text-muted-foreground">
-          <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" />
-          <p>{message}</p>
-        </div>
-      )}
-
-      {error && (
-        <p
-          id="mfa-error"
-          role="alert"
-          className="rounded-md bg-destructive/5 px-3 py-2 text-sm text-destructive"
-        >
+      {error ? (
+        <p role="alert" className="rounded-md bg-destructive/5 px-3 py-2 text-sm text-destructive">
           {error}
         </p>
-      )}
+      ) : null}
 
-      <Button
-        type="submit"
-        id="mfa-submit-button"
-        size="lg"
-        className="w-full"
-        disabled={isLoading || (requested && code.length !== CODE_LENGTH)}
-      >
-        {isLoading ? (
-          <>
-            <Loader2 className="animate-spin" />
-            {requested ? "Verifying code…" : "Sending code…"}
-          </>
-        ) : requested ? (
-          "Verify code"
-        ) : (
-          "Send one-time code"
-        )}
-      </Button>
-
-      {requested && (
-        <div className="text-center">
+      {selectedMethod ? (
+        <>
           <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => void requestCode()}
-            disabled={isLoading}
+            type="submit"
+            size="lg"
+            className="w-full"
+            disabled={loading || code.length !== 6}
           >
-            Resend code
+            {loading ? <Loader2 className="animate-spin" /> : <ShieldCheck className="size-4" />}
+            Verify and sign in
           </Button>
-        </div>
-      )}
+          {selectedMethod !== "totp" ? (
+            <Button type="button" variant="ghost" disabled={loading} onClick={() => void resend()}>
+              Resend code
+            </Button>
+          ) : null}
+        </>
+      ) : null}
     </form>
   );
 }

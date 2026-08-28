@@ -13,7 +13,7 @@ return [
     'allowed_methods' => ['*'],
     'allowed_origins' => $allowedOrigins,
     'allowed_origins_patterns' => [],
-    'allowed_headers' => ['Accept', 'Authorization', 'Content-Type', 'Origin', 'X-Requested-With', 'X-XSRF-TOKEN'],
+    'allowed_headers' => ['Accept', 'Authorization', 'Content-Type', 'Origin', 'X-Requested-With', 'X-XSRF-TOKEN', 'X-Tenant-Key', 'X-Company-Key', 'X-Correlation-ID'],
     'exposed_headers' => [],
     'max_age' => 600,
     // First-party SPA authentication uses credentialed Sanctum session cookies.

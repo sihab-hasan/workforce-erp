@@ -2,29 +2,36 @@
 
 namespace App\Http\Middleware;
 
-use App\Services\AuthService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureActiveWorkforceUser
 {
-    public function __construct(private readonly AuthService $authService) {}
-
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $r, Closure $next): Response
     {
-        $user = $request->user();
-
-        if (! $user || $this->authService->isBlockedFromSignIn($user)) {
-            $token = $user?->currentAccessToken();
-            if ($token && method_exists($token, 'delete')) {
-                $token->delete();
-            } elseif ($request->hasSession()) {
-                $this->authService->logoutBrowserSession($request);
+        $u = $r->user();
+        if (! $u || $u->status !== 'active' || $u->locked_at) {
+            if ($r->hasSession()) {
+                auth('web')->logout();
+                $r->session()->invalidate();
+                $r->session()->regenerateToken();
             }
             abort(401, 'Unauthenticated.');
         }
 
-        return $next($request);
+        $hasActiveMembership = $u->memberships()->where('status', 'active')->exists();
+        $hasPlatformRole = \Illuminate\Support\Facades\DB::table('platform_role_assignments')->where('user_id', $u->id)->exists();
+        if (! $hasActiveMembership && ! $hasPlatformRole) {
+            $u->tokens()->delete();
+            if ($r->hasSession()) {
+                auth('web')->logout();
+                $r->session()->invalidate();
+                $r->session()->regenerateToken();
+            }
+            abort(401, 'Unauthenticated.');
+        }
+
+        return $next($r);
     }
 }

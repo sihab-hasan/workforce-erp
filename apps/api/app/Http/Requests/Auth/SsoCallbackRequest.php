@@ -16,6 +16,7 @@ class SsoCallbackRequest extends FormRequest
         return [
             'code' => ['required', 'string', 'max:4096'],
             'state' => ['required', 'string', 'size:48'],
+            'client' => ['required', 'string', 'in:erp,portal,admin,web'],
         ];
     }
 }

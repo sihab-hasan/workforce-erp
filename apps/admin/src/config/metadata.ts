@@ -15,12 +15,12 @@ export interface ResolvedMetadata {
 
 const routes: RouteMetadataDefinition[] = [
   {
-    path: "/auth/sign-in",
+    path: "/sign-in",
     title: "Admin sign in",
     description: "Sign in securely to Workforce ERP platform administration.",
   },
   {
-    path: "/auth/login",
+    path: "/sign-in",
     title: "Admin sign in",
     description: "Sign in securely to Workforce ERP platform administration.",
   },

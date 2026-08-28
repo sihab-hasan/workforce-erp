@@ -1,11 +1,15 @@
+import { Link, useParams } from "react-router-dom";
+import { Plus } from "lucide-react";
 import { Button } from "@workforce-erp/ui/components/button";
-import { Separator } from "@workforce-erp/ui/components/separator";
+import { ErpPage } from "#components/erp/ErpPage";
 import { ClockActionWidget } from "../components/ClockActionWidget";
 import { TimesheetTable } from "../components/TimesheetTable";
 import { useTimesheets } from "../hooks/use-timesheets";
 import { useTimesheetsFilters } from "../hooks/use-timesheets-filters";
+import { companyRoutes } from "#routes/paths";
 
 export default function TimesheetListPage() {
+  const { tenantKey = "", companyKey = "" } = useParams();
   const { page, pageSize, filters, setPage } = useTimesheetsFilters();
   const { data, isPending, isError, refetch } = useTimesheets(filters);
   const timesheets = data?.data ?? [];
@@ -15,22 +19,19 @@ export default function TimesheetListPage() {
   const to = Math.min(page * pageSize, total);
 
   return (
-    <div className="space-y-6 pb-20 md:pb-0">
-      <header className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-            People · Timesheets
-          </p>
-          <h2 className="mt-1 font-heading text-xl font-semibold text-foreground sm:text-2xl">
-            Timesheets & Work Logs
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Track daily work time, record clock-in/out timestamps, and review work logs.
-          </p>
-        </div>
-      </header>
-
-      <Separator />
+    <ErpPage
+      title="Timesheets"
+      description="Track daily work time, record clock-in/out timestamps, and review verified work logs."
+      actions={
+        <Button
+          nativeButton={false}
+          render={<Link to={companyRoutes.timesheetCreate(tenantKey, companyKey)} />}
+        >
+          <Plus />
+          Log timesheet
+        </Button>
+      }
+    >
       <ClockActionWidget />
       <TimesheetTable
         timesheets={timesheets}
@@ -69,6 +70,6 @@ export default function TimesheetListPage() {
           </div>
         </div>
       )}
-    </div>
+    </ErpPage>
   );
 }

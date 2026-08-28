@@ -13,110 +13,61 @@ use Illuminate\Validation\ValidationException;
 
 class PasswordService
 {
-    public function __construct(private readonly AuthService $authService) {}
+    public function __construct(private readonly SessionSecurityService $sessions, private readonly SecurityAuditService $audit) {}
 
-    /**
-     * Send a real Laravel password-reset notification only to an active
-     * Workforce account. The caller always returns the same public response.
-     */
     public function sendResetLink(string $email): void
     {
-        $user = User::query()->where('email', $email)->first();
-
-        if (! $user || $this->authService->isBlockedFromSignIn($user)) {
+        $user = User::query()->where('email', strtolower(trim($email)))->first();
+        if (! $user || $user->status !== 'active' || $user->locked_at || $user->memberships()->where('status', 'suspended')->exists()) {
             return;
         }
-
         try {
-            $status = Password::sendResetLink(['email' => $email]);
-        } catch (\Throwable $exception) {
-            // Keep public recovery responses indistinguishable when SMTP is down,
-            // but remove a broker token that was never delivered to the user.
-            $table = (string) config('auth.passwords.users.table', 'password_reset_tokens');
-            DB::table($table)->where('email', $email)->delete();
-
-            Log::warning('Password reset email could not be sent.', [
-                'user_id' => $user->id,
-                'exception' => $exception::class,
-            ]);
+            $status = Password::sendResetLink(['email' => $user->email]);
+        } catch (\Throwable $e) {
+            DB::table((string) config('auth.passwords.users.table', 'password_reset_tokens'))->where('email', $email)->delete();
+            Log::warning('Password reset email could not be sent.', ['user_id' => $user->id, 'exception' => $e::class]);
 
             return;
         }
-
-        if ($status !== Password::RESET_LINK_SENT && $status !== Password::RESET_THROTTLED) {
-            Log::warning('Password reset link could not be created.', [
-                'user_id' => $user->id,
-                'status' => $status,
-            ]);
+        if (! in_array($status, [Password::RESET_LINK_SENT, Password::RESET_THROTTLED], true)) {
+            Log::warning('Password reset link could not be created.', ['user_id' => $user->id, 'status' => $status]);
         }
     }
 
-    /**
-     * @param  array{token:string,email:string,password:string,password_confirmation:string}  $data
-     */
-    public function reset(array $data): void
+    public function reset(array $d): void
     {
-        $user = User::query()->where('email', $data['email'])->first();
-
-        if (! $user || $this->authService->isBlockedFromSignIn($user)) {
-            $this->throwInvalidReset();
+        $user = User::query()->where('email', $d['email'])->first();
+        if (! $user || $user->status !== 'active') {
+            $this->invalid();
         }
-
-        $status = Password::reset(
-            [
-                'email' => $data['email'],
-                'password' => $data['password'],
-                'password_confirmation' => $data['password_confirmation'] ?? $data['password'],
-                'token' => $data['token'],
-            ],
-            function (User $user, string $password): void {
-                $user->forceFill([
-                    'password' => Hash::make($password),
-                    'remember_token' => Str::random(60),
-                ])->save();
-
-                // Account recovery is a high-risk event: all API sessions must
-                // authenticate again with the new credential.
-                $user->tokens()->delete();
-                $this->authService->revokeAllBrowserSessions($user);
-
-                event(new PasswordReset($user));
-            }
-        );
-
+        $status = Password::reset(['email' => $d['email'], 'password' => $d['password'], 'password_confirmation' => $d['password_confirmation'] ?? $d['password'], 'token' => $d['token']], function (User $u, string $password) {
+            $u->forceFill(['password' => Hash::make($password), 'password_initialized_at' => now(), 'remember_token' => Str::random(60), 'auth_version' => (int) $u->auth_version + 1])->save();
+            $u->tokens()->delete();
+            $this->sessions->revokeAll($u);
+            $this->audit->record('password.reset', $u, ['subject_user_id' => $u->id]);
+            event(new PasswordReset($u));
+        });
         if ($status !== Password::PASSWORD_RESET) {
-            $this->throwInvalidReset();
+            $this->invalid();
         }
     }
 
-    public function change(User $user, string $currentPassword, string $newPassword): void
+    public function change(User $u, string $current, string $next): void
     {
-        if (! Hash::check($currentPassword, $user->password)) {
-            throw ValidationException::withMessages([
-                'current_password' => ['The current password is incorrect.'],
-            ]);
+        if (! Hash::check($current, $u->password)) {
+            throw ValidationException::withMessages(['current_password' => ['The current password is incorrect.']]);
         }
-
-        if (Hash::check($newPassword, $user->password)) {
-            throw ValidationException::withMessages([
-                'password' => ['The new password must be different from the current password.'],
-            ]);
+        if (Hash::check($next, $u->password)) {
+            throw ValidationException::withMessages(['password' => ['The new password must be different from the current password.']]);
         }
-
-        $user->forceFill([
-            'password' => Hash::make($newPassword),
-            'remember_token' => Str::random(60),
-        ])->save();
-
-        // Require a fresh sign-in everywhere after a password change.
-        $user->tokens()->delete();
-        $this->authService->revokeAllBrowserSessions($user);
+        $u->forceFill(['password' => Hash::make($next), 'password_initialized_at' => now(), 'remember_token' => Str::random(60), 'auth_version' => (int) $u->auth_version + 1])->save();
+        $u->tokens()->delete();
+        $this->sessions->revokeAll($u);
+        $this->audit->record('password.changed', $u, ['subject_user_id' => $u->id]);
     }
 
-    private function throwInvalidReset(): never
+    private function invalid(): never
     {
-        throw ValidationException::withMessages([
-            'email' => ['This password reset link is invalid or has expired.'],
-        ]);
+        throw ValidationException::withMessages(['email' => ['This password reset link is invalid or has expired.']]);
     }
 }

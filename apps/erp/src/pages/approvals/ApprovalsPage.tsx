@@ -1,19 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, Eye, X } from "lucide-react";
+import { Check, Eye, ShieldCheck, X } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@workforce-erp/ui/components/button";
 import { toast } from "sonner";
 import { apiGet, apiPatch, errorMessage, formatDateTime } from "#features/erp-core/api";
 import type { ApprovalRecord } from "#features/erp-core/types";
-import {
-  DataTable,
-  EmptyPanel,
-  ErpPage,
-  ErrorState,
-  LoadingState,
-  StatusPill,
-} from "#components/erp/ErpPage";
+import { DataTable, ErpPage, ErrorState, LoadingState, StatusPill } from "#components/erp/ErpPage";
+import { EmptyState } from "@workforce-erp/ui-patterns/feedback";
 import { companyRoutes } from "#routes/paths";
+
 export function ApprovalsPage() {
   const { tenantKey = "", companyKey = "" } = useParams();
   const qc = useQueryClient();
@@ -21,6 +16,7 @@ export function ApprovalsPage() {
     queryKey: ["approvals", tenantKey, companyKey],
     queryFn: () => apiGet<ApprovalRecord[]>("/api/v1/approvals"),
   });
+
   const action = useMutation({
     mutationFn: ({ id, verb }: { id: string; verb: "approve" | "reject" }) =>
       apiPatch(`/api/v1/approvals/${id}/${verb}`, {}),
@@ -32,32 +28,36 @@ export function ApprovalsPage() {
     },
     onError: (e) => toast.error(errorMessage(e)),
   });
+
   return (
     <ErpPage
       title="Approvals"
-      description="Review pending leave and timesheet submissions in one queue."
+      description="Review pending leave and timesheet submissions in one central queue."
     >
       {q.isLoading ? (
-        <LoadingState />
+        <LoadingState label="Loading approval queue…" />
       ) : q.isError ? (
         <ErrorState message={errorMessage(q.error)} onRetry={() => void q.refetch()} />
       ) : !q.data?.length ? (
-        <EmptyPanel
-          title="You're all caught up"
-          description="There are no pending approvals in this company."
+        <EmptyState
+          icon={<ShieldCheck className="size-10 text-primary/70" />}
+          title="All caught up!"
+          description="There are no pending approvals or time-off requests awaiting your decision."
         />
       ) : (
         <DataTable
           columns={["Request", "Type", "Submitted", "Status", "Actions"]}
           rows={q.data.map((a) => [
-            <div>
+            <div key="req">
               <p className="font-medium">{a.title}</p>
               <p className="text-xs text-muted-foreground">{a.subtitle}</p>
             </div>,
-            <span className="capitalize">{a.type}</span>,
-            formatDateTime(a.submitted_at),
-            <StatusPill value={a.status} />,
-            <div className="flex gap-1">
+            <span key="type" className="capitalize">
+              {a.type}
+            </span>,
+            <span key="date">{formatDateTime(a.submitted_at)}</span>,
+            <StatusPill key="status" value={a.status} />,
+            <div key="actions" className="flex gap-1">
               <Button
                 size="icon-sm"
                 variant="ghost"

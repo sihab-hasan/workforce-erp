@@ -9,6 +9,7 @@ use App\Http\Requests\Users\UpdateUserRequest;
 use App\Http\Requests\Users\UserMembershipActionRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\SessionSecurityService;
 use App\Services\UserService;
 use App\Services\WorkforceScopeService;
 use Illuminate\Http\JsonResponse;
@@ -16,7 +17,7 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function __construct(private readonly UserService $userService, private readonly WorkforceScopeService $scope) {}
+    public function __construct(private readonly UserService $userService, private readonly WorkforceScopeService $scope, private readonly SessionSecurityService $sessions) {}
 
     public function index(ListUsersRequest $request): JsonResponse
     {
@@ -40,6 +41,7 @@ class UserController extends Controller
 
     public function store(StoreUserRequest $request): JsonResponse
     {
+        $this->sessions->requireRecentVerification($request);
         $user = $this->userService->invite($request->user(), $request->validated());
         $delivered = (bool) $user->getAttribute('invitation_delivered');
 
@@ -54,6 +56,9 @@ class UserController extends Controller
 
     public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
+        if ($request->hasAny(['role', 'roles', 'data_scope', 'scope_data', 'expires_at'])) {
+            $this->sessions->requireRecentVerification($request);
+        }
         $user = $this->userService->update($request->user(), $user, $request->validated());
 
         return $this->successResponse(new UserResource($user), 'User updated successfully');
@@ -102,16 +107,21 @@ class UserController extends Controller
 
     public function roles(Request $request): JsonResponse
     {
-        return $this->successResponse($this->userService->roleOptions($request->user()));
+        $org = $this->scope->organization($request, true);
+
+        return $this->successResponse($this->userService->roleOptions($request->user(), (int) $org->id));
     }
 
     public function employees(Request $request): JsonResponse
     {
-        return $this->successResponse($this->userService->employeeOptions($request->user()));
+        $org = $this->scope->organization($request, true);
+
+        return $this->successResponse($this->userService->employeeOptions($request->user(), (int) $org->id));
     }
 
     private function statusResponse(UserMembershipActionRequest $request, User $user, string $status): JsonResponse
     {
+        $this->sessions->requireRecentVerification($request);
         $updatedUser = $this->userService->setStatus(
             $request->user(),
             $user,

@@ -9,7 +9,7 @@ export const employeesRoutes: RouteObject[] = [
   {
     path: "employees",
     element: (
-      <AuthorizedRoute capability="employee.view">
+      <AuthorizedRoute capability="employee.read">
         <EmployeesPage />
       </AuthorizedRoute>
     ),
@@ -25,7 +25,7 @@ export const employeesRoutes: RouteObject[] = [
   {
     path: "employees/:employeeId",
     element: (
-      <AuthorizedRoute capability="employee.view">
+      <AuthorizedRoute capability="employee.read">
         <EmployeeDetailsPage />
       </AuthorizedRoute>
     ),

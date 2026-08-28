@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { AlertTriangle, Loader2, ShieldCheck } from "lucide-react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "@workforce-erp/auth";
-
 import { AUTH_PATHS, safeReturnTo } from "#features/authentication/navigation";
 import { AuthCard } from "#features/authentication/components/AuthCard";
 import {
@@ -27,40 +26,32 @@ export default function SsoCallbackPage() {
     if (startedRef.current) return;
     startedRef.current = true;
 
-    const finishWithError = (message: string) => {
-      // Defer UI state to a task callback so the effect itself only coordinates
-      // browser/session state and the asynchronous SSO operation.
-      queueMicrotask(() => setError(message));
-    };
-
     if (!isProvider(provider)) {
-      finishWithError("Unsupported single sign-on provider.");
+      queueMicrotask(() => setError("Unsupported single sign-on provider."));
       return;
     }
 
     const stateKey = `workforce-erp.sso.${provider}.state`;
     const returnToKey = `workforce-erp.sso.${provider}.returnTo`;
+    const expectedState = sessionStorage.getItem(stateKey);
+    const returnTo = safeReturnTo(sessionStorage.getItem(returnToKey));
+    const code = searchParams.get("code");
+    const state = searchParams.get("state");
+    const oauthError = searchParams.get("error");
     const cleanup = () => {
       sessionStorage.removeItem(stateKey);
       sessionStorage.removeItem(returnToKey);
     };
 
-    const oauthError = searchParams.get("error");
-    const code = searchParams.get("code");
-    const state = searchParams.get("state");
-    const expectedState = sessionStorage.getItem(stateKey);
-    const returnTo = safeReturnTo(sessionStorage.getItem(returnToKey));
-
     if (oauthError) {
       cleanup();
-      finishWithError(`Single sign-on was cancelled or denied: ${oauthError}`);
+      queueMicrotask(() => setError(`Single sign-on was cancelled or denied: ${oauthError}`));
       return;
     }
-
     if (!code || !state || !expectedState || state !== expectedState) {
       cleanup();
-      finishWithError(
-        "The single sign-on response is incomplete or its security state does not match.",
+      queueMicrotask(() =>
+        setError("The single sign-on response failed security-state validation."),
       );
       return;
     }
@@ -69,12 +60,19 @@ export default function SsoCallbackPage() {
       .completeSso(provider, code, state)
       .then((response) => {
         cleanup();
+        if (response.status === "verification_required") {
+          navigate(
+            `${AUTH_PATHS.verifySignIn}?challenge=${encodeURIComponent(response.challenge.id)}&methods=${encodeURIComponent(response.challenge.available_methods.join(","))}&returnTo=${encodeURIComponent(returnTo)}`,
+            { replace: true },
+          );
+          return;
+        }
         signIn(toAuthSession(response));
         navigate(returnTo, { replace: true });
       })
-      .catch((err: unknown) => {
+      .catch((error: unknown) => {
         cleanup();
-        setError(err instanceof Error ? err.message : "Single sign-on could not be completed.");
+        setError(error instanceof Error ? error.message : "Single sign-on could not be completed.");
       });
   }, [navigate, provider, searchParams, signIn]);
 
@@ -84,8 +82,8 @@ export default function SsoCallbackPage() {
       heading={error ? "We couldn’t sign you in" : "Completing secure sign-in"}
       subheading={
         error
-          ? "Your single sign-on session could not be completed. Review the message below and try again."
-          : "We’re securely confirming your identity and connecting you to Workforce ERP."
+          ? "The SSO callback could not be completed securely."
+          : "We’re validating the provider response and your verification policy."
       }
       footer={
         error ? (
@@ -99,23 +97,16 @@ export default function SsoCallbackPage() {
       }
     >
       {error ? (
-        <div className="rounded-md border border-destructive/20 bg-destructive/5 px-4 py-3">
-          <p role="alert" className="text-sm leading-6 text-destructive">
-            {error}
-          </p>
-        </div>
-      ) : (
-        <div
-          role="status"
-          className="flex flex-col items-center justify-center gap-3 py-5 text-center"
+        <p
+          role="alert"
+          className="rounded-md border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
         >
+          {error}
+        </p>
+      ) : (
+        <div role="status" className="flex flex-col items-center gap-3 py-5 text-center">
           <Loader2 className="size-6 animate-spin text-primary" />
-          <div>
-            <p className="text-sm font-medium text-foreground">Signing you in…</p>
-            <p className="mt-1 text-xs leading-5 text-muted-foreground">
-              Please keep this page open while we finish the connection.
-            </p>
-          </div>
+          <p className="text-sm text-muted-foreground">Finalizing secure authentication…</p>
         </div>
       )}
     </AuthCard>

@@ -24,7 +24,7 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'email', 'max:255'],
             'password' => ['required', 'string', 'max:4096'],
-            'client' => ['sometimes', 'string', 'in:portal,admin'],
+            'client' => ['sometimes', 'string', 'in:erp,portal,admin,web'],
         ];
     }
 }

@@ -5,15 +5,11 @@ namespace App\Services;
 use App\Models\Employee;
 use App\Models\Organization;
 use App\Models\OrganizationMember;
+use App\Models\Role;
 use App\Models\User;
-use App\Models\UserSsoIdentity;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class UserService
@@ -22,522 +18,387 @@ class UserService
 
     public const USER_STATUSES = ['active', 'inactive', 'invited', 'suspended'];
 
-    public const SORTABLE_FIELDS = ['name', 'email', 'created_at', 'last_login_at', 'role', 'status'];
+    public const SORTABLE_FIELDS = ['name', 'email', 'created_at', 'last_login_at'];
+
+    private const ROLE_COMPAT = [
+        'owner' => 'organization_owner',
+        'admin' => 'organization_admin',
+        'manager' => 'manager',
+        'staff' => 'employee',
+        'readonly' => 'auditor',
+    ];
 
     public function __construct(
-        private readonly OrganizationAccessService $access,
-        private readonly AuthService $authService,
+        private readonly AuthorizationService $authz,
+        private readonly InvitationService $invitations,
+        private readonly SessionSecurityService $sessions,
+        private readonly SodService $sod,
+        private readonly DataScopeService $dataScope,
     ) {}
 
-    /**
-     * @param  array<string, mixed>  $filters
-     */
     public function paginate(User $actor, array $filters): LengthAwarePaginator
     {
-        $this->assertCanAccessUsersArea($actor);
-        $organizationIds = $this->access->organizationIds($actor, OrganizationAccessService::USER_MANAGER_ROLES);
-        $query = User::query()->with($this->relationsForOrganizations($organizationIds));
-
+        $organizationIds = $this->authz->manageableOrganizationIds($actor, 'user.view');
         if ($organizationIds === []) {
-            $query->whereRaw('1 = 0');
-        } else {
-            $query->whereHas('organizations', fn ($q) => $q->whereIn('organizations.id', $organizationIds));
+            throw new AuthorizationException('You do not have permission to access Users & Access.');
         }
 
         if (! empty($filters['organization_id'])) {
-            $organizationId = (int) $filters['organization_id'];
-            $this->access->assertCanManage(
-                $actor,
-                $organizationId,
-                OrganizationAccessService::USER_MANAGER_ROLES,
-                'You do not have access to this organization.'
-            );
-            $query->whereHas('organizations', fn ($q) => $q->where('organizations.id', $organizationId));
-            $organizationIds = [$organizationId];
+            $id = (int) $filters['organization_id'];
+            $this->authz->authorize($actor, $id, 'user.view');
+            $organizationIds = [$id];
         }
 
+        $query = User::query()
+            ->with($this->relations($organizationIds))
+            ->whereHas('memberships', fn ($query) => $query->whereIn('organization_id', $organizationIds));
+
         if (! empty($filters['role']) && $filters['role'] !== 'all') {
-            $role = $filters['role'];
-            $query->whereHas('organizations', fn ($q) => $q
-                ->whereIn('organizations.id', $organizationIds)
-                ->where('organization_members.role', $role));
+            $role = $this->compat((string) $filters['role']);
+            $rawRole = (string) $filters['role'];
+            $query->where(function ($q) use ($role, $rawRole) {
+                $q->whereHas('memberships.roleAssignments.role', fn ($r) => $r->where('name', $role)->orWhere('name', $rawRole))
+                  ->orWhereHas('memberships', fn ($m) => $m->where('role', $rawRole)->orWhere('role', $role));
+            });
         }
 
         if (! empty($filters['status']) && $filters['status'] !== 'all') {
-            $status = $filters['status'];
-            $query->whereHas('organizations', fn ($q) => $q
-                ->whereIn('organizations.id', $organizationIds)
-                ->where('organization_members.status', $status));
+            $query->whereHas('memberships', fn ($m) => $m->whereIn('organization_id', $organizationIds)->where('status', $filters['status']));
         }
 
         if (! empty($filters['search'])) {
             $search = trim((string) $filters['search']);
-            $query->where(fn ($q) => $q
-                ->where('name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%"));
+            $query->where(fn ($q) => $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"));
         }
 
-        $sortBy = (string) ($filters['sort_by'] ?? 'name');
+        $requestedSort = (string) ($filters['sort_by'] ?? 'name');
+        $sort = in_array($requestedSort, self::SORTABLE_FIELDS, true) ? $requestedSort : 'name';
         $direction = ($filters['sort_direction'] ?? 'asc') === 'desc' ? 'desc' : 'asc';
 
-        if (in_array($sortBy, ['role', 'status'], true)) {
-            $query->orderBy(
-                OrganizationMember::query()
-                    ->select($sortBy)
-                    ->whereColumn('organization_members.user_id', 'users.id')
-                    ->whereIn('organization_members.organization_id', $organizationIds)
-                    ->orderBy('organization_members.organization_id')
-                    ->limit(1),
-                $direction
-            );
-        } else {
-            $query->orderBy($sortBy, $direction);
-        }
-
-        return $query->orderBy('users.id')->paginate((int) ($filters['per_page'] ?? 15));
+        return $query->orderBy($sort, $direction)->orderBy('users.id')->paginate((int) ($filters['per_page'] ?? 15));
     }
 
     public function accessible(User $actor, User $target): User
     {
-        $organizationId = $this->sharedManagedOrganizationId($actor, $target);
-        $target->load($this->relationsForOrganizations([$organizationId]));
+        $org = $this->shared($actor, $target, 'user.view');
 
-        return $target;
+        return $target->load($this->relations([$org]));
     }
 
-    /**
-     * @param  array{name:string,email:string,role:string,organization_id?:int|null,employee_id?:int|null}  $data
-     */
     public function invite(User $actor, array $data): User
     {
-        $organizationId = $this->resolveManagedOrganizationId($actor, $data['organization_id'] ?? null);
-        $this->assertCanManageUsers($actor, $organizationId);
-        $this->assertAssignableRole($actor, $organizationId, $data['role']);
+        $org = $this->resolve($actor, $data['organization_id'] ?? null, 'user.invite');
+        $roles = $this->resolveRoles($org, $data['roles'] ?? ($data['role'] ?? null));
+        $this->assertOwnerPermission($actor, $org, $roles);
 
-        $user = DB::transaction(function () use ($data, $organizationId) {
-            $user = User::query()->where('email', $data['email'])->first();
+        $permissions = $roles->flatMap(fn ($role) => $role->permissions()->pluck('name'))->unique()->values()->all();
+        $this->sod->assertPermissionSet($org, $permissions);
 
-            if ($user && $user->organizations()->where('organizations.id', $organizationId)->exists()) {
-                abort(409, 'This user already belongs to the selected organization.');
+        $scope = strtoupper((string) ($data['data_scope'] ?? 'OWN'));
+        $result = $this->invitations->issue(
+            $actor,
+            $org,
+            $data['email'],
+            $roles->pluck('name')->all(),
+            $scope,
+            $data['scope_data'] ?? null,
+            $data['name'],
+        );
+
+        $user = $result['invitation']->membership->user;
+        if (! empty($data['employee_id'])) {
+            $this->dataScope->assertEmployee($actor, $org, (int) $data['employee_id']);
+            $this->linkEmployee($user, $org, (int) $data['employee_id']);
+        }
+
+        $user->setAttribute('invitation_delivered', $result['delivered'] ?? true);
+
+        return $user->load($this->relations([$org]));
+    }
+
+    public function update(User $actor, User $target, array $data): User
+    {
+        $org = isset($data['organization_id']) ? (int) $data['organization_id'] : $this->shared($actor, $target, 'user.manage');
+        $this->authz->authorize($actor, $org, 'user.manage');
+
+        if (array_key_exists('email', $data) && Str::lower($data['email']) !== Str::lower($target->email)) {
+            $target->update(['email' => Str::lower($data['email'])]);
+        }
+
+        if (isset($data['name'])) {
+            $target->update(['name' => $data['name']]);
+        }
+
+        $rolesChanged = array_key_exists('roles', $data) || array_key_exists('role', $data);
+        $scopeChanged = array_key_exists('data_scope', $data) || array_key_exists('scope_data', $data) || array_key_exists('expires_at', $data);
+
+        if ($rolesChanged || $scopeChanged) {
+            $membership = $target->memberships()->where('organization_id', $org)->firstOrFail();
+            $roles = $rolesChanged
+                ? $this->resolveRoles($org, $data['roles'] ?? ($data['role'] ?? null))
+                : $membership->roleAssignments()->with('role')->get()->pluck('role')->filter()->values();
+
+            if ($roles->isEmpty()) {
+                abort(422, 'At least one role is required.');
             }
 
-            if (! $user) {
-                $user = User::create([
-                    'name' => $data['name'],
-                    'email' => $data['email'],
-                    'password' => Hash::make(Str::random(48)),
+            $this->assertOwnerPermission($actor, $org, $roles);
+            $hasOwner = $roles->contains(fn ($role) => $role->name === 'organization_owner');
+            $this->ownerContinuity($membership, $hasOwner ? null : 'non_owner', null);
+
+            $permissions = $roles->flatMap(fn ($role) => $role->permissions()->pluck('name'))->unique()->values()->all();
+            $this->sod->assertPermissionSet($org, $permissions);
+
+            $scope = strtoupper((string) ($data['data_scope'] ?? $membership->data_scope ?? 'OWN'));
+            $scopeData = array_key_exists('scope_data', $data) ? $data['scope_data'] : $membership->scope_data;
+            $expires = $data['expires_at'] ?? null;
+
+            $membership->roleAssignments()->delete();
+            foreach ($roles as $role) {
+                $membership->roleAssignments()->create([
+                    'role_id' => $role->id,
+                    'scope' => $scope,
+                    'scope_data' => $scopeData,
+                    'expires_at' => $expires,
+                    'assigned_by' => $actor->id,
+                    'reason' => 'Administrative access update',
                 ]);
             }
 
-            $user->organizations()->attach($organizationId, [
-                'role' => $data['role'],
-                'status' => 'invited',
+            $membership->update([
+                'role' => 'assigned',
+                'data_scope' => $scope,
+                'scope_data' => $scopeData,
             ]);
 
-            if (! empty($data['employee_id'])) {
-                $this->linkEmployee($user, $organizationId, (int) $data['employee_id']);
+            $target->increment('authz_version');
+            $this->sessions->revokeAll($target);
+        }
+
+        if (array_key_exists('employee_id', $data)) {
+            $this->unlinkEmployee($target, $org);
+            if ($data['employee_id']) {
+                $this->dataScope->assertEmployee($actor, $org, (int) $data['employee_id']);
+                $this->linkEmployee($target, $org, (int) $data['employee_id']);
             }
+        }
 
-            return $user;
-        });
-
-        $user->setAttribute('invitation_delivered', $this->sendInvitation($user));
-        $user->load($this->relationsForOrganizations([$organizationId]));
-
-        return $user;
+        return $target->load($this->relations([$org]));
     }
 
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    public function update(User $actor, User $target, array $data): User
-    {
-        $organizationId = isset($data['organization_id']) && $data['organization_id'] !== null
-            ? (int) $data['organization_id']
-            : $this->sharedManagedOrganizationId($actor, $target);
-
-        $this->assertCanManageUsers($actor, $organizationId);
-
-        if (! $target->organizations()->where('organizations.id', $organizationId)->exists()) {
-            throw new AuthorizationException('The selected user does not belong to this organization.');
-        }
-
-        $this->assertCanManageTarget($actor, $target, $organizationId);
-
-        if (array_key_exists('role', $data)) {
-            $this->assertAssignableRole($actor, $organizationId, $data['role']);
-            $this->assertOwnerContinuity($target, $organizationId, $data['role'], null);
-        }
-
-        $emailChanged = array_key_exists('email', $data) && $data['email'] !== $target->email;
-
-        if ($emailChanged) {
-            $this->assertEmailChangeSafe($target, $organizationId);
-        }
-
-        DB::transaction(function () use ($data, $organizationId, $target) {
-            $accountChanges = [];
-
-            if (array_key_exists('name', $data)) {
-                $accountChanges['name'] = $data['name'];
-            }
-
-            if (array_key_exists('email', $data) && $data['email'] !== $target->email) {
-                $accountChanges['email'] = $data['email'];
-                $accountChanges['email_verified_at'] = null;
-            }
-
-            if ($accountChanges !== []) {
-                $target->forceFill($accountChanges)->save();
-            }
-
-            if (array_key_exists('role', $data)) {
-                $target->organizations()->updateExistingPivot($organizationId, ['role' => $data['role']]);
-            }
-
-            if (array_key_exists('employee_id', $data)) {
-                Employee::query()
-                    ->where('organization_id', $organizationId)
-                    ->where('user_id', $target->id)
-                    ->update(['user_id' => null]);
-
-                if ($data['employee_id']) {
-                    $this->linkEmployee($target, $organizationId, (int) $data['employee_id']);
-                }
-            }
-        });
-
-        if ($emailChanged) {
-            // Email is the login identity. Remove provider bindings tied to the old
-            // email so the newly verified Google/Microsoft identity can be linked.
-            UserSsoIdentity::query()->where('user_id', $target->id)->delete();
-            $target->forceFill(['sso_provider' => null, 'sso_provider_id' => null])->save();
-
-            // Existing API/browser credentials should not survive an identity change.
-            $target->tokens()->delete();
-            $this->authService->revokeAllBrowserSessions($target);
-        }
-
-        $target->load($this->relationsForOrganizations([$organizationId]));
-
-        return $target;
-    }
-
-    public function setStatus(User $actor, User $target, string $status, ?int $requestedOrganizationId = null): User
+    public function setStatus(User $actor, User $target, string $status, ?int $organizationId = null): User
     {
         if (! in_array($status, self::USER_STATUSES, true)) {
             abort(422, 'Unsupported user status.');
         }
 
-        $organizationId = $this->managedTargetOrganizationId($actor, $target, $requestedOrganizationId);
-        $this->assertCanManageUsers($actor, $organizationId);
-        $this->assertCanManageTarget($actor, $target, $organizationId);
-        $this->assertOwnerContinuity($target, $organizationId, null, $status);
+        $org = $organizationId ?: $this->shared($actor, $target, 'user.manage');
+        $this->authz->authorize($actor, $org, 'user.manage');
 
-        $target->organizations()->updateExistingPivot($organizationId, ['status' => $status]);
-
-        if ($status !== 'active' && ! $target->memberships()->where('status', 'active')->exists()) {
-            $target->tokens()->delete();
-            $this->authService->revokeAllBrowserSessions($target);
+        $membership = $target->memberships()->where('organization_id', $org)->firstOrFail();
+        $isTargetOwner = $membership->role === 'owner' || $membership->roleAssignments()->whereHas('role', fn ($query) => $query->where('name', 'organization_owner'))->exists();
+        if ($isTargetOwner && ! $this->authz->can($actor, $org, 'organization.owner.assign')) {
+            abort(403, 'You do not have permission to modify or deactivate an owner.');
         }
+        $this->ownerContinuity($membership, null, $status);
 
-        $target->load($this->relationsForOrganizations([$organizationId]));
+        $membership->update([
+            'status' => $status,
+            'activated_at' => $status === 'active' ? now() : $membership->activated_at,
+            'suspended_at' => $status === 'suspended' ? now() : null,
+        ]);
 
-        return $target;
+        $target->increment('authz_version');
+        $this->sessions->revokeAll($target);
+
+        return $target->load($this->relations([$org]));
     }
 
-    /**
-     * @return array{delivered:bool,sent_at:?string}
-     */
-    public function resendInvitation(User $actor, User $target, ?int $requestedOrganizationId = null): array
+    public function resendInvitation(User $actor, User $target, ?int $organizationId = null): array
     {
-        $organizationId = $this->managedTargetOrganizationId($actor, $target, $requestedOrganizationId);
-        $this->assertCanManageUsers($actor, $organizationId);
-        $this->assertCanManageTarget($actor, $target, $organizationId);
+        $org = $organizationId ?: $this->shared($actor, $target, 'user.manage');
+        $this->authz->authorize($actor, $org, 'user.invite');
 
-        $membershipStatus = $target->memberships()
-            ->where('organization_id', $organizationId)
-            ->value('status');
-
-        if ($membershipStatus !== 'invited') {
+        $membership = $target->memberships()->where('organization_id', $org)->where('status', 'invited')->first();
+        if (! $membership) {
             abort(409, 'Only invited accounts can receive an invitation again.');
         }
 
-        $delivered = $this->sendInvitation($target);
+        $roles = $membership->roleAssignments()->with('role')->get()->pluck('role.name')->filter()->all();
+        if ($roles === []) {
+            abort(409, 'Invitation has no assigned roles.');
+        }
+
+        $result = $this->invitations->issue(
+            $actor,
+            $org,
+            $target->email,
+            $roles,
+            $membership->data_scope,
+            $membership->scope_data,
+            $target->name,
+        );
 
         return [
-            'delivered' => $delivered,
-            'sent_at' => $delivered ? now()->toIso8601String() : null,
+            'delivered' => $result['delivered'] ?? true,
+            'sent_at' => now()->toIso8601String(),
         ];
     }
 
-    /**
-     * Hard deletion is deliberately unsupported because account identifiers are
-     * referenced by audit/history records. Deactivation preserves referential history.
-     */
     public function rejectUnsafeDeletion(User $actor, User $target): never
     {
-        $organizationId = $this->sharedManagedOrganizationId($actor, $target);
-        $this->assertCanManageUsers($actor, $organizationId);
-        $this->assertCanManageTarget($actor, $target, $organizationId);
-
+        $this->authz->authorize($actor, $this->shared($actor, $target, 'user.manage'), 'user.manage');
         abort(409, 'User accounts cannot be permanently deleted. Deactivate the account to preserve audit and history data.');
     }
 
-    /**
-     * @return Collection<int, array{id:string,name:string,slug:string}>
-     */
     public function organizationOptions(User $actor): Collection
     {
-        $this->assertCanAccessUsersArea($actor);
-
         return Organization::query()
-            ->whereIn('id', $this->access->organizationIds($actor, OrganizationAccessService::USER_MANAGER_ROLES))
+            ->whereIn('id', $this->authz->manageableOrganizationIds($actor, 'user.view'))
             ->orderBy('name')
-            ->get(['id', 'name', 'slug'])
-            ->map(fn (Organization $organization) => [
-                'id' => (string) $organization->id,
-                'name' => $organization->name,
-                'slug' => $organization->slug,
-            ]);
+            ->get(['id', 'name', 'slug']);
     }
 
-    /**
-     * @return Collection<int, array{id:string,name:string,slug:string,description:string}>
-     */
-    public function roleOptions(User $actor): Collection
+    public function roleOptions(User $actor, int $org): Collection
     {
-        $this->assertCanAccessUsersArea($actor);
-        $actorCanAssignOwner = collect($this->access->organizationIds($actor, ['owner']))->isNotEmpty();
+        $this->authz->authorize($actor, $org, 'user.view');
 
-        return collect(self::USER_ROLES)
-            ->filter(fn (string $role) => $role !== 'owner' || $actorCanAssignOwner)
-            ->values()
-            ->map(fn (string $role) => [
-                'id' => $role,
-                'name' => Str::headline($role),
-                'slug' => $role,
-                'description' => match ($role) {
-                    'owner' => 'Full organization control, including owner assignment.',
-                    'admin' => 'Manage users and organization administration.',
-                    'manager' => 'Manage operational teams and approved workflows.',
-                    'staff' => 'Standard workforce application access.',
-                    'readonly' => 'View-only access to permitted areas.',
-                },
-            ]);
+        return Role::query()
+            ->where(fn ($q) => $q->where('organization_id', $org)->orWhereNull('organization_id'))
+            ->orderBy('name')
+            ->get(['id', 'name', 'display_name', 'description']);
     }
 
-    /**
-     * @return Collection<int, array{id:string,name:string,department:?string,designation:?string,email:string,linked_user_id:?string}>
-     */
-    public function employeeOptions(User $actor): Collection
+    public function employeeOptions(User $actor, int $org): Collection
     {
-        $this->assertCanAccessUsersArea($actor);
-        $organizationIds = $this->access->organizationIds($actor, OrganizationAccessService::USER_MANAGER_ROLES);
+        $this->authz->authorize($actor, $org, 'user.view');
 
         return Employee::query()
-            ->with(['department', 'designation'])
-            ->whereIn('organization_id', $organizationIds)
+            ->where('organization_id', $org)
+            ->whereNull('user_id')
             ->orderBy('first_name')
-            ->orderBy('last_name')
-            ->get()
-            ->map(fn (Employee $employee) => [
-                'id' => (string) $employee->id,
-                'name' => $employee->name,
-                'department' => $employee->department?->name,
-                'designation' => $employee->designation?->name,
-                'email' => $employee->email,
-                'linked_user_id' => $employee->user_id ? (string) $employee->user_id : null,
-            ]);
+            ->get(['id', 'employee_id', 'first_name', 'last_name', 'email']);
     }
 
-    private function assertCanAccessUsersArea(User $actor): void
+    private function resolve(User $actor, ?int $org, string $permission): int
     {
-        $this->access->assertCanManageAny(
-            $actor,
-            OrganizationAccessService::USER_MANAGER_ROLES,
-            'You do not have permission to access Users & Access.'
-        );
+        if ($org) {
+            $this->authz->authorize($actor, $org, $permission);
+
+            return $org;
+        }
+
+        $id = $this->authz->manageableOrganizationIds($actor, $permission)[0] ?? 0;
+        if (! $id) {
+            throw new AuthorizationException('An explicit manageable organization is required.');
+        }
+
+        return (int) $id;
     }
 
-    private function resolveManagedOrganizationId(User $actor, mixed $requestedOrganizationId): int
+    private function shared(User $actor, User $target, string $permission): int
     {
-        if ($requestedOrganizationId !== null && $requestedOrganizationId !== '') {
-            return (int) $requestedOrganizationId;
-        }
-
-        $organizationId = $this->access->organizationIds(
-            $actor,
-            OrganizationAccessService::USER_MANAGER_ROLES
-        )[0] ?? 0;
-
-        if ($organizationId === 0) {
-            throw new AuthorizationException('You do not have an organization where users can be managed.');
-        }
-
-        return $organizationId;
-    }
-
-    private function managedTargetOrganizationId(User $actor, User $target, ?int $requestedOrganizationId): int
-    {
-        if ($requestedOrganizationId === null) {
-            return $this->sharedManagedOrganizationId($actor, $target);
-        }
-
-        $this->assertCanManageUsers($actor, $requestedOrganizationId);
-
-        if (! $target->memberships()->where('organization_id', $requestedOrganizationId)->exists()) {
-            throw new AuthorizationException('The selected user does not belong to this organization.');
-        }
-
-        return $requestedOrganizationId;
-    }
-
-    private function sharedManagedOrganizationId(User $actor, User $target): int
-    {
-        $organizationId = $this->access->firstSharedOrganizationId(
-            $actor,
-            $target,
-            OrganizationAccessService::USER_MANAGER_ROLES
-        );
-
-        if ($organizationId === 0) {
+        $managed = $this->authz->manageableOrganizationIds($actor, $permission);
+        $id = (int) ($target->memberships()->whereIn('organization_id', $managed)->value('organization_id') ?? 0);
+        if (! $id) {
             throw new AuthorizationException('You do not have access to this user.');
         }
 
-        return $organizationId;
+        return $id;
     }
 
-    private function assertCanManageUsers(User $actor, int $organizationId): void
+    private function resolveRoles(int $org, mixed $input): Collection
     {
-        $this->access->assertCanManage(
-            $actor,
-            $organizationId,
-            OrganizationAccessService::USER_MANAGER_ROLES,
-            'You do not have permission to manage users in this organization.'
-        );
+        $names = is_array($input) ? $input : [$input];
+        $names = collect($names)
+            ->filter(fn ($name) => is_string($name) && trim($name) !== '')
+            ->map(fn ($name) => $this->compat(trim($name)))
+            ->unique()
+            ->values();
+
+        if ($names->isEmpty()) {
+            abort(422, 'At least one role is required.');
+        }
+
+        $roles = Role::query()
+            ->where(fn ($q) => $q->where('organization_id', $org)->orWhereNull('organization_id'))
+            ->whereIn('name', $names)
+            ->get();
+
+        if ($roles->count() !== $names->count()) {
+            foreach ($names as $name) {
+                if (! $roles->contains('name', $name)) {
+                    $role = Role::firstOrCreate(
+                        ['name' => $name, 'organization_id' => $org],
+                        ['display_name' => ucwords(str_replace('_', ' ', $name)), 'is_system' => true]
+                    );
+                    $roles->push($role);
+                }
+            }
+        }
+
+        return $roles;
     }
 
-    private function assertAssignableRole(User $actor, int $organizationId, string $role): void
+    private function compat(string $role): string
     {
-        if ($role === 'owner' && $this->access->activeRole($actor, $organizationId) !== 'owner') {
-            throw new AuthorizationException('Only an organization owner can assign the owner role.');
+        return self::ROLE_COMPAT[$role] ?? $role;
+    }
+
+    private function assertOwnerPermission(User $actor, int $org, Collection $roles): void
+    {
+        if ($roles->contains(fn ($role) => $role->name === 'organization_owner')) {
+            $this->authz->authorize($actor, $org, 'organization.owner.assign');
         }
     }
 
-    private function assertCanManageTarget(User $actor, User $target, int $organizationId): void
+    private function ownerContinuity(OrganizationMember $membership, ?string $newRole, ?string $newStatus): void
     {
-        $targetRole = $target->memberships()
-            ->where('organization_id', $organizationId)
-            ->value('role');
+        $isOwner = $membership->role === 'owner' || $membership->roleAssignments()->whereHas('role', fn ($query) => $query->where('name', 'organization_owner'))->exists();
+        $removing = $newRole !== null && $newRole !== 'organization_owner' && $newRole !== 'owner';
+        $disabling = $newStatus !== null && $newStatus !== 'active';
 
-        if ($targetRole === 'owner' && $this->access->activeRole($actor, $organizationId) !== 'owner') {
-            throw new AuthorizationException('Only an organization owner can modify another owner.');
-        }
-    }
-
-    private function assertEmailChangeSafe(User $target, int $organizationId): void
-    {
-        $belongsElsewhere = $target->memberships()
-            ->where('organization_id', '!=', $organizationId)
-            ->exists();
-
-        if ($belongsElsewhere) {
-            abort(409, 'This account belongs to multiple organizations. Change its global login email through a dedicated identity-administration workflow.');
-        }
-    }
-
-    private function assertOwnerContinuity(
-        User $target,
-        int $organizationId,
-        ?string $newRole,
-        ?string $newStatus
-    ): void {
-        $membership = $target->memberships()
-            ->where('organization_id', $organizationId)
-            ->first();
-
-        if (! $membership || $membership->role !== 'owner' || $membership->status !== 'active') {
+        if (! $isOwner || (! $removing && ! $disabling)) {
             return;
         }
 
-        $removesActiveOwner = ($newRole !== null && $newRole !== 'owner')
-            || ($newStatus !== null && $newStatus !== 'active');
-
-        if (! $removesActiveOwner) {
-            return;
-        }
-
-        $otherActiveOwnerExists = OrganizationMember::query()
-            ->where('organization_id', $organizationId)
-            ->where('role', 'owner')
+        $other = OrganizationMember::query()
+            ->where('organization_id', $membership->organization_id)
             ->where('status', 'active')
-            ->where('user_id', '!=', $target->id)
+            ->where('user_id', '!=', $membership->user_id)
+            ->where(fn ($q) => $q->where('role', 'owner')->orWhereHas('roleAssignments.role', fn ($query) => $query->where('name', 'organization_owner')))
             ->exists();
 
-        if (! $otherActiveOwnerExists) {
+        if (! $other) {
             abort(409, 'The organization must retain at least one active owner.');
         }
     }
 
-    private function linkEmployee(User $user, int $organizationId, int $employeeId): void
+    private function linkEmployee(User $user, int $org, int $employeeId): void
     {
-        $employee = Employee::query()
-            ->where('organization_id', $organizationId)
-            ->findOrFail($employeeId);
-
+        $employee = Employee::query()->where('organization_id', $org)->findOrFail($employeeId);
         if ($employee->user_id && (int) $employee->user_id !== (int) $user->id) {
             abort(409, 'This employee is already linked to another user.');
         }
 
-        $otherEmployeeForUser = Employee::query()
-            ->where('organization_id', $organizationId)
-            ->where('user_id', $user->id)
-            ->where('id', '!=', $employee->id)
-            ->exists();
-
-        if ($otherEmployeeForUser) {
-            abort(409, 'This user is already linked to another employee in the selected organization.');
+        if (Employee::query()->where('organization_id', $org)->where('user_id', $user->id)->where('id', '!=', $employee->id)->exists()) {
+            abort(409, 'This user is already linked to another employee.');
         }
 
         $employee->update(['user_id' => $user->id]);
     }
 
-    private function sendInvitation(User $user): bool
+    private function unlinkEmployee(User $user, int $org): void
     {
-        try {
-            $portalUrl = rtrim((string) config('workforce.portal_url'), '/');
-            $activationUrl = $portalUrl.'/auth/mfa?'.http_build_query([
-                'email' => $user->email,
-            ]);
-
-            Mail::raw(
-                "You have been invited to Workforce ERP. Open {$activationUrl} and request a one-time code to activate your account.",
-                fn ($message) => $message->to($user->email)->subject('Workforce ERP invitation')
-            );
-
-            return true;
-        } catch (\Throwable $exception) {
-            Log::warning('User invitation email could not be sent.', [
-                'user_id' => $user->id,
-                'exception' => $exception::class,
-            ]);
-
-            return false;
-        }
+        Employee::query()->where('organization_id', $org)->where('user_id', $user->id)->update(['user_id' => null]);
     }
 
-    /**
-     * @param  array<int, int>  $organizationIds
-     * @return array<string, \Closure>
-     */
-    private function relationsForOrganizations(array $organizationIds): array
+    private function relations(array $organizationIds): array
     {
         return [
             'organizations' => fn ($query) => $query->whereIn('organizations.id', $organizationIds),
-            'employees' => fn ($query) => $query
-                ->whereIn('organization_id', $organizationIds)
-                ->with(['department', 'designation']),
+            'employees' => fn ($query) => $query->whereIn('organization_id', $organizationIds)->with(['department', 'designation']),
+            'memberships.roleAssignments.role',
         ];
     }
 }
