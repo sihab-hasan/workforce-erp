@@ -12,6 +12,12 @@ class Organization extends Model
 
     protected $casts = [
         'settings' => 'array',
+        'onboarding_data' => 'array',
+        'trial_started_at' => 'datetime',
+        'trial_ends_at' => 'datetime',
+        'subscription_started_at' => 'datetime',
+        'subscription_ends_at' => 'datetime',
+        'grace_period_ends_at' => 'datetime',
     ];
 
     protected $fillable = [
@@ -25,6 +31,19 @@ class Organization extends Model
         'timezone',
         'locale',
         'settings',
+        'country',
+        'currency',
+        'fiscal_year_start_month',
+        'plan',
+        'trial_started_at',
+        'trial_ends_at',
+        'subscription_status',
+        'subscription_started_at',
+        'subscription_ends_at',
+        'grace_period_ends_at',
+        'onboarding_status',
+        'onboarding_step',
+        'onboarding_data',
         'status',
     ];
 

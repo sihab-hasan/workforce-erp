@@ -4,7 +4,9 @@ namespace Database\Seeders;
 
 use App\Models\Employee;
 use App\Models\Organization;
+use App\Models\Role;
 use App\Models\User;
+use App\Services\RegistrationService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -32,27 +34,55 @@ class DatabaseSeeder extends Seeder
             ['name' => (string) $settings['organization_name']]
         );
 
-        $user = User::query()->firstOrCreate(
-            ['email' => $email],
-            [
-                'name' => (string) $settings['owner_name'],
-                'password' => Hash::make($password),
-                'email_verified_at' => now(),
-            ]
-        );
+        app(RegistrationService::class)->ensureDefaultRoles($organization->id);
+
+        $user = User::query()->firstOrNew(['email' => $email]);
+        $user->forceFill([
+            'name' => (string) $settings['owner_name'],
+            'password' => Hash::make($password),
+            'email_verified_at' => now(),
+            'password_initialized_at' => now(),
+            'status' => 'active',
+            'locked_at' => null,
+        ])->save();
 
         $membership = $user->memberships()
             ->where('organization_id', $organization->id)
             ->first();
 
         if ($membership) {
-            $membership->update(['role' => 'owner', 'status' => 'active']);
+            $membership->update([
+                'role' => 'owner',
+                'status' => 'active',
+                'data_scope' => 'ORGANIZATION',
+                'activated_at' => $membership->activated_at ?? now(),
+            ]);
         } else {
             $user->organizations()->attach($organization->id, [
                 'role' => 'owner',
                 'status' => 'active',
+                'data_scope' => 'ORGANIZATION',
+                'activated_at' => now(),
             ]);
+
+            $membership = $user->memberships()
+                ->where('organization_id', $organization->id)
+                ->firstOrFail();
         }
+
+        $ownerRole = Role::query()
+            ->where('organization_id', $organization->id)
+            ->where('name', 'organization_owner')
+            ->firstOrFail();
+
+        $membership->roleAssignments()->updateOrCreate(
+            ['role_id' => $ownerRole->id],
+            [
+                'scope' => 'ORGANIZATION',
+                'assigned_by' => $user->id,
+                'reason' => 'Local bootstrap owner provisioning',
+            ]
+        );
 
         $nameParts = preg_split('/\s+/', trim((string) $settings['owner_name']), 2) ?: [];
         $firstName = $nameParts[0] ?? 'Local';
