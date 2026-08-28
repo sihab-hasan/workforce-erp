@@ -15,37 +15,37 @@ export interface ResolvedMetadata {
 
 const routes: RouteMetadataDefinition[] = [
   {
-    path: "/auth/sign-in",
+    path: "/sign-in",
     title: "Sign in",
     description: "Sign in securely to your Workforce ERP workspace.",
   },
   {
-    path: "/auth/login",
-    title: "Sign in",
+    path: "/sign-up",
+    title: "Create organization",
     description: "Sign in securely to your Workforce ERP workspace.",
   },
   {
-    path: "/auth/forgot-password",
+    path: "/forgot-password",
     title: "Forgot password",
     description: "Request a secure password reset for your Workforce ERP account.",
   },
   {
-    path: "/auth/reset-password",
+    path: "/reset-password",
     title: "Reset password",
     description: "Choose a new password for your Workforce ERP account.",
   },
   {
-    path: "/auth/mfa",
+    path: "/verify-sign-in",
     title: "Verification",
     description: "Complete multi-factor verification to continue to Workforce ERP.",
   },
   {
-    path: "/auth/callback/:provider",
+    path: "/sso/callback/:provider",
     title: "Completing sign in",
     description: "Completing secure single sign-on for Workforce ERP.",
   },
   {
-    path: "/auth/sign-out",
+    path: "/sign-out",
     title: "Signing out",
     description: "Securely ending your Workforce ERP session.",
   },
@@ -121,7 +121,7 @@ const routes: RouteMetadataDefinition[] = [
   },
   {
     path: "/t/:tenantKey/settings/security",
-    title: "Account security",
+    title: "Sign-in & Verification",
     description: "Manage password and account security settings.",
   },
   {

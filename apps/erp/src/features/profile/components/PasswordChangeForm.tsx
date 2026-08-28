@@ -32,6 +32,10 @@ export function PasswordChangeForm({ className }: PasswordChangeFormProps) {
       setError("Complete all password fields.");
       return;
     }
+    if (password.length < 12) {
+      setError("Use a password or passphrase of at least 12 characters.");
+      return;
+    }
     if (password !== confirmation) {
       setError("New passwords do not match.");
       return;
@@ -87,7 +91,7 @@ export function PasswordChangeForm({ className }: PasswordChangeFormProps) {
             id="new-password"
             type={showNew ? "text" : "password"}
             autoComplete="new-password"
-            placeholder="10+ chars, upper/lower, number, symbol"
+            placeholder="12+ character password or passphrase"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="px-8"

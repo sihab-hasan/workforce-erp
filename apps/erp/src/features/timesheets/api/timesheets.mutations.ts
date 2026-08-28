@@ -1,7 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createHttpClient } from "@workforce-erp/api-client";
-import { environment } from "#config/env";
-import { handleUnauthorized } from "#lib/api";
+import { scopedHttpClient } from "#lib/api";
 import { createTimesheetsApi } from "./timesheets.api";
 import { timesheetsKeys } from "../query-keys";
 import type { ClockInPayload, ClockOutPayload, Timesheet } from "../types/timesheets.types";
@@ -11,8 +9,7 @@ import type { ClockInPayload, ClockOutPayload, Timesheet } from "../types/timesh
 // ---------------------------------------------------------------------------
 
 function getTimesheetsApi() {
-  const http = createHttpClient(environment.apiBaseUrl, handleUnauthorized);
-  return createTimesheetsApi(http);
+  return createTimesheetsApi(scopedHttpClient);
 }
 
 // ---------------------------------------------------------------------------
