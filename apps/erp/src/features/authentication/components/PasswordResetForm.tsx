@@ -31,8 +31,8 @@ export function PasswordResetForm({ email, token, className, onSuccess }: Passwo
       return;
     }
 
-    if (password.length < 10) {
-      setError("Password must be at least 10 characters.");
+    if (password.length < 12) {
+      setError("Use a password or passphrase of at least 12 characters.");
       return;
     }
 
@@ -62,19 +62,16 @@ export function PasswordResetForm({ email, token, className, onSuccess }: Passwo
   }
 
   function strengthScore(pw: string): number {
-    let score = 0;
-    if (pw.length >= 10) score++;
-    if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
-    if (/[0-9]/.test(pw)) score++;
-    if (/[^A-Za-z0-9]/.test(pw)) score++;
-    return score;
+    if (pw.length >= 24) return 4;
+    if (pw.length >= 18) return 3;
+    if (pw.length >= 14) return 2;
+    if (pw.length >= 12) return 1;
+    return 0;
   }
 
   const score = strengthScore(password);
-  const strengthLabel = ["", "Weak", "Fair", "Good", "Strong"][score] ?? "";
-  const strengthColor = ["", "bg-destructive", "bg-amber-500", "bg-yellow-400", "bg-primary"][
-    score
-  ];
+  const strengthLabel = ["", "Acceptable", "Good", "Strong", "Very strong"][score] ?? "";
+  const strengthColor = ["", "bg-amber-500", "bg-yellow-400", "bg-primary", "bg-primary"][score];
   const passwordsMatch = confirm.length > 0 && confirm === password;
 
   return (
@@ -118,7 +115,8 @@ export function PasswordResetForm({ email, token, className, onSuccess }: Passwo
         </div>
 
         <p id="password-requirements" className="text-xs leading-5 text-muted-foreground">
-          Use 10+ characters with upper- and lowercase letters, a number, and a symbol.
+          Use a password or passphrase of at least 12 characters. Password managers and paste are
+          supported.
         </p>
 
         {password.length > 0 && (
@@ -192,7 +190,7 @@ export function PasswordResetForm({ email, token, className, onSuccess }: Passwo
         id="reset-password-submit"
         size="lg"
         className="mt-1 w-full"
-        disabled={isLoading || score < 4 || password !== confirm}
+        disabled={isLoading || password.length < 12 || password !== confirm}
       >
         {isLoading ? (
           <>

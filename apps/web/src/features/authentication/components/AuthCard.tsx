@@ -28,7 +28,7 @@ export function AuthCard({
   return (
     <main className={cn("min-h-svh bg-background lg:grid lg:grid-cols-2", className)}>
       <section
-        aria-label="Workforce ERP portal"
+        aria-label="Workforce ERP Web"
         className="relative hidden min-h-svh overflow-hidden bg-primary text-primary-foreground lg:flex lg:flex-col lg:justify-between lg:p-12 xl:p-16"
       >
         <div
