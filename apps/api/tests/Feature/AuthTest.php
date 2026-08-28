@@ -58,7 +58,7 @@ class AuthTest extends TestCase
         $this->postJson('/api/v1/auth/login', [
             'email' => $this->user->email,
             'password' => 'secret-password',
-            'client' => 'admin',
+            'client' => 'erp',
         ])->assertOk();
 
         $this->assertSame(0, $this->user->tokens()->count());

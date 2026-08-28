@@ -11,6 +11,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Timesheet;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -89,8 +90,12 @@ class DatabaseSchemaTest extends TestCase
                 'name' => 'Headquarters',
             ]);
             $this->fail('Expected unique constraint exception for branch name');
-        } catch (\Illuminate\Database\QueryException $e) {
-            $this->assertStringContainsString('UNIQUE constraint failed', $e->getMessage());
+        } catch (QueryException $e) {
+            $this->assertTrue(
+                str_contains($e->getMessage(), 'UNIQUE constraint failed')
+                || str_contains($e->getMessage(), 'Duplicate entry')
+                || (int) $e->getCode() === 23000
+            );
         }
 
         // 4. Employees (one linked to user, one not)
