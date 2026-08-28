@@ -7,7 +7,7 @@ export const approvalsRoutes: RouteObject[] = [
   {
     path: "approvals",
     element: (
-      <AuthorizedRoute capability="approval.review">
+      <AuthorizedRoute capability="approval.approve">
         <ApprovalsPage />
       </AuthorizedRoute>
     ),
@@ -15,7 +15,7 @@ export const approvalsRoutes: RouteObject[] = [
   {
     path: "approvals/:approvalId",
     element: (
-      <AuthorizedRoute capability="approval.review">
+      <AuthorizedRoute capability="approval.approve">
         <ApprovalDetailsPage />
       </AuthorizedRoute>
     ),

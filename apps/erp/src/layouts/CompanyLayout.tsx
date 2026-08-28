@@ -9,7 +9,7 @@ import { AppSidebar } from "#components/shell/AppSidebar";
 import { AppMobileNavigation } from "#components/shell/AppMobileNavigation";
 import { RouteMetadata } from "#components/metadata/RouteMetadata";
 
-/** Big-version PortalLayout presentation mapped onto the mini company scope. */
+/** Company layout presentation mapped onto the company scope. */
 export function CompanyLayout() {
   const { pathname } = useLocation();
   const { tenantKey, companyKey } = useParams();

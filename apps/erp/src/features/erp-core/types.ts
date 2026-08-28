@@ -11,6 +11,8 @@ export interface OrganizationRecord {
   locale?: string | null;
   settings?: Record<string, unknown>;
   status: string;
+  onboarding_status?: string | null;
+  onboarding_step?: string | null;
   role?: string | null;
   stats?: { companies: number; departments: number; employees: number; users: number };
 }
