@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\v1;
 use App\Http\Controllers\Controller;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Services\SessionSecurityService;
+use App\Services\SodService;
 use App\Services\WorkforceScopeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,50 +14,109 @@ use Illuminate\Validation\Rule;
 
 class RoleController extends Controller
 {
-    public function __construct(private readonly WorkforceScopeService $scope) {}
+    public function __construct(
+        private readonly WorkforceScopeService $scope,
+        private readonly SessionSecurityService $sessions,
+        private readonly SodService $sod,
+    ) {}
 
     public function index(Request $request): JsonResponse
     {
         $org = $this->scope->organization($request, true);
-        $this->scope->assertRole($request, ['owner', 'admin']);
-        $roles = Role::query()->where('organization_id', $org->id)->with('permissions')->withCount('employees')->orderBy('name')->get()->map(fn ($role) => $this->serialize($role));
+        $this->scope->authorize($request, 'role.view');
 
-        return $this->successResponse(['roles' => $roles, 'permissions' => Permission::query()->orderBy('name')->get()->map(fn ($p) => ['id' => (string) $p->id, 'name' => $p->name, 'description' => $p->description])]);
+        $roles = Role::query()
+            ->where('organization_id', $org->id)
+            ->with('permissions')
+            ->withCount('membershipAssignments')
+            ->orderBy('name')
+            ->get()
+            ->map(fn ($role) => $this->serialize($role));
+
+        return $this->successResponse([
+            'roles' => $roles,
+            'permissions' => Permission::query()
+                ->orderBy('name')
+                ->get()
+                ->map(fn ($permission) => [
+                    'id' => (string) $permission->id,
+                    'name' => $permission->name,
+                    'description' => $permission->description,
+                ]),
+        ]);
     }
 
     public function store(Request $request): JsonResponse
     {
         $org = $this->scope->organization($request, true);
-        $this->scope->assertRole($request, ['owner', 'admin']);
+        $this->scope->authorize($request, 'role.manage');
+        $this->sessions->requireRecentVerification($request);
+
         $data = $this->payload($request, null, (int) $org->id);
-        $role = Role::create(['organization_id' => $org->id, 'name' => $data['name'], 'description' => $data['description'] ?? null]);
+        $this->sod->assertPermissionSet((int) $org->id, $data['permissions'] ?? []);
+
+        $role = Role::create([
+            'organization_id' => $org->id,
+            'name' => $data['name'],
+            'description' => $data['description'] ?? null,
+        ]);
+
         $this->syncPermissions($role, $data['permissions'] ?? []);
 
-        return $this->successResponse($this->serialize($role->load('permissions')->loadCount('employees')), 'Role created successfully', 201);
+        return $this->successResponse(
+            $this->serialize($role->load('permissions')->loadCount('membershipAssignments')),
+            'Role created successfully',
+            201,
+        );
     }
 
     public function update(Request $request, Role $role): JsonResponse
     {
         $org = $this->scope->organization($request, true);
         abort_unless((int) $role->organization_id === (int) $org->id, 404);
-        $this->scope->assertRole($request, ['owner', 'admin']);
+        $this->scope->authorize($request, 'role.manage');
+        $this->sessions->requireRecentVerification($request);
+
+        if (in_array($role->name, ['organization_owner'], true) && $request->input('name', $role->name) !== $role->name) {
+            abort(409, 'The system owner role cannot be renamed.');
+        }
+
         $data = $this->payload($request, $role, (int) $org->id);
-        $role->update(['name' => $data['name'], 'description' => $data['description'] ?? null]);
+
+        if (array_key_exists('permissions', $data)) {
+            $this->sod->assertPermissionSet((int) $org->id, $data['permissions']);
+        }
+
+        $role->update([
+            'name' => $data['name'],
+            'description' => $data['description'] ?? null,
+        ]);
+
         if (array_key_exists('permissions', $data)) {
             $this->syncPermissions($role, $data['permissions']);
         }
 
-        return $this->successResponse($this->serialize($role->fresh()->load('permissions')->loadCount('employees')), 'Role updated successfully');
+        return $this->successResponse(
+            $this->serialize($role->fresh()->load('permissions')->loadCount('membershipAssignments')),
+            'Role updated successfully',
+        );
     }
 
     public function destroy(Request $request, Role $role): JsonResponse
     {
         $org = $this->scope->organization($request, true);
         abort_unless((int) $role->organization_id === (int) $org->id, 404);
-        $this->scope->assertRole($request, ['owner']);
-        if ($role->employees()->exists()) {
-            abort(409, 'This role is assigned to employees.');
+        $this->scope->authorize($request, 'role.manage');
+        $this->sessions->requireRecentVerification($request);
+
+        if (in_array($role->name, ['organization_owner', 'organization_admin', 'manager', 'employee', 'auditor'], true)) {
+            abort(409, 'Default security roles cannot be deleted.');
         }
+
+        if ($role->membershipAssignments()->exists() || $role->employees()->exists()) {
+            abort(409, 'This role is assigned and cannot be deleted.');
+        }
+
         $role->delete();
 
         return $this->successResponse(null, 'Role deleted successfully');
@@ -64,21 +125,41 @@ class RoleController extends Controller
     private function payload(Request $request, ?Role $role, int $organizationId): array
     {
         return $request->validate([
-            'name' => ['required', 'string', 'max:100', Rule::unique('roles', 'name')->where('organization_id', $organizationId)->ignore($role?->id)],
+            'name' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('roles', 'name')
+                    ->where('organization_id', $organizationId)
+                    ->ignore($role?->id),
+            ],
             'description' => ['nullable', 'string', 'max:1000'],
-            'permissions' => ['sometimes', 'array'],
-            'permissions.*' => ['string', 'max:120'],
+            'permissions' => ['sometimes', 'array', 'max:250'],
+            'permissions.*' => ['string', 'max:120', 'distinct', 'exists:permissions,name'],
         ]);
     }
 
-    private function syncPermissions(Role $role, array $names): void
+    private function syncPermissions(Role $role, array $permissionNames): void
     {
-        $ids = collect($names)->unique()->map(fn ($name) => Permission::firstOrCreate(['name' => $name], ['description' => str_replace('.', ' ', ucwords((string) $name, '.'))])->id)->all();
-        $role->permissions()->sync($ids);
+        $uniqueNames = collect($permissionNames)->unique()->values();
+        $permissions = Permission::query()->whereIn('name', $uniqueNames)->get(['id', 'name']);
+
+        if ($permissions->count() !== $uniqueNames->count()) {
+            abort(422, 'One or more permission keys are not in the permission catalog.');
+        }
+
+        $role->permissions()->sync($permissions->pluck('id')->all());
     }
 
     private function serialize(Role $role): array
     {
-        return ['id' => (string) $role->id, 'name' => $role->name, 'description' => $role->description, 'employees_count' => (int) ($role->employees_count ?? $role->employees()->count()), 'permissions' => $role->permissions->pluck('name')->values(), 'created_at' => $role->created_at?->toIso8601String()];
+        return [
+            'id' => (string) $role->id,
+            'name' => $role->name,
+            'description' => $role->description,
+            'assignments_count' => (int) ($role->membership_assignments_count ?? $role->membershipAssignments()->count()),
+            'permissions' => $role->permissions->pluck('name')->values(),
+            'created_at' => $role->created_at?->toIso8601String(),
+        ];
     }
 }

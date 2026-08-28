@@ -1,6 +1,6 @@
 # Workforce ERP API Backend
 
-Canonical Laravel 10 API for Workforce ERP. The Portal consumes this service through the shared `@workforce-erp/api-client` transport.
+Canonical Laravel 13 API for Workforce ERP. The Portal consumes this service through the shared `@workforce-erp/api-client` transport.
 
 The implementation follows the referenced `api-sample`'s easy-to-follow **route -> controller -> service -> model** approach, then adds Form Requests, centralized tenant access rules, API Resources, Sanctum, named rate limiting and feature tests for the ERP use case. See [`ARCHITECTURE.md`](./ARCHITECTURE.md).
 
@@ -20,7 +20,7 @@ The implementation follows the referenced `api-sample`'s easy-to-follow **route 
 - Active-membership middleware on every Sanctum-protected Workforce route
 - Consistent success/error/validation envelopes and server-side pagination
 - Named rate limits for login, OTP, SSO and internal service traffic
-- Optional `X-API-TOKEN` middleware for explicitly selected server-to-server routes
+- Tenant-bound service accounts with scoped, short-lived Bearer tokens for server-to-server routes
 
 ## Local setup
 
@@ -57,13 +57,9 @@ The Portal Vite dev server proxies `/api` to `http://localhost:8000`. To target 
 
 ### Portal / user routes
 
-Password login requires an active organization membership. OTP and SSO can also activate an existing invited membership; SSO never creates a new Workforce user from an arbitrary provider identity. Successful login/OTP/SSO issue Sanctum personal access tokens. The shared frontend client sends them as:
+Password, Google SSO, and Microsoft SSO are the supported primary user authentication methods. Required MFA is completed before a final privileged browser session is established. First-party ERP/Admin browser clients use Laravel Sanctum stateful authentication with database-backed HttpOnly cookies and CSRF protection; browser auth tokens are not stored in `localStorage`.
 
-```http
-Authorization: Bearer <token>
-```
-
-Business routes are protected with `auth:sanctum` and then scoped again by organization membership inside services.
+Business routes are protected with `auth:sanctum`, explicit tenant context, active membership, permissions, data scopes, resource policies, SoD/business rules, and subscription/module entitlements as applicable.
 
 Optional token lifetime and browser CORS origins are environment-driven:
 
@@ -76,32 +72,13 @@ TRUSTED_HOSTS=localhost,localhost
 
 The example uses an eight-hour (`480` minute) token lifetime. Set `SANCTUM_TOKEN_EXPIRATION` to the session lifetime required by the deployment; leaving it blank opts back into Sanctum's non-expiring personal-access-token behavior. Issued token rows also receive a concrete `expires_at`, so the Sessions page reports the real expiry. Set `TRUSTED_HOSTS` to the API hostnames accepted by the deployment; the local example permits only `localhost` and `localhost`.
 
-### API-sample style `X-API-TOKEN`
+### Service-account authentication
 
-The sample repository globally checks a hard-coded `X-API-TOKEN`. This project keeps the same header idea but does **not** make it a second global user-auth system.
+Server-to-server integrations use dedicated service accounts rather than employee identities or a shared global token. An authorized tenant administrator creates a service account, assigns explicit permissions and data scopes, and receives a client credential only at creation/rotation time. The worker exchanges that credential for a short-lived audience-bound Bearer token at `POST /api/v1/auth/service-token`.
 
-Set an internal token in `.env` only when a trusted service route needs it:
+Protected machine endpoints use `service.account` plus explicit `service.permission:*` and `service.scope:*` middleware. Credentials and access tokens are hashed at rest, support rotation/revocation/expiry, and never default to wildcard permissions.
 
-```dotenv
-API_SHARED_TOKEN=
-API_SHARED_TOKEN_HEADER=X-API-TOKEN
-```
-
-For local sample testing only, this works:
-
-```dotenv
-API_SHARED_TOKEN=my-secret-token
-```
-
-Then:
-
-```bash
-curl -H "Accept: application/json" \
-     -H "X-API-TOKEN: my-secret-token" \
-     http://localhost:8000/api/v1/internal/ping
-```
-
-Use a generated high-entropy value outside local testing. Never commit the real token. If no internal token is configured, `/api/v1/internal/ping` fails closed with HTTP 503.
+The optional Node worker accepts `WORKER_SERVICE_CLIENT_ID`, `WORKER_SERVICE_CLIENT_SECRET`, and `WORKER_SERVICE_AUDIENCE` from deployment secret management. Never commit real service credentials.
 
 ## ERP + API development
 
@@ -127,10 +104,10 @@ Set provider credentials in `apps/api/.env`:
 PORTAL_URL=http://localhost:5174/portal
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
-GOOGLE_REDIRECT_URI=http://localhost:5174/auth/callback/google
+GOOGLE_REDIRECT_URI=http://localhost:5174/sso/callback/google
 MICROSOFT_CLIENT_ID=
 MICROSOFT_CLIENT_SECRET=
-MICROSOFT_REDIRECT_URI=http://localhost:5174/auth/callback/microsoft
+MICROSOFT_REDIRECT_URI=http://localhost:5174/sso/callback/microsoft
 ```
 
 The redirect URIs must also be registered with Google/Microsoft. The API rejects SSO redirect requests when provider credentials are missing. Each SSO transaction generates a one-time state plus an S256 PKCE verifier/challenge pair; the verifier stays server-side and is consumed with the state during the callback. Provider HTTP calls have bounded connect/request timeouts.
@@ -145,7 +122,7 @@ Live clock-in/clock-out actions use API server time and reject client-supplied `
 
 ## Framework lifecycle note
 
-This checkpoint remains on Laravel 10 because that is the repository's current dependency baseline. Laravel 10 is end-of-life and should be upgraded in a dedicated dependency migration with Composer available, a fresh lockfile, and the full test suite. Do not change the major framework constraint without validating Sanctum, PHPUnit, migrations, middleware, and deployment PHP compatibility together.
+This V1 source targets Laravel 13 with PHP 8.3+. The release environment must run Composer with network access to generate a fresh lockfile and validate Sanctum, PHPUnit, migrations, middleware, dependency audit, and deployment compatibility before production promotion.
 
 ## Validation and testing
 
