@@ -1,6 +1,12 @@
 import { createBrowserRouter, Link, Navigate } from "react-router-dom";
 import { Button } from "@workforce-erp/ui/components/button";
-import { EmptyState } from "@workforce-erp/ui-patterns/feedback";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@workforce-erp/ui/components/empty";
 import { AdminLayout } from "#layouts/AdminLayout";
 import { AdminProtectedRoute } from "#features/authentication/route-guards";
 import { authRoutes } from "#routes/auth.routes";
@@ -17,15 +23,19 @@ function AdminNotFound({ insideShell = false }: { insideShell?: boolean }) {
   const content = (
     <>
       <RouteMetadata />
-      <EmptyState
-        title="Admin page not found"
-        description="This URL does not match a registered platform administration page."
-        primaryAction={
+      <Empty className="min-h-72 rounded-2xl border border-dashed bg-muted/15 px-6">
+        <EmptyHeader>
+          <EmptyTitle>Admin page not found</EmptyTitle>
+          <EmptyDescription>
+            This URL does not match a registered platform administration page.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent className="flex-row flex-wrap justify-center">
           <Button nativeButton={false} render={<Link to={ADMIN_PATHS.dashboard} />}>
             Back to dashboard
           </Button>
-        }
-      />
+        </EmptyContent>
+      </Empty>
     </>
   );
 

@@ -56,7 +56,7 @@ test("ERP and platform admin both register the centralized step-up dialog", () =
 });
 
 test("step-up verification input supports six-digit OTP paste/autocomplete semantics", () => {
-  const dialog = read("packages/ui-patterns/src/security/step-up-verification-dialog.tsx");
+  const dialog = read("apps/erp/src/features/authentication/components/StepUpVerificationDialog.tsx");
   assert.match(dialog, /autoComplete="one-time-code"/);
   assert.match(dialog, /inputMode="numeric"/);
   assert.match(dialog, /maxLength=\{6\}/);

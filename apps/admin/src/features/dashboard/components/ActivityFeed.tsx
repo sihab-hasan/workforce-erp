@@ -5,7 +5,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@workforce-erp/ui/components/card";
-import { EmptyState } from "@workforce-erp/ui-patterns/feedback";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@workforce-erp/ui/components/empty";
 
 export interface ActivityFeedProps {
   className?: string;
@@ -22,10 +27,14 @@ export function ActivityFeed({ className }: ActivityFeedProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <EmptyState
-            title="No activity feed available"
-            description="The current API does not expose organization activity, so this dashboard does not display fabricated events."
-          />
+          <Empty className="min-h-48 border-0 p-6">
+            <EmptyHeader>
+              <EmptyTitle>No activity feed available</EmptyTitle>
+              <EmptyDescription>
+                The current API does not expose organization activity, so this dashboard does not display fabricated events.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         </CardContent>
       </Card>
     </section>

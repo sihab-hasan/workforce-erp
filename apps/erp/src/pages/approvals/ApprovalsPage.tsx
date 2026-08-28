@@ -6,7 +6,13 @@ import { toast } from "sonner";
 import { apiGet, apiPatch, errorMessage, formatDateTime } from "#features/erp-core/api";
 import type { ApprovalRecord } from "#features/erp-core/types";
 import { DataTable, ErpPage, ErrorState, LoadingState, StatusPill } from "#components/erp/ErpPage";
-import { EmptyState } from "@workforce-erp/ui-patterns/feedback";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@workforce-erp/ui/components/empty";
 import { companyRoutes } from "#routes/paths";
 
 export function ApprovalsPage() {
@@ -39,11 +45,17 @@ export function ApprovalsPage() {
       ) : q.isError ? (
         <ErrorState message={errorMessage(q.error)} onRetry={() => void q.refetch()} />
       ) : !q.data?.length ? (
-        <EmptyState
-          icon={<ShieldCheck className="size-10 text-primary/70" />}
-          title="All caught up!"
-          description="There are no pending approvals or time-off requests awaiting your decision."
-        />
+        <Empty className="min-h-72 rounded-2xl border border-dashed bg-muted/15 px-6">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <ShieldCheck className="size-10 text-primary/70" />
+            </EmptyMedia>
+            <EmptyTitle>All caught up!</EmptyTitle>
+            <EmptyDescription>
+              There are no pending approvals or time-off requests awaiting your decision.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : (
         <DataTable
           columns={["Request", "Type", "Submitted", "Status", "Actions"]}

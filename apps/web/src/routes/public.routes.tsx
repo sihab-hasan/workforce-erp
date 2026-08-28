@@ -1,6 +1,12 @@
 import { Link, Navigate, type RouteObject } from "react-router-dom";
 import { Button } from "@workforce-erp/ui/components/button";
-import { EmptyState } from "@workforce-erp/ui-patterns/feedback";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@workforce-erp/ui/components/empty";
 import { PublicLayout } from "#layouts/PublicLayout";
 import HomePage from "#pages/home/HomePage";
 import FeaturesPage from "#pages/features/FeaturesPage";
@@ -11,15 +17,19 @@ import { WEB_PATHS } from "#routes/paths";
 function PublicNotFound() {
   return (
     <div className="mx-auto flex min-h-[60vh] w-full max-w-2xl items-center px-5 py-16">
-      <EmptyState
-        title="Page not found"
-        description="The page you requested is not part of this minimized website."
-        primaryAction={
+      <Empty className="min-h-72 rounded-2xl border border-dashed bg-muted/15 px-6">
+        <EmptyHeader>
+          <EmptyTitle>Page not found</EmptyTitle>
+          <EmptyDescription>
+            The page you requested is not part of this minimized website.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent className="flex-row flex-wrap justify-center">
           <Button nativeButton={false} render={<Link to={WEB_PATHS.home} />}>
             Return home
           </Button>
-        }
-      />
+        </EmptyContent>
+      </Empty>
     </div>
   );
 }
