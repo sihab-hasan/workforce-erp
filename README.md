@@ -22,7 +22,7 @@ Nx discovers the JavaScript/TypeScript projects from `pnpm-workspace.yaml`. The 
 
 - Node.js 22+
 - pnpm 11.22.0 through Corepack
-- PHP 8.5 for the Laravel API
+- PHP 8.3+ for the Laravel 13 API (Docker/CI currently use PHP 8.5)
 - Composer 2
 
 ## First-time setup
@@ -41,6 +41,28 @@ cp apps/api/.env.example apps/api/.env
 composer --working-dir=apps/api install
 php apps/api/artisan key:generate
 ```
+
+## Authentication & security release
+
+The customer ERP uses first-party Sanctum cookie sessions with CSRF protection; browser authentication tokens are not stored in `localStorage`. Public browser routes use canonical paths such as `/sign-in`, `/sign-up`, `/verify-sign-in`, `/accept-invitation/:token`, and `/onboarding/*`; `/api/v1/auth/*` remains the internal API namespace.
+
+Verification methods are limited to **Authenticator App (TOTP)**, **Email Code**, and **SMS Code**. Privileged accounts require verification before the final authenticated session is established. Tenant business requests require an explicit `X-Tenant-Key` and the backend verifies active membership, roles, permissions, data scope, policies, SoD/business rules, and step-up requirements. Platform administration has separate platform roles and `/api/v1/platform/*` authorization.
+
+Run the source-only gate without installing dependencies:
+
+```bash
+python3 scripts/security-source-check.py
+```
+
+Run the complete production release gate in a connected build environment with Composer, pnpm, and Docker installed:
+
+```bash
+bash scripts/security-release-check.sh
+# Windows PowerShell:
+./scripts/security-release-check.ps1
+```
+
+See `SECURITY_RELEASE_VALIDATION.md` and `docs/authentication-security.md`.
 
 ## Development
 

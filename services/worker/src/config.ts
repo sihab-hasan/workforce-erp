@@ -22,16 +22,31 @@ function booleanEnv(value: string | undefined, fallback = false) {
 
 const enabled = booleanEnv(process.env.WORKER_ENABLED, false);
 const jobsPath = process.env.WORKER_JOBS_PATH?.trim().replace(/^\/+/, "") ?? "";
+const serviceClientId =
+  process.env.SERVICE_CLIENT_ID?.trim() || process.env.WORKER_SERVICE_CLIENT_ID?.trim() || "";
+const serviceClientSecret =
+  process.env.SERVICE_CLIENT_SECRET?.trim() ||
+  process.env.WORKER_SERVICE_CLIENT_SECRET?.trim() ||
+  "";
 
-if (enabled && !jobsPath) {
-  throw new Error("WORKER_JOBS_PATH is required when WORKER_ENABLED=true");
+if (enabled && !jobsPath) throw new Error("WORKER_JOBS_PATH is required when WORKER_ENABLED=true");
+if (enabled && (!serviceClientId || !serviceClientSecret)) {
+  throw new Error(
+    "SERVICE_CLIENT_ID and SERVICE_CLIENT_SECRET are required when WORKER_ENABLED=true",
+  );
 }
 
 export const workerConfig = {
   enabled,
   apiUrl: requiredAbsoluteUrl(process.env.API_URL, "http://127.0.0.1:8000/api"),
-  apiToken: process.env.API_TOKEN?.trim() ?? "",
-  apiTokenHeader: process.env.API_TOKEN_HEADER?.trim() || "X-API-TOKEN",
+  serviceClientId,
+  serviceClientSecret,
+  serviceAudience:
+    process.env.SERVICE_AUDIENCE?.trim() ||
+    process.env.WORKER_SERVICE_AUDIENCE?.trim() ||
+    "workforce-api",
+  serviceTokenPath:
+    process.env.SERVICE_TOKEN_PATH?.trim().replace(/^\/+/, "") || "v1/auth/service-token",
   jobsPath,
   pollIntervalMs: positiveInteger(process.env.WORKER_POLL_INTERVAL_MS, 15_000),
 } as const;

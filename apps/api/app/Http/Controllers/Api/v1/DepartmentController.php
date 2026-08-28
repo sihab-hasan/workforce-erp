@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\v1;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\Employee;
+use App\Services\DataScopeService;
 use App\Services\WorkforceScopeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,13 +13,15 @@ use Illuminate\Validation\Rule;
 
 class DepartmentController extends Controller
 {
-    public function __construct(private readonly WorkforceScopeService $scope) {}
+    public function __construct(private readonly WorkforceScopeService $scope, private readonly DataScopeService $dataScope) {}
 
     public function index(Request $request): JsonResponse
     {
         $org = $this->scope->organization($request, true);
         $branch = $this->scope->branch($request, false);
-        $query = Department::query()->where('organization_id', $org->id)->with(['branch', 'manager'])->withCount('employees');
+        $this->scope->authorize($request, 'department.view');
+        $query = Department::query()->with(['branch', 'manager'])->withCount('employees');
+        $this->dataScope->applyDepartmentScope($query, $request->user(), (int) $org->id);
         if ($branch) {
             $query->where('branch_id', $branch->id);
         }
@@ -39,10 +42,13 @@ class DepartmentController extends Controller
     {
         $org = $this->scope->organization($request, true);
         $branch = $this->scope->branch($request, false);
-        $this->scope->assertRole($request, ['owner', 'admin']);
+        $this->scope->authorize($request, 'department.manage');
         $data = $this->validatePayload($request, null, (int) $org->id);
         $data['organization_id'] = $org->id;
         $data['branch_id'] = $branch?->id ?? ($data['branch_id'] ?? null);
+        if (! $this->dataScope->isOrganizationWide($request->user(), (int) $org->id)) {
+            abort_unless($data['branch_id'] && $this->dataScope->allowsBranch($request->user(), (int) $org->id, (int) $data['branch_id']), 403, 'The selected company is outside your data scope.');
+        }
         $this->validateManager($data['manager_id'] ?? null, (int) $org->id, $data['branch_id'] ?? null);
         $department = Department::create($data);
 
@@ -59,9 +65,14 @@ class DepartmentController extends Controller
     public function update(Request $request, Department $department): JsonResponse
     {
         $org = $this->assertScoped($request, $department);
-        $this->scope->assertRole($request, ['owner', 'admin']);
+        $this->scope->authorize($request, 'department.manage');
         $data = $this->validatePayload($request, $department, (int) $org->id);
-        $this->validateManager($data['manager_id'] ?? $department->manager_id, (int) $org->id, $data['branch_id'] ?? $department->branch_id);
+        abort_unless($this->dataScope->allowsDepartment($request->user(), (int) $org->id, (int) $department->id), 403);
+        $targetBranch = $data['branch_id'] ?? $department->branch_id;
+        if ($targetBranch) {
+            abort_unless($this->dataScope->allowsBranch($request->user(), (int) $org->id, (int) $targetBranch), 403, 'The selected company is outside your data scope.');
+        }
+        $this->validateManager($data['manager_id'] ?? $department->manager_id, (int) $org->id, $targetBranch);
         $department->update($data);
 
         return $this->successResponse($this->serialize($department->fresh()->load(['branch', 'manager'])->loadCount('employees')), 'Department updated successfully');
@@ -70,7 +81,8 @@ class DepartmentController extends Controller
     public function destroy(Request $request, Department $department): JsonResponse
     {
         $this->assertScoped($request, $department);
-        $this->scope->assertRole($request, ['owner', 'admin']);
+        $this->scope->authorize($request, 'department.manage');
+        abort_unless($this->dataScope->allowsDepartment($request->user(), (int) $department->organization_id, (int) $department->id), 403);
         if ($department->employees()->exists()) {
             abort(409, 'Move the employees before deleting this department.');
         }
@@ -87,6 +99,8 @@ class DepartmentController extends Controller
         if ($branch) {
             abort_unless((int) $department->branch_id === (int) $branch->id, 404);
         }
+        $this->scope->authorize($request, 'department.view');
+        abort_unless($this->dataScope->allowsDepartment($request->user(), (int) $org->id, (int) $department->id), 403);
 
         return $org;
     }

@@ -60,3 +60,7 @@ bash scripts/docker-certbot.sh init
 ```
 
 See `infra/README.md` for the complete runbook.
+
+## Security release gate
+
+Before a production deployment, run `bash scripts/security-release-check.sh` (or the PowerShell equivalent). The gate validates source security invariants, PHP/Composer/Laravel, PHPUnit, pnpm typecheck/lint/build/audit, migrations/routes, and Docker Compose configuration. It intentionally fails when required tooling or dependencies are unavailable.
