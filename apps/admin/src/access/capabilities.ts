@@ -1,8 +1,9 @@
 export const PLATFORM_CAPABILITIES = [
-  "tenant.manage",
-  "organization.view",
-  "user.manage",
-  "role.manage",
-  "settings.manage",
+  "platform.users.read",
+  "platform.organizations.read",
+  "platform.audit.read",
+  "platform.impersonation.start",
+  "platform.impersonation.end",
+  "platform.break_glass.start",
 ] as const;
 export type PlatformCapability = (typeof PLATFORM_CAPABILITIES)[number];

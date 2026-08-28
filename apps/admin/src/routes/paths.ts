@@ -5,8 +5,7 @@ function encodeSegment(value: string) {
 export const ADMIN_PATHS = {
   root: "/admin",
   dashboard: "/admin/dashboard",
-  signIn: "/auth/sign-in",
-  loginAlias: "/auth/login",
+  signIn: "/sign-in",
   tenants: "/admin/tenants",
   tenantCreate: "/admin/tenants/new",
   organizations: "/admin/organizations",
