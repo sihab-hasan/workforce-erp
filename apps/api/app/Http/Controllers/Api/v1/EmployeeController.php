@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Employees\ListEmployeesRequest;
 use App\Http\Resources\EmployeeResource;
 use App\Models\Employee;
+use App\Services\DataScopeService;
 use App\Services\EmployeeService;
 use App\Services\WorkforceScopeService;
 use Illuminate\Http\JsonResponse;
@@ -17,6 +18,7 @@ class EmployeeController extends Controller
     public function __construct(
         private readonly EmployeeService $employeeService,
         private readonly WorkforceScopeService $scope,
+        private readonly DataScopeService $dataScope,
     ) {}
 
     public function index(ListEmployeesRequest $request): JsonResponse
@@ -53,12 +55,13 @@ class EmployeeController extends Controller
     {
         $org = $this->scope->organization($request, true);
         $branch = $this->scope->branch($request, false);
-        $this->scope->assertRole($request, ['owner', 'admin']);
+        $this->scope->authorize($request, 'employee.manage');
         $data = $this->payload($request, null, (int) $org->id);
         $data['organization_id'] = $org->id;
         if ($branch) {
             $data['branch_id'] = $branch->id;
         }
+        $this->dataScope->assertPlacement($request->user(), (int) $org->id, isset($data['branch_id']) ? (int) $data['branch_id'] : null, isset($data['department_id']) ? (int) $data['department_id'] : null);
         $employee = Employee::create($data)->load(['organization', 'branch', 'department', 'designation', 'manager']);
 
         return $this->successResponse(new EmployeeResource($employee), 'Employee created successfully', 201);
@@ -74,8 +77,10 @@ class EmployeeController extends Controller
     public function update(Request $request, Employee $employee): JsonResponse
     {
         $org = $this->assertScoped($request, $employee);
-        $this->scope->assertRole($request, ['owner', 'admin']);
-        $employee->update($this->payload($request, $employee, (int) $org->id, true));
+        $this->scope->authorize($request, 'employee.manage');
+        $payload = $this->payload($request, $employee, (int) $org->id, true);
+        $this->dataScope->assertPlacement($request->user(), (int) $org->id, isset($payload['branch_id']) ? (int) $payload['branch_id'] : (int) $employee->branch_id, isset($payload['department_id']) ? (int) $payload['department_id'] : (int) $employee->department_id);
+        $employee->update($payload);
 
         return $this->successResponse(new EmployeeResource($employee->fresh()->load(['organization', 'branch', 'department', 'designation', 'manager'])), 'Employee updated successfully');
     }
@@ -83,7 +88,7 @@ class EmployeeController extends Controller
     public function destroy(Request $request, Employee $employee): JsonResponse
     {
         $this->assertScoped($request, $employee);
-        $this->scope->assertRole($request, ['owner']);
+        $this->scope->authorize($request, 'employee.manage');
         if ($employee->timesheets()->exists() || $employee->leaveRequests()->exists()) {
             $employee->update(['status' => 'inactive', 'termination_date' => $employee->termination_date ?? today()]);
 
@@ -102,6 +107,8 @@ class EmployeeController extends Controller
         if ($branch) {
             abort_unless((int) $employee->branch_id === (int) $branch->id, 404);
         }
+        $this->scope->authorize($request, 'employee.read');
+        $this->dataScope->assertEmployee($request->user(), (int) $org->id, $employee);
 
         return $org;
     }

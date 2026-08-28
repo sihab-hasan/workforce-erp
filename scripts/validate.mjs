@@ -141,10 +141,15 @@ if (workerEnabled) {
   if (!(env.WORKER_JOBS_PATH ?? "").trim()) {
     errors.push("WORKER_JOBS_PATH is required when WORKER_ENABLED=true");
   }
-  if (!(env.API_TOKEN ?? "").trim()) errors.push("API_TOKEN is required when WORKER_ENABLED=true");
-}
-if (env.API_TOKEN_HEADER && !/^[A-Za-z0-9-]+$/.test(env.API_TOKEN_HEADER)) {
-  errors.push("API_TOKEN_HEADER must be a valid HTTP header name");
+  const workerClientId = (env.SERVICE_CLIENT_ID ?? env.WORKER_SERVICE_CLIENT_ID ?? "").trim();
+  const workerClientSecret = (
+    env.SERVICE_CLIENT_SECRET ??
+    env.WORKER_SERVICE_CLIENT_SECRET ??
+    ""
+  ).trim();
+  if (!workerClientId) errors.push("WORKER_SERVICE_CLIENT_ID is required when WORKER_ENABLED=true");
+  if (!workerClientSecret)
+    errors.push("WORKER_SERVICE_CLIENT_SECRET is required when WORKER_ENABLED=true");
 }
 
 if (errors.length) {
