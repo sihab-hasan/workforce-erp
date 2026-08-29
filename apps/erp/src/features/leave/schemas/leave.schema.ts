@@ -13,11 +13,6 @@ feature/leave-management-92
  * count is unaffected by DST transitions.
  */
 export function countWorkingDays(startIso: string, endIso: string): number {
-
- 
- * backend calculation (`diffInDays + 1` in LeaveController). Dates are parsed
- * as UTC so the count is unaffected by DST transitions.
- */
 export function countCalendarDays(startIso: string, endIso: string): number {
  develop
   const start = Date.parse(`${startIso}T00:00:00Z`);
