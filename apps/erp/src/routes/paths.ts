@@ -66,6 +66,9 @@ export const tenantRoutes = {
   userDetails: (tenantKey: string, userId: string) =>
     tenantPath(tenantKey, `users/${encodeSegment(userId)}`),
   roles: (tenantKey: string) => tenantPath(tenantKey, "roles"),
+  roleCreate: (tenantKey: string) => tenantPath(tenantKey, "roles/new"),
+  roleEdit: (tenantKey: string, roleId: string) =>
+    tenantPath(tenantKey, `roles/${encodeSegment(roleId)}/edit`),
   settings: (tenantKey: string) => tenantPath(tenantKey, "settings"),
   profileSettings: (tenantKey: string) => tenantPath(tenantKey, "settings/profile"),
   securitySettings: (tenantKey: string) => tenantPath(tenantKey, "settings/security"),
