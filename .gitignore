@@ -69,7 +69,14 @@ certbot/
 infra/certbot/conf/
 infra/certbot/www/
 
+ feature/leave-management-92
+# Local tooling (e.g., downloaded PHP runtime for the API test suite)
+.tools/
+
+# Editors / OS
+
 # Editors and Operating Systems
+ develop
 .DS_Store
 Thumbs.db
 Desktop.ini
