@@ -81,14 +81,14 @@ class SSOTest extends TestCase
         });
     }
 
-    public function test_unknown_google_identity_cannot_self_register(): void
+    public function test_unknown_google_identity_auto_provisions_user_and_organization(): void
     {
         Http::fake([
             'https://oauth2.googleapis.com/token' => Http::response(['access_token' => 'token']),
             'https://openidconnect.googleapis.com/v1/userinfo' => Http::response([
                 'email' => 'unknown@example.com',
                 'email_verified' => true,
-                'name' => 'Unknown',
+                'name' => 'Unknown User',
                 'sub' => 'unknown-google-id',
             ]),
         ]);
@@ -97,9 +97,14 @@ class SSOTest extends TestCase
             'code' => 'code',
             'state' => $this->stateFor('google'),
             'client' => 'erp',
-        ])->assertForbidden();
+        ])->assertOk()->assertJsonPath('success', true);
 
-        $this->assertDatabaseMissing('users', ['email' => 'unknown@example.com']);
+        $this->assertDatabaseHas('users', ['email' => 'unknown@example.com']);
+        $this->assertDatabaseHas('user_sso_identities', [
+            'provider' => 'google',
+            'email' => 'unknown@example.com',
+            'provider_subject_id' => 'unknown-google-id',
+        ]);
     }
 
     public function test_google_sso_requires_verified_provider_email(): void

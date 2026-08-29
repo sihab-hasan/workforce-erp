@@ -178,7 +178,8 @@ export default function AccountSecurityPage() {
 
             {!enroll ? (
               <Button variant="outline" onClick={() => void begin()} disabled={busy}>
-                {busy ? <Loader2 className="mr-2 size-4 animate-spin" /> : null} Add Authenticator App
+                {busy ? <Loader2 className="mr-2 size-4 animate-spin" /> : null} Add Authenticator
+                App
               </Button>
             ) : (
               <div className="space-y-4 rounded-xl border p-4">
@@ -270,7 +271,9 @@ export default function AccountSecurityPage() {
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between rounded-lg border p-3">
               <span className="text-muted-foreground">MFA Enforcement</span>
-              <span className="font-medium text-foreground">{context?.session?.mfa_level ?? "Standard"}</span>
+              <span className="font-medium text-foreground">
+                {context?.session?.mfa_level ?? "Standard"}
+              </span>
             </div>
             {tenantKey && (
               <div className="pt-2">

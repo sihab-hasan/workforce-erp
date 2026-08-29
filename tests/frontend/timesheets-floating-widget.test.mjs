@@ -42,7 +42,7 @@ test("Live clock timer correctly formats elapsed time without NaN", async () => 
   // Validate pure calculations logic
   const now = new Date("2026-08-29T12:00:00Z");
   const clockIn = new Date("2026-08-29T10:15:30Z").toISOString();
-  
+
   const diffMs = now.getTime() - new Date(clockIn).getTime();
   const totalSeconds = Math.floor(diffMs / 1000);
   const hours = Math.floor(totalSeconds / 3600);

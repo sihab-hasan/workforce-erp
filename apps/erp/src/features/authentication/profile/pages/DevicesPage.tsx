@@ -2,12 +2,7 @@ import { ArrowLeft, Key, Laptop, Plus, ShieldCheck, Smartphone, Trash2 } from "l
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@workforce-erp/ui/components/button";
-import {
-  ErpPage,
-  SectionCard,
-  StatCard,
-  StatusPill,
-} from "#components/erp/ErpPage";
+import { ErpPage, SectionCard, StatCard, StatusPill } from "#components/erp/ErpPage";
 import { ERP_PATHS, tenantRoutes } from "#routes/paths";
 
 interface DeviceRecord {
@@ -133,11 +128,7 @@ export default function DevicesPage() {
               </div>
 
               {!device.isCurrent ? (
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => handleRevoke(device.id)}
-                >
+                <Button size="sm" variant="destructive" onClick={() => handleRevoke(device.id)}>
                   <Trash2 className="mr-1.5 size-3.5" />
                   Revoke
                 </Button>

@@ -23,7 +23,8 @@ function AccessDenied({ onBack }: { onBack?: () => void }) {
         </EmptyMedia>
         <EmptyTitle>Access restricted</EmptyTitle>
         <EmptyDescription>
-          You don't have permission to view this content. Request access from an administrator if you believe this is unexpected.
+          You don't have permission to view this content. Request access from an administrator if
+          you believe this is unexpected.
         </EmptyDescription>
       </EmptyHeader>
       {onBack ? (
