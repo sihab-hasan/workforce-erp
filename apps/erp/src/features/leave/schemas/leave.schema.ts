@@ -78,11 +78,7 @@ export function createLeaveFormSchema(remainingDays: number | null) {
           ctx.addIssue({
             code: "custom",
             path: ["balance"],
- feature/leave-management-92
             message: `This request needs ${totalDays} working day${totalDays === 1 ? "" : "s"} but only ${remainingDays} day${remainingDays === 1 ? "" : "s"} remain for the selected leave type.`,
-
-            message: `This request needs ${totalDays} day${totalDays === 1 ? "" : "s"} but only ${remainingDays} day${remainingDays === 1 ? "" : "s"} remain for the selected leave type.`,
- develop
           });
         }
       }
