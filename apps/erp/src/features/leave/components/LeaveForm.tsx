@@ -198,7 +198,6 @@ feature/leave-management-92
                 label="Reason"
                 hint={
                   selectedType && totalDays > 0
- feature/leave-management-92
                     ? `Total working days: ${totalDays} · Remaining for ${selectedType.name}: ${selectedType.remaining} days`
 
                     ? `Total days: ${totalDays} · Remaining for ${selectedType.name}: ${selectedType.remaining} days`
