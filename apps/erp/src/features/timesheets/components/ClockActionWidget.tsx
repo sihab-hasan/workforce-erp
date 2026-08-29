@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import {
   Clock,
   LogIn,
@@ -20,7 +19,7 @@ import {
 import { Button } from "@workforce-erp/ui/components/button";
 import { Badge } from "@workforce-erp/ui/components/badge";
 import { Skeleton } from "@workforce-erp/ui/components/skeleton";
-import { useTodayTimesheet } from "../hooks/use-timesheets";
+import { useTodayTimesheet, useLiveClockTimer, formatClockTime } from "../hooks/use-timesheets";
 import { useClockIn, useClockOut } from "../api/timesheets.mutations";
 
 export interface ClockActionWidgetProps {
@@ -46,49 +45,7 @@ function formatDate(date: Date): string {
   }).format(date);
 }
 
-function formatIsoTime(isoString: string | null | undefined): string {
-  if (!isoString) return "--:--";
-  try {
-    const d = new Date(isoString);
-    return new Intl.DateTimeFormat("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    }).format(d);
-  } catch {
-    return "--:--";
-  }
-}
-
-function calculateDuration(clockInIso: string | null | undefined): string {
-  if (!clockInIso) return "00h 00m 00s";
-  try {
-    const start = new Date(clockInIso).getTime();
-    const now = Date.now();
-    const diff = Math.max(0, now - start);
-
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-    const pad = (n: number) => n.toString().padStart(2, "0");
-    return `${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
-  } catch {
-    return "00h 00m 00s";
-  }
-}
-
 export function ClockActionWidget({ employeeId, className }: ClockActionWidgetProps) {
-  const [currentTime, setCurrentTime] = useState<Date>(new Date());
-
-  // Live timer tick every second
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
   const {
     data: todayData,
     isPending: isTodayPending,
@@ -96,14 +53,18 @@ export function ClockActionWidget({ employeeId, className }: ClockActionWidgetPr
     refetch: refetchToday,
   } = useTodayTimesheet(employeeId);
 
-  const clockInMutation = useClockIn();
-  const clockOutMutation = useClockOut();
-
   const status = todayData?.data;
   const hasEmployeeProfile = status?.employee_profile_linked !== false;
   const isClockedIn = Boolean(status?.is_clocked_in);
   const activeTimesheet = status?.active_timesheet;
   const totalTodayHours = status?.total_today_hours ?? activeTimesheet?.total_hours ?? 0;
+
+  const { currentTime, formattedDuration } = useLiveClockTimer(
+    isClockedIn ? activeTimesheet?.clock_in : null,
+  );
+
+  const clockInMutation = useClockIn();
+  const clockOutMutation = useClockOut();
 
   const isMutating = clockInMutation.isPending || clockOutMutation.isPending;
 
@@ -198,7 +159,7 @@ export function ClockActionWidget({ employeeId, className }: ClockActionWidgetPr
               <Skeleton className="mt-2 h-7 w-20 rounded" />
             ) : (
               <p className="mt-1 font-mono text-lg font-semibold text-foreground sm:text-xl">
-                {activeTimesheet?.clock_in ? formatIsoTime(activeTimesheet.clock_in) : "--:--"}
+                {activeTimesheet?.clock_in ? formatClockTime(activeTimesheet.clock_in) : "--:--"}
               </p>
             )}
           </div>
@@ -217,7 +178,7 @@ export function ClockActionWidget({ employeeId, className }: ClockActionWidgetPr
                   isClockedIn ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
                 }`}
               >
-                {isClockedIn ? calculateDuration(activeTimesheet?.clock_in) : "00h 00m 00s"}
+                {isClockedIn ? formattedDuration : "00h 00m 00s"}
               </p>
             )}
           </div>
@@ -310,7 +271,7 @@ export function ClockActionWidget({ employeeId, className }: ClockActionWidgetPr
             {isClockedIn ? (
               <>
                 <CheckCircle2 className="size-4 text-emerald-500" aria-hidden />
-                <span>Active shift since {formatIsoTime(activeTimesheet?.clock_in)}</span>
+                <span>Active shift since {formatClockTime(activeTimesheet?.clock_in)}</span>
               </>
             ) : (
               <span>Ready for shift start</span>
