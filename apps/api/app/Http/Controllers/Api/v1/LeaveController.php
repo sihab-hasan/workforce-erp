@@ -112,11 +112,31 @@ class LeaveController extends Controller
 
         $start = Carbon::parse($data['start_date'])->startOfDay();
         $end = Carbon::parse($data['end_date'])->startOfDay();
-        $days = $start->diffInDays($end) + 1;
+        // diffInWeekdays() excludes the end date, so extend the range by one
+        // day to count both the first and the last day of the leave.
+        $days = $start->diffInWeekdays($end->copy()->addDay());
         $overlap = LeaveRequest::query()->where('employee_id', $employee->id)->whereIn('status', ['pending', 'approved'])
             ->where(fn ($q) => $q->whereBetween('start_date', [$start->toDateString(), $end->toDateString()])->orWhereBetween('end_date', [$start->toDateString(), $end->toDateString()])->orWhere(fn ($q2) => $q2->whereDate('start_date', '<=', $start)->whereDate('end_date', '>=', $end)))->exists();
         if ($overlap) {
             abort(409, 'This employee already has an overlapping leave request.');
+        }
+
+        $leaveType = LeaveType::query()->whereKey((int) $data['leave_type_id'])->firstOrFail();
+        $used = (float) LeaveRequest::query()
+            ->where('employee_id', $employee->id)
+            ->where('status', 'approved')
+            ->whereYear('start_date', now()->year)
+            ->sum('total_days');
+        $remaining = max(0.0, (float) $leaveType->annual_allowance - $used);
+
+        if ((float) $days > $remaining) {
+            return response()->json([
+                'message' => sprintf(
+                    'Insufficient leave balance. Requested: %s days, Remaining: %s days.',
+                    $this->formatDays((float) $days),
+                    $this->formatDays($remaining),
+                ),
+            ], 422);
         }
 
         $leave = LeaveRequest::create([
@@ -142,7 +162,7 @@ class LeaveController extends Controller
     public function cancel(Request $request, LeaveRequest $leaveRequest): JsonResponse
     {
         $this->assertAccess($request, $leaveRequest, true);
-        if (! in_array($leaveRequest->status, ['pending', 'approved'], true)) {
+        if ($leaveRequest->status !== 'pending') {
             abort(409, 'This leave request cannot be cancelled.');
         }
         $leaveRequest->update(['status' => 'cancelled']);
@@ -227,6 +247,11 @@ class LeaveController extends Controller
                 'title' => $title, 'message' => $message, 'action_url' => $actionUrl,
             ]);
         }
+    }
+
+    private function formatDays(float $days): string
+    {
+        return floor($days) === $days ? (string) (int) $days : (string) round($days, 2);
     }
 
     private function serialize(LeaveRequest $leave): array

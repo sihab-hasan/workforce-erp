@@ -16,7 +16,7 @@ import { companyRoutes } from "#routes/paths";
 import { useCreateLeaveMutation } from "../api/leave.mutations";
 import { useLeaveOptionsQuery } from "../api/leave.queries";
 import {
-  countCalendarDays,
+  countWorkingDays,
   createLeaveFormSchema,
   type LeaveFormValues,
 } from "../schemas/leave.schema";
@@ -53,7 +53,7 @@ export function LeaveForm({ className, onCancel }: LeaveFormProps) {
   const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({});
 
   const selectedType = leaveTypes.find((type) => type.id === values.leave_type_id) ?? null;
-  const totalDays = countCalendarDays(values.start_date, values.end_date);
+  const totalDays = countWorkingDays(values.start_date, values.end_date);
 
   const schema = useMemo(
     () => createLeaveFormSchema(selectedType ? Number(selectedType.remaining) : null),
@@ -101,8 +101,8 @@ export function LeaveForm({ className, onCancel }: LeaveFormProps) {
       <CardHeader>
         <CardTitle className="text-base">Leave request</CardTitle>
         <CardDescription>
-          Choose a leave type and the dates you need off. The total days (inclusive calendar days)
-          are calculated automatically and checked against your remaining allowance.
+          Choose a leave type and the dates you need off. The total working days (Monday–Friday) are
+          calculated automatically and checked against your remaining allowance.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -186,7 +186,7 @@ export function LeaveForm({ className, onCancel }: LeaveFormProps) {
                 label="Reason"
                 hint={
                   selectedType && totalDays > 0
-                    ? `Total days: ${totalDays} · Remaining for ${selectedType.name}: ${selectedType.remaining} days`
+                    ? `Total working days: ${totalDays} · Remaining for ${selectedType.name}: ${selectedType.remaining} days`
                     : "Optional context for the approver"
                 }
               >

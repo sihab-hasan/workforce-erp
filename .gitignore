@@ -41,6 +41,9 @@ apps/api/public/build/
 apps/api/public/hot
 apps/api/public/storage
 
+# Local tooling (e.g., downloaded PHP runtime for the API test suite)
+.tools/
+
 # Editors / OS
 .DS_Store
 .idea/
