@@ -1,26 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Timer, ChevronRight, Coffee } from "lucide-react";
 import { useAuth } from "@workforce-erp/auth";
-import { useTodayTimesheet } from "../hooks/use-timesheets";
+import { useTodayTimesheet, useLiveClockTimer } from "../hooks/use-timesheets";
 import { TimesheetOverlay } from "./TimesheetOverlay";
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function calcElapsed(clockInIso: string | null | undefined, now: Date): string {
-  if (!clockInIso) return "00:00:00";
-  try {
-    const diff = Math.max(0, now.getTime() - new Date(clockInIso).getTime());
-    const h = Math.floor(diff / 3_600_000);
-    const m = Math.floor((diff % 3_600_000) / 60_000);
-    const s = Math.floor((diff % 60_000) / 1000);
-    const p = (n: number) => n.toString().padStart(2, "0");
-    return `${p(h)}:${p(m)}:${p(s)}`;
-  } catch {
-    return "00:00:00";
-  }
-}
-
-// ─── Component ───────────────────────────────────────────────────────────────
+// Key for persisting temporary break toggle across navigation/refreshes
+const BREAK_STORAGE_KEY = "workforce_erp_active_break_state";
 
 export function FloatingClockWidget() {
   const { session } = useAuth();
@@ -32,40 +17,64 @@ export function FloatingClockWidget() {
     refetch: refetchToday,
   } = useTodayTimesheet(undefined);
 
-  const [currentTime, setCurrentTime] = useState<Date>(() => new Date());
   const [overlayOpen, setOverlayOpen] = useState(false);
-  const [isOnBreak, setIsOnBreak] = useState(false);
-
-  // Live second tick
-  useEffect(() => {
-    const id = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  const handleClose = useCallback(() => setOverlayOpen(false), []);
-  const handleToggleBreak = useCallback(() => setIsOnBreak((prev) => !prev), []);
+  const [isOnBreak, setIsOnBreak] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(BREAK_STORAGE_KEY) === "true";
+    } catch {
+      return false;
+    }
+  });
 
   const todayStatus = todayData?.data;
   const isClockedIn = Boolean(todayStatus?.is_clocked_in);
   const activeTimesheet = todayStatus?.active_timesheet;
-  const elapsed = calcElapsed(activeTimesheet?.clock_in, currentTime);
+
+  // Use synchronized live clock timer hook
+  const { formattedElapsed, currentTime } = useLiveClockTimer(
+    isClockedIn ? activeTimesheet?.clock_in : null,
+  );
+
+  // Sync break state to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(BREAK_STORAGE_KEY, String(isOnBreak));
+    } catch {
+      // Ignore storage errors
+    }
+  }, [isOnBreak]);
+
+  // If clock-out occurs, automatically reset break state
+  useEffect(() => {
+    if (!isClockedIn && !isTodayPending) {
+      setIsOnBreak(false);
+      try {
+        localStorage.removeItem(BREAK_STORAGE_KEY);
+      } catch {
+        // Ignore
+      }
+    }
+  }, [isClockedIn, isTodayPending]);
+
+  const handleClose = useCallback(() => setOverlayOpen(false), []);
+  const handleToggleBreak = useCallback(() => setIsOnBreak((prev) => !prev), []);
 
   // Auto-hide when loading or not clocked in
   if (isTodayPending || !isClockedIn) return null;
 
   return (
     <>
-      {/* Floating pill / badge */}
+      {/* ── Floating Pill / Widget ───────────────────────────────────────── */}
       <div
         role="complementary"
         aria-label="Active work session"
         className="fixed right-5 bottom-24 z-40 md:bottom-6"
       >
-        {/* Subtle ambient glow behind badge */}
+        {/* Ambient glow behind widget */}
         <div
           aria-hidden
           className={`pointer-events-none absolute inset-0 -z-10 scale-125 rounded-2xl blur-xl transition-colors duration-500 ${
-            isOnBreak ? "bg-amber-500/20" : "bg-emerald-500/20"
+            isOnBreak ? "bg-amber-500/25" : "bg-emerald-500/25"
           }`}
         />
 
@@ -126,7 +135,7 @@ export function FloatingClockWidget() {
               id="floating-widget-elapsed"
               className="font-mono text-base font-bold leading-none tracking-tight text-white tabular-nums"
             >
-              {elapsed}
+              {formattedElapsed}
             </span>
           </div>
 
@@ -138,7 +147,7 @@ export function FloatingClockWidget() {
         </button>
       </div>
 
-      {/* ── Full session overlay ─────────────────────────────────────────── */}
+      {/* ── Full session overlay drawer ──────────────────────────────────── */}
       <TimesheetOverlay
         open={overlayOpen}
         onClose={handleClose}

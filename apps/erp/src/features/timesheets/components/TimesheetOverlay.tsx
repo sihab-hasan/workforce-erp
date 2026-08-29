@@ -27,6 +27,8 @@ import { Skeleton } from "@workforce-erp/ui/components/skeleton";
 import type { TodayTimesheetStatus } from "../types/timesheets.types";
 import { useClockOut, useUpdateTimesheet } from "../api/timesheets.mutations";
 
+import { calcElapsedUnits, formatClockTime } from "../hooks/use-live-clock-timer";
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function formatTime(date: Date): string {
@@ -45,35 +47,6 @@ function formatDate(date: Date): string {
     month: "long",
     year: "numeric",
   }).format(date);
-}
-
-function formatIsoTime(isoString: string | null | undefined): string {
-  if (!isoString) return "--:--";
-  try {
-    const d = new Date(isoString);
-    return new Intl.DateTimeFormat("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    }).format(d);
-  } catch {
-    return "--:--";
-  }
-}
-
-/** Returns elapsed time as HH:MM:SS string from a UTC ISO clock-in timestamp */
-function calcElapsed(clockInIso: string | null | undefined, now: Date): string {
-  if (!clockInIso) return "00:00:00";
-  try {
-    const diff = Math.max(0, now.getTime() - new Date(clockInIso).getTime());
-    const h = Math.floor(diff / 3_600_000);
-    const m = Math.floor((diff % 3_600_000) / 60_000);
-    const s = Math.floor((diff % 60_000) / 1000);
-    const p = (n: number) => n.toString().padStart(2, "0");
-    return `${p(h)}:${p(m)}:${p(s)}`;
-  } catch {
-    return "00:00:00";
-  }
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -118,7 +91,24 @@ export function TimesheetOverlay({
   const remainingHours = Math.max(0, scheduledHours - totalTodayHours);
   const progressPercent = Math.min(100, Math.round((totalTodayHours / scheduledHours) * 100));
 
-  const elapsed = isClockedIn ? calcElapsed(activeTimesheet?.clock_in, currentTime) : "00:00:00";
+  const elapsed = isClockedIn
+    ? calcElapsedUnits(activeTimesheet?.clock_in, currentTime).formattedElapsed
+    : "00:00:00";
+
+  const handleBreakToggle = () => {
+    if (onToggleBreak) {
+      onToggleBreak();
+      if (!isOnBreak) {
+        toast.info("Break Started", {
+          description: "Status changed to On Break. Enjoy your break!",
+        });
+      } else {
+        toast.success("Break Ended", {
+          description: "Resumed active working session.",
+        });
+      }
+    }
+  };
 
   const handleClockOut = () => {
     const payload = employeeId ? { employee_id: employeeId } : {};
@@ -268,7 +258,7 @@ export function TimesheetOverlay({
             {!isTodayPending && activeTimesheet?.clock_in && (
               <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
                 <CheckCircle2 className="size-3.5 text-emerald-500" />
-                Started at {formatIsoTime(activeTimesheet.clock_in)}
+                Started at {formatClockTime(activeTimesheet.clock_in)}
               </p>
             )}
           </div>
@@ -399,7 +389,7 @@ export function TimesheetOverlay({
             id="overlay-start-break-btn"
             variant="outline"
             size="default"
-            onClick={onToggleBreak}
+            onClick={handleBreakToggle}
             disabled={!isClockedIn || clockOutMutation.isPending}
             className={`w-full gap-2 ${
               isOnBreak
