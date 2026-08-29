@@ -16,6 +16,7 @@ coverage/
 .turbo/
 **/.cache/
 *.tsbuildinfo
+.eslintcache
 
 # Logs
 logs/
@@ -28,32 +29,61 @@ yarn-error.log*
 # Environment files (examples stay tracked)
 .env
 .env.*
+.env.docker
 **/.env
 **/.env.*
 !.env.example
 !**/.env.example
 !.env.docker.example
 
-# Laravel local/runtime artifacts
+# Laravel local and runtime artifacts
 apps/api/.phpunit.result.cache
 apps/api/.phpunit.cache
 apps/api/public/build/
 apps/api/public/hot
 apps/api/public/storage
+apps/api/storage/*.key
+apps/api/storage/framework/cache/data/*
+apps/api/storage/framework/sessions/*
+apps/api/storage/framework/testing/*
+apps/api/storage/framework/views/*
+apps/api/storage/logs/*.log
+!apps/api/storage/app/.gitignore
+!apps/api/storage/app/public/.gitignore
+!apps/api/storage/framework/.gitignore
+!apps/api/storage/framework/cache/data/.gitignore
+!apps/api/storage/framework/sessions/.gitignore
+!apps/api/storage/framework/testing/.gitignore
+!apps/api/storage/framework/views/.gitignore
+!apps/api/bootstrap/cache/.gitignore
+!apps/api/database/.gitignore
 
-# Editors / OS
+# Local databases
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+apps/api/database/*.sqlite
+
+# Docker and TLS certificates / ACME data
+certbot/
+infra/certbot/conf/
+infra/certbot/www/
+
+# Editors and Operating Systems
 .DS_Store
+Thumbs.db
+Desktop.ini
 .idea/
+.fleet/
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# Local repository inventories
+# Local scratch and inventories
 PROJECT_TREE.txt
-
-# Docker runtime secrets
-.env.docker
+scratch/

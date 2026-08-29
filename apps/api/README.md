@@ -27,13 +27,10 @@ The implementation follows the referenced `api-sample`'s easy-to-follow **route 
 From the repository root:
 
 ```bash
-./infra/scripts/setup.sh
-```
-
-On Windows PowerShell:
-
-```powershell
-./infra/scripts/setup.ps1
+# Automated Docker & secret initialization:
+pnpm docker:setup
+# or:
+bash scripts/docker-setup.sh
 ```
 
 To set up only the API manually with the default MySQL development configuration:
@@ -67,10 +64,10 @@ Optional token lifetime and browser CORS origins are environment-driven:
 SANCTUM_TOKEN_EXPIRATION=480
 SANCTUM_TOKEN_PREFIX=workforce_
 CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173,http://localhost:5174,http://localhost:5175
-TRUSTED_HOSTS=localhost,localhost
+TRUSTED_HOSTS=localhost,127.0.0.1
 ```
 
-The example uses an eight-hour (`480` minute) token lifetime. Set `SANCTUM_TOKEN_EXPIRATION` to the session lifetime required by the deployment; leaving it blank opts back into Sanctum's non-expiring personal-access-token behavior. Issued token rows also receive a concrete `expires_at`, so the Sessions page reports the real expiry. Set `TRUSTED_HOSTS` to the API hostnames accepted by the deployment; the local example permits only `localhost` and `localhost`.
+The example uses an eight-hour (`480` minute) token lifetime. Set `SANCTUM_TOKEN_EXPIRATION` to the session lifetime required by the deployment; leaving it blank opts back into Sanctum's non-expiring personal-access-token behavior. Issued token rows also receive a concrete `expires_at`, so the Sessions page reports the real expiry. Set `TRUSTED_HOSTS` to the API hostnames accepted by the deployment; the local example permits only `localhost` and `127.0.0.1`.
 
 ### Service-account authentication
 
@@ -101,16 +98,19 @@ Open `http://localhost:5174/`.
 Set provider credentials in `apps/api/.env`:
 
 ```dotenv
-PORTAL_URL=http://localhost:5174/portal
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
+PORTAL_URL=http://localhost:5174
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
 GOOGLE_REDIRECT_URI=http://localhost:5174/sso/callback/google
 MICROSOFT_CLIENT_ID=
 MICROSOFT_CLIENT_SECRET=
+MICROSOFT_TENANT_ID=common
 MICROSOFT_REDIRECT_URI=http://localhost:5174/sso/callback/microsoft
 ```
 
-The redirect URIs must also be registered with Google/Microsoft. The API rejects SSO redirect requests when provider credentials are missing. Each SSO transaction generates a one-time state plus an S256 PKCE verifier/challenge pair; the verifier stays server-side and is consumed with the state during the callback. Provider HTTP calls have bounded connect/request timeouts.
+The redirect URIs must match those registered with Google Cloud Console and Microsoft Entra ID (Azure AD). The API rejects SSO redirect requests when provider credentials are missing. Each SSO transaction generates a one-time state plus an S256 PKCE verifier/challenge pair; the verifier stays server-side and is consumed with the state during the callback. Provider HTTP calls have bounded connect/request timeouts.
+
+> **Note on Microsoft Entra ID:** Microsoft requires app registrations to be created within an organization/workplace Entra ID tenant rather than an unverified personal account. For local development, Google SSO and built-in credentials work out of the box.
 
 ## Mail / OTP / password recovery
 

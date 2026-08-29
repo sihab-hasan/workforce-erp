@@ -62,7 +62,7 @@ bash scripts/security-release-check.sh
 ./scripts/security-release-check.ps1
 ```
 
-See `SECURITY_RELEASE_VALIDATION.md` and `docs/authentication-security.md`.
+See `docs/authentication-security.md`.
 
 ## Development
 
@@ -177,8 +177,12 @@ If you are copying these files into an existing Git repository, keep that reposi
 ## Documentation
 
 - `docs/setup.md` — local setup and Nx workflow
-- `docs/architecture.md` — system boundaries
-- `docs/api-integration.md` — frontend/API integration
-- `docs/access-control.md` — authorization model
-- `docs/deployment.md` — deployment guidance
+- `docs/architecture.md` — system boundaries and application overview
+- `docs/authentication-security.md` — enterprise authentication, MFA, and security architecture
+- `docs/access-control.md` — authorization model, roles, and scopes
+- `docs/api-integration.md` — frontend/API integration contract
+- `docs/code-ownership.md` — workspace layer boundaries and code ownership
+- `docs/deployment.md` — deployment guidance and runbooks
+- `infra/README.md` — Docker + Nginx stack and production orchestration
+- `apps/api/README.md` — Laravel 13 API backend architecture and configuration
 - `.github/GITHUB-CONFIG.md` — GitHub automation and repository configuration

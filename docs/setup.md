@@ -4,7 +4,9 @@
 
 - Node.js 22+
 - pnpm 11.22.0 through Corepack
-- PHP 8.5 and Composer 2 for `apps/api`
+- PHP 8.3+ for the Laravel 13 API (Docker and CI use PHP 8.5)
+- Composer 2
+- MySQL 8.0+ (or Docker MySQL)
 
 ## Install the Node workspace
 
@@ -23,6 +25,9 @@ pnpm validate
 cp apps/api/.env.example apps/api/.env
 composer --working-dir=apps/api install
 php apps/api/artisan key:generate
+php apps/api/artisan migrate
+# Optional local bootstrap data:
+php apps/api/artisan db:seed
 ```
 
 ## Start development services
