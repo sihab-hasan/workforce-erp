@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { createLeaveFormSchema, LEAVE_REASON_MAX_LENGTH } from "../schemas/leave.schema";
-import type { LeaveFormValues } from "../schemas/leave.schema";
+import { createLeaveFormSchema, type LeaveFormValues } from "../schemas/leave.schema";
 
 interface LeaveFormProps {
   remainingDays?: number | null;
@@ -20,8 +19,8 @@ export function LeaveForm({ remainingDays = null, onSubmit = () => {} }: LeaveFo
     },
   });
 
-  const selectedTypeId = form.watch("leave_type_id");
-  const totalDays = form.watch("start_date") && form.watch("end_date") ? 1 : 0; // handled by schema superRefine
+  const _selectedTypeId = form.watch("leave_type_id");
+  const _totalDays = form.watch("start_date") && form.watch("end_date") ? 1 : 0; // handled by schema superRefine
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
