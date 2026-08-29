@@ -83,5 +83,3 @@ export function createLeaveFormSchema(remainingDays: number | null) {
 
 export type LeaveFormSchema = ReturnType<typeof createLeaveFormSchema>;
 export type LeaveFormValues = z.infer<LeaveFormSchema>;
-
-     
