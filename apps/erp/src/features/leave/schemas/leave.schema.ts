@@ -58,7 +58,7 @@ export function createLeaveFormSchema(remainingDays: number | null) {
       }
       if (remainingDays !== null) {
         const totalDays = countWorkingDays(values.start_date, values.end_date);
-        
+
         if (totalDays > remainingDays) {
           ctx.addIssue({
             code: "custom",

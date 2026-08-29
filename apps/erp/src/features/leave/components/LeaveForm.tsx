@@ -16,9 +16,7 @@ import { companyRoutes } from "#routes/paths";
 import { useCreateLeaveMutation } from "../api/leave.mutations";
 import { useLeaveOptionsQuery } from "../api/leave.queries";
 import {
- 
   countWorkingDays,
-
   countCalendarDays,
   createLeaveFormSchema,
   type LeaveFormValues,
@@ -56,11 +54,11 @@ export function LeaveForm({ className, onCancel }: LeaveFormProps) {
   const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({});
 
   const selectedType = leaveTypes.find((type) => type.id === values.leave_type_id) ?? null;
- feature/leave-management-92
+  feature / leave - management - 92;
   const totalDays = countWorkingDays(values.start_date, values.end_date);
 
   const totalDays = countCalendarDays(values.start_date, values.end_date);
- develop
+  develop;
 
   const schema = useMemo(
     () => createLeaveFormSchema(selectedType ? Number(selectedType.remaining) : null),
@@ -108,13 +106,11 @@ export function LeaveForm({ className, onCancel }: LeaveFormProps) {
       <CardHeader>
         <CardTitle className="text-base">Leave request</CardTitle>
         <CardDescription>
-feature/leave-management-92
-          Choose a leave type and the dates you need off. The total working days (Monday–Friday) are
-          calculated automatically and checked against your remaining allowance.
-        
-          Choose a leave type and the dates you need off. The total days (inclusive calendar days)
-          are calculated automatically and checked against your remaining allowance.
- develop
+          feature/leave-management-92 Choose a leave type and the dates you need off. The total
+          working days (Monday–Friday) are calculated automatically and checked against your
+          remaining allowance. Choose a leave type and the dates you need off. The total days
+          (inclusive calendar days) are calculated automatically and checked against your remaining
+          allowance. develop
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -199,7 +195,6 @@ feature/leave-management-92
                 hint={
                   selectedType && totalDays > 0
                     ? `Total working days: ${totalDays} · Remaining for ${selectedType.name}: ${selectedType.remaining} days`
-
                     : "Optional context for the approver"
                 }
               >
