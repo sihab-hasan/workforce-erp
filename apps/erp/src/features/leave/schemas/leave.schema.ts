@@ -6,40 +6,29 @@ export const LEAVE_REASON_MAX_LENGTH = 5000;
 const DAY_MS = 86_400_000;
 
 /**
-feature/leave-management-92
  * Counts working days (Monday–Friday) in the inclusive [startIso, endIso]
  * range, matching the backend calculation (`diffInWeekdays` over the range
  * extended by one day in LeaveController). Dates are parsed as UTC so the
  * count is unaffected by DST transitions.
  */
 export function countWorkingDays(startIso: string, endIso: string): number {
-export function countCalendarDays(startIso: string, endIso: string): number {
- develop
   const start = Date.parse(`${startIso}T00:00:00Z`);
   const end = Date.parse(`${endIso}T00:00:00Z`);
   if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return 0;
 
- feature/leave-management-92
   let workingDays = 0;
   for (let timestamp = start; timestamp <= end; timestamp += DAY_MS) {
     const weekday = new Date(timestamp).getUTCDay();
     if (weekday !== 0 && weekday !== 6) workingDays += 1;
   }
   return workingDays;
-
-  return Math.round((end - start) / DAY_MS) + 1;
- develop
 }
 
 /**
  * Builds the leave request form schema.
  *
  * `remainingDays` is the remaining allowance of the selected leave type
- feature/leave-management-92
  * (`null` while no type is selected). When the requested working days exceed
-
- * (`null` while no type is selected). When the requested calendar days exceed
- develop
  * the remaining allowance a `balance` issue is raised so the UI can surface a
  * blocking warning.
  */
