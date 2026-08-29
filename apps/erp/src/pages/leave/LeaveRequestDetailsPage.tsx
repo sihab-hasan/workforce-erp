@@ -1,10 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, X } from "lucide-react";
 import { useParams } from "react-router-dom";
-import { Button } from "@workforce-erp/ui/components/button";
 import { toast } from "sonner";
-import { apiGet, apiPatch, errorMessage, formatDate, formatDateTime } from "#features/erp-core/api";
-import type { LeaveRecord } from "#features/erp-core/types";
+import { CapabilityGate } from "@workforce-erp/authorization";
+import { Button } from "@workforce-erp/ui/components/button";
 import {
   ErpPage,
   ErrorState,
@@ -13,80 +11,131 @@ import {
   StatCard,
   StatusPill,
 } from "#components/erp/ErpPage";
+import { errorMessage, formatDate, formatDateTime } from "#features/erp-core/api";
+import {
+  useApproveLeaveMutation,
+  useCancelLeaveMutation,
+  useRejectLeaveMutation,
+} from "#features/leave/api/leave.mutations";
+import { useLeaveDetailsQuery } from "#features/leave/api/leave.queries";
+import { useCurrentEmployeeId } from "#features/leave/hooks/use-leave";
+
 export default function LeaveRequestDetailsPage() {
-  const { tenantKey = "", companyKey = "", leaveRequestId = "" } = useParams();
-  const qc = useQueryClient();
-  const q = useQuery({
-    queryKey: ["leave-detail", tenantKey, companyKey, leaveRequestId],
-    queryFn: () => apiGet<LeaveRecord>(`/api/v1/leave-requests/${leaveRequestId}`),
-  });
-  const act = useMutation({
-    mutationFn: (action: "approve" | "reject" | "cancel") =>
-      apiPatch<LeaveRecord>(`/api/v1/leave-requests/${leaveRequestId}/${action}`, {}),
-    onSuccess: (d) => {
-      toast.success(`Leave request ${d.status}`);
-      void qc.invalidateQueries({ queryKey: ["leave"] });
-      void q.refetch();
-    },
-    onError: (e) => toast.error(errorMessage(e)),
-  });
-  if (q.isLoading) return <LoadingState />;
-  if (q.isError || !q.data)
-    return <ErrorState message={errorMessage(q.error)} onRetry={() => void q.refetch()} />;
-  const l = q.data;
+  const { leaveRequestId = "" } = useParams();
+  const query = useLeaveDetailsQuery(leaveRequestId);
+  const currentEmployeeId = useCurrentEmployeeId();
+  const cancelLeave = useCancelLeaveMutation(leaveRequestId);
+  const approveLeave = useApproveLeaveMutation(leaveRequestId);
+  const rejectLeave = useRejectLeaveMutation(leaveRequestId);
+
+  if (query.isPending) return <LoadingState />;
+  if (query.isError || !query.data)
+    return <ErrorState message={errorMessage(query.error)} onRetry={() => void query.refetch()} />;
+
+  const leave = query.data.data;
+  const isOwnRequest = currentEmployeeId !== null && leave.employee?.id === currentEmployeeId;
+  const canCancel = leave.status === "pending" && isOwnRequest;
+  const canReview = leave.status === "pending" && !isOwnRequest;
+  const days = Number(leave.total_days);
+  const daysLabel = Number.isInteger(days) ? String(days) : days.toFixed(1);
+
+  function cancelRequest() {
+    cancelLeave.mutate(undefined, {
+      onSuccess: () => toast.success("Leave request cancelled"),
+      onError: (error) =>
+        toast.error("Unable to cancel leave request", { description: errorMessage(error) }),
+    });
+  }
+
+  function approveRequest() {
+    approveLeave.mutate(undefined, {
+      onSuccess: () => toast.success("Leave request approved"),
+      onError: (error) =>
+        toast.error("Unable to approve leave request", { description: errorMessage(error) }),
+    });
+  }
+
+  function rejectRequest() {
+    rejectLeave.mutate(undefined, {
+      onSuccess: () => toast.success("Leave request rejected"),
+      onError: (error) =>
+        toast.error("Unable to reject leave request", { description: errorMessage(error) }),
+    });
+  }
+
   return (
     <ErpPage
       title="Leave request"
-      description={`${l.employee?.name || "Employee"} · ${l.leave_type?.name || "Leave"}`}
+      description={`${leave.employee?.name || "Employee"} · ${leave.leave_type?.name || "Leave"}`}
       actions={
-        l.status === "pending" ? (
+        leave.status === "pending" ? (
           <>
-            <Button variant="outline" onClick={() => act.mutate("approve")}>
-              <Check />
-              Approve
-            </Button>
-            <Button variant="destructive" onClick={() => act.mutate("reject")}>
-              <X />
-              Reject
-            </Button>
-            <Button variant="ghost" onClick={() => act.mutate("cancel")}>
-              Cancel request
-            </Button>
+            {canReview && (
+              <CapabilityGate capability="leave.approve">
+                <Button
+                  variant="outline"
+                  disabled={approveLeave.isPending || rejectLeave.isPending}
+                  onClick={approveRequest}
+                >
+                  <Check />
+                  Approve
+                </Button>
+              </CapabilityGate>
+            )}
+            {canReview && (
+              <CapabilityGate capability="leave.approve">
+                <Button
+                  variant="destructive"
+                  disabled={approveLeave.isPending || rejectLeave.isPending}
+                  onClick={rejectRequest}
+                >
+                  <X />
+                  Reject
+                </Button>
+              </CapabilityGate>
+            )}
+            {canCancel && (
+              <CapabilityGate capability="leave.request">
+                <Button variant="ghost" disabled={cancelLeave.isPending} onClick={cancelRequest}>
+                  Cancel request
+                </Button>
+              </CapabilityGate>
+            )}
           </>
         ) : undefined
       }
     >
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Status" value={<StatusPill value={l.status} />} />
-        <StatCard label="Duration" value={`${l.total_days} day${l.total_days === 1 ? "" : "s"}`} />
+        <StatCard label="Status" value={<StatusPill value={leave.status} />} />
+        <StatCard label="Duration" value={`${daysLabel} day${days === 1 ? "" : "s"}`} />
         <StatCard
           label="Submitted"
-          value={<span className="text-base">{formatDate(l.created_at)}</span>}
+          value={<span className="text-base">{formatDate(leave.created_at)}</span>}
         />
       </div>
       <SectionCard title="Request details">
         <dl className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          <Info label="Employee" value={l.employee?.name} />
-          <Info label="Employee ID" value={l.employee?.employee_id} />
-          <Info label="Department" value={l.employee?.department} />
-          <Info label="Leave type" value={l.leave_type?.name} />
-          <Info label="Start date" value={formatDate(l.start_date)} />
-          <Info label="End date" value={formatDate(l.end_date)} />
+          <Info label="Employee" value={leave.employee?.name} />
+          <Info label="Employee ID" value={leave.employee?.employee_id} />
+          <Info label="Department" value={leave.employee?.department} />
+          <Info label="Leave type" value={leave.leave_type?.name} />
+          <Info label="Start date" value={formatDate(leave.start_date)} />
+          <Info label="End date" value={formatDate(leave.end_date)} />
         </dl>
-        {l.reason ? (
+        {leave.reason ? (
           <div className="mt-6">
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Reason</p>
-            <p className="mt-2 whitespace-pre-wrap text-sm">{l.reason}</p>
+            <p className="mt-2 whitespace-pre-wrap text-sm">{leave.reason}</p>
           </div>
         ) : null}
       </SectionCard>
-      {l.reviewed_at || l.review_note ? (
+      {leave.reviewed_at || leave.review_note ? (
         <SectionCard title="Review">
           <InfoGrid
             items={[
-              ["Reviewed by", l.reviewer?.name],
-              ["Reviewed at", formatDateTime(l.reviewed_at)],
-              ["Note", l.review_note],
+              ["Reviewed by", leave.reviewer?.name],
+              ["Reviewed at", formatDateTime(leave.reviewed_at)],
+              ["Note", leave.review_note],
             ]}
           />
         </SectionCard>
@@ -94,6 +143,7 @@ export default function LeaveRequestDetailsPage() {
     </ErpPage>
   );
 }
+
 function Info({ label, value }: { label: string; value: string | null | undefined }) {
   return (
     <div>
@@ -102,11 +152,12 @@ function Info({ label, value }: { label: string; value: string | null | undefine
     </div>
   );
 }
+
 function InfoGrid({ items }: { items: [string, string | undefined | null][] }) {
   return (
     <dl className="grid gap-5 sm:grid-cols-3">
-      {items.map(([l, v]) => (
-        <Info key={l} label={l} value={v} />
+      {items.map(([label, value]) => (
+        <Info key={label} label={label} value={value} />
       ))}
     </dl>
   );

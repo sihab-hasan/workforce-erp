@@ -1,4 +1,6 @@
-import { Calendar, Palmtree, Stethoscope, Umbrella } from "lucide-react";
+import { AlertCircle, Wallet } from "lucide-react";
+import { Badge } from "@workforce-erp/ui/components/badge";
+import { Button } from "@workforce-erp/ui/components/button";
 import {
   Card,
   CardContent,
@@ -6,88 +8,117 @@ import {
   CardHeader,
   CardTitle,
 } from "@workforce-erp/ui/components/card";
-import { Progress } from "@workforce-erp/ui/components/progress";
-import { Badge } from "@workforce-erp/ui/components/badge";
-
-export interface LeaveBalance {
-  id: string;
-  type: string;
-  total: number;
-  used: number;
-  pending: number;
-  color?: string;
-}
+import { ProgressIndicator, ProgressTrack } from "@workforce-erp/ui/components/progress";
+import { Skeleton } from "@workforce-erp/ui/components/skeleton";
+import { useLeaveOptionsQuery } from "../api/leave.queries";
+import type { LeaveTypeBalance } from "../types/leave.types";
 
 export interface LeaveBalanceCardProps {
-  balances?: LeaveBalance[];
   className?: string;
 }
 
-const DEFAULT_BALANCES: LeaveBalance[] = [
-  { id: "annual", type: "Annual Leave", total: 18, used: 6, pending: 2 },
-  { id: "sick", type: "Sick Leave", total: 10, used: 2, pending: 0 },
-  { id: "casual", type: "Casual Leave", total: 6, used: 1, pending: 0 },
-  { id: "unpaid", type: "Unpaid Leave", total: 10, used: 0, pending: 0 },
-];
-
-function getIcon(type: string) {
-  const t = type.toLowerCase();
-  if (t.includes("annual") || t.includes("vacation")) return Palmtree;
-  if (t.includes("sick") || t.includes("medical")) return Stethoscope;
-  if (t.includes("casual")) return Umbrella;
-  return Calendar;
+function formatDays(value: number): string {
+  return Number.isInteger(value) ? String(value) : value.toFixed(1);
 }
 
-export function LeaveBalanceCard({
-  balances = DEFAULT_BALANCES,
-  className,
-}: LeaveBalanceCardProps) {
+function usageIndicator(type: LeaveTypeBalance): { width: number; className: string } {
+  const allowance = Number(type.annual_allowance);
+  const usedPercent = allowance > 0 ? Math.min(100, (Number(type.used) / allowance) * 100) : 0;
+
+  if (Number(type.remaining) <= 0) {
+    return { width: usedPercent, className: "bg-rose-500" };
+  }
+  if (usedPercent >= 75) {
+    return { width: usedPercent, className: "bg-amber-500" };
+  }
+  return { width: usedPercent, className: "bg-emerald-500" };
+}
+
+function BalanceTile({ type }: { type: LeaveTypeBalance }) {
+  const indicator = usageIndicator(type);
+
   return (
-    <section aria-label="Leave Balances" className={className}>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {balances.map((balance) => {
-          const available = Math.max(0, balance.total - balance.used - balance.pending);
-          const percentage = balance.total > 0 ? (balance.used / balance.total) * 100 : 0;
-          const Icon = getIcon(balance.type);
-
-          return (
-            <Card key={balance.id} className="rounded-xl border shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <div>
-                  <CardTitle className="text-sm font-semibold">{balance.type}</CardTitle>
-                  <CardDescription className="text-xs">
-                    {balance.total} total days / yr
-                  </CardDescription>
-                </div>
-                <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Icon className="size-4" />
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-baseline justify-between">
-                  <span className="font-heading text-2xl font-bold text-foreground">
-                    {available}{" "}
-                    <span className="text-xs font-normal text-muted-foreground">days left</span>
-                  </span>
-                  {balance.pending > 0 && (
-                    <Badge variant="outline" className="text-xs text-amber-600 border-amber-300">
-                      {balance.pending} pending
-                    </Badge>
-                  )}
-                </div>
-
-                <div className="space-y-1">
-                  <Progress value={percentage} className="h-1.5" />
-                  <div className="flex justify-between text-[11px] text-muted-foreground">
-                    <span>{balance.used} days used</span>
-                    <span>{balance.total - balance.used} available</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+    <div className="rounded-xl border bg-background p-4">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium">{type.name}</p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">{type.code}</p>
+        </div>
+        <Badge variant="outline" className="shrink-0 text-xs">
+          {type.is_paid ? "Paid" : "Unpaid"}
+        </Badge>
       </div>
-    </section>
+
+      <p className="mt-3 text-2xl font-semibold">
+        {formatDays(Number(type.remaining))}
+        <span className="ml-1.5 text-sm font-normal text-muted-foreground">days left</span>
+      </p>
+
+      <ProgressTrack className="mt-3 h-2">
+        <ProgressIndicator
+          className={indicator.className}
+          style={{ width: `${indicator.width}%` }}
+        />
+      </ProgressTrack>
+
+      <p className="mt-2 text-xs text-muted-foreground">
+        Used {formatDays(Number(type.used))} of {formatDays(Number(type.annual_allowance))} days
+        this year
+      </p>
+    </div>
+  );
+}
+
+export function LeaveBalanceCard({ className }: LeaveBalanceCardProps) {
+  const { data, isPending, isError, refetch } = useLeaveOptionsQuery();
+  const types = data?.data?.types ?? [];
+
+  return (
+    <Card className={className}>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base font-semibold">Leave balances</CardTitle>
+        <CardDescription className="text-xs">
+          Remaining allowance per leave type for the current year.
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent>
+        {isError ? (
+          <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
+            <AlertCircle className="size-8 text-destructive" aria-hidden />
+            <p className="text-sm font-medium">Failed to load leave balances</p>
+            <p className="text-xs text-muted-foreground">
+              An error occurred while communicating with the server.
+            </p>
+            <Button variant="outline" size="sm" onClick={() => void refetch()} className="mt-2">
+              Try Again
+            </Button>
+          </div>
+        ) : isPending ? (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="space-y-3 rounded-xl border p-4">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-7 w-24" />
+                <Skeleton className="h-2 w-full rounded-full" />
+                <Skeleton className="h-3 w-40" />
+              </div>
+            ))}
+          </div>
+        ) : types.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-2 py-8 text-center text-muted-foreground">
+            <Wallet className="size-8 stroke-[1.5]" aria-hidden />
+            <p className="text-sm font-medium text-foreground">No active leave types</p>
+            <p className="text-xs">Leave balances will appear once leave types are configured.</p>
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {types.map((type) => (
+              <BalanceTile key={type.id} type={type} />
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
