@@ -200,8 +200,6 @@ feature/leave-management-92
                   selectedType && totalDays > 0
                     ? `Total working days: ${totalDays} · Remaining for ${selectedType.name}: ${selectedType.remaining} days`
 
-                    ? `Total days: ${totalDays} · Remaining for ${selectedType.name}: ${selectedType.remaining} days`
- develop
                     : "Optional context for the approver"
                 }
               >
