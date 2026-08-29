@@ -4,13 +4,7 @@ import { Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@workforce-erp/ui/components/button";
 import { Badge } from "@workforce-erp/ui/components/badge";
 import { toast } from "sonner";
-import {
-  DataTable,
-  EmptyPanel,
-  ErpPage,
-  ErrorState,
-  LoadingState,
-} from "#components/erp/ErpPage";
+import { DataTable, EmptyPanel, ErpPage, ErrorState, LoadingState } from "#components/erp/ErpPage";
 import {
   getPermissionPresentation,
   type PermissionOption,
@@ -40,10 +34,7 @@ export default function RoleListPage() {
       title="Roles & permissions"
       description="Create organization-specific roles and configure intuitive permission sets."
       actions={
-        <Button
-          nativeButton={false}
-          render={<Link to={tenantRoutes.roleCreate(tenantKey)} />}
-        >
+        <Button nativeButton={false} render={<Link to={tenantRoutes.roleCreate(tenantKey)} />}>
           <Plus className="size-4" />
           New role
         </Button>

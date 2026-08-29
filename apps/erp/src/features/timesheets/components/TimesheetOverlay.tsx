@@ -165,7 +165,12 @@ export function TimesheetOverlay({
   };
 
   return (
-    <Sheet open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
+    <Sheet
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) onClose();
+      }}
+    >
       <SheetContent
         side="right"
         showCloseButton={false}

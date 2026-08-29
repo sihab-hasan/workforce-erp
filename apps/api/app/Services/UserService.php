@@ -58,7 +58,7 @@ class UserService
             $rawRole = (string) $filters['role'];
             $query->where(function ($q) use ($role, $rawRole) {
                 $q->whereHas('memberships.roleAssignments.role', fn ($r) => $r->where('name', $role)->orWhere('name', $rawRole))
-                  ->orWhereHas('memberships', fn ($m) => $m->where('role', $rawRole)->orWhere('role', $role));
+                    ->orWhereHas('memberships', fn ($m) => $m->where('role', $rawRole)->orWhere('role', $role));
             });
         }
 

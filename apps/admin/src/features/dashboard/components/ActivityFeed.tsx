@@ -31,7 +31,8 @@ export function ActivityFeed({ className }: ActivityFeedProps) {
             <EmptyHeader>
               <EmptyTitle>No activity feed available</EmptyTitle>
               <EmptyDescription>
-                The current API does not expose organization activity, so this dashboard does not display fabricated events.
+                The current API does not expose organization activity, so this dashboard does not
+                display fabricated events.
               </EmptyDescription>
             </EmptyHeader>
           </Empty>

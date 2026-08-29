@@ -124,12 +124,12 @@ export default function SessionsPage() {
             <RefreshCw className={isLoading ? "mr-2 size-4 animate-spin" : "mr-2 size-4"} />
             Refresh
           </Button>
-          <Button
-            variant="destructive"
-            onClick={() => void logoutAll()}
-            disabled={busyId !== null}
-          >
-            {busyId === "all" ? <Loader2 className="mr-2 size-4 animate-spin" /> : <LogOut className="mr-2 size-4" />}
+          <Button variant="destructive" onClick={() => void logoutAll()} disabled={busyId !== null}>
+            {busyId === "all" ? (
+              <Loader2 className="mr-2 size-4 animate-spin" />
+            ) : (
+              <LogOut className="mr-2 size-4" />
+            )}
             Revoke all others
           </Button>
         </>
@@ -151,9 +151,7 @@ export default function SessionsPage() {
         />
       </div>
 
-      {error && (
-        <ErrorState message={error} onRetry={() => void load()} />
-      )}
+      {error && <ErrorState message={error} onRetry={() => void load()} />}
 
       <SectionCard
         title="Authorized Browser & App Sessions"

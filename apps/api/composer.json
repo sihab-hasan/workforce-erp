@@ -37,7 +37,7 @@
     }
   },
   "scripts": {
-    "test": "@php artisan test --env=testing",
+    "test": "@php artisan test",
     "pint": "vendor/bin/pint",
     "post-autoload-dump": [
       "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",

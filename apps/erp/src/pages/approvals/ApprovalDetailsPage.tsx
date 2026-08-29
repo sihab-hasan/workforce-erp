@@ -150,10 +150,7 @@ export function ApprovalDetailsPage() {
                   >
                     Reject Request
                   </Button>
-                  <Button
-                    onClick={() => act.mutate("approve")}
-                    disabled={act.isPending}
-                  >
+                  <Button onClick={() => act.mutate("approve")} disabled={act.isPending}>
                     {act.isPending ? "Working…" : "Approve Request"}
                   </Button>
                 </div>

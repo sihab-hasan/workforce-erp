@@ -26,6 +26,9 @@ jobs:
       - name: Validate repository configuration
         run: pnpm validate
 
+      - name: Check code formatting
+        run: pnpm format:check
+
       - name: Check import boundaries
         run: pnpm check:imports
 

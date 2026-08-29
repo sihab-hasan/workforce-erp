@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\v1\LeaveController;
 use App\Http\Controllers\Api\v1\NotificationController;
 use App\Http\Controllers\Api\v1\OnboardingController;
 use App\Http\Controllers\Api\v1\OrganizationController;
+use App\Http\Controllers\Api\v1\OTPController;
 use App\Http\Controllers\Api\v1\PlatformController;
 use App\Http\Controllers\Api\v1\ProfileController;
 use App\Http\Controllers\Api\v1\RegistrationController;
@@ -25,6 +26,8 @@ use App\Http\Controllers\Api\v1\ServiceAccountController;
 use App\Http\Controllers\Api\v1\SSOController;
 use App\Http\Controllers\Api\v1\TimesheetController;
 use App\Http\Controllers\Api\v1\UserController;
+use App\Http\Middleware\ApiKeyMiddleware;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -42,11 +45,11 @@ Route::prefix('v1')->group(function () {
         Route::post('/challenges/{id}/verify', [ChallengeController::class, 'verify'])->middleware('throttle:mfa-verify');
         Route::get('/invitations/{token}', [InvitationController::class, 'show'])->middleware('throttle:invitation-acceptance');
         Route::post('/invitations/{token}/accept', [InvitationController::class, 'accept'])->middleware('throttle:invitation-acceptance');
-        Route::post('/otp/request', [\App\Http\Controllers\Api\v1\OTPController::class, 'requestOtp'])->middleware('throttle:login');
-        Route::post('/otp/verify', [\App\Http\Controllers\Api\v1\OTPController::class, 'verifyOtp'])->middleware('throttle:mfa-verify');
+        Route::post('/otp/request', [OTPController::class, 'requestOtp'])->middleware('throttle:login');
+        Route::post('/otp/verify', [OTPController::class, 'verifyOtp'])->middleware('throttle:mfa-verify');
         Route::post('/service-token', [ServiceAccountController::class, 'token'])->middleware('throttle:service-token');
     });
-    Route::prefix('internal')->middleware(\App\Http\Middleware\ApiKeyMiddleware::class)->group(function () {
+    Route::prefix('internal')->middleware(ApiKeyMiddleware::class)->group(function () {
         Route::get('/ping', function () {
             return response()->json([
                 'success' => true,
@@ -60,7 +63,7 @@ Route::prefix('v1')->group(function () {
 
     if (app()->environment('local', 'testing')) {
         Route::prefix('test-contract')->group(function () {
-            Route::get('/paginate', function (\Illuminate\Http\Request $request) {
+            Route::get('/paginate', function (Request $request) {
                 $items = collect(range(1, 12))->map(fn ($i) => [
                     'id' => $i,
                     'name' => "Item {$i}",
@@ -108,7 +111,7 @@ Route::prefix('v1')->group(function () {
                 ]);
             });
 
-            Route::post('/validate', function (\Illuminate\Http\Request $request) {
+            Route::post('/validate', function (Request $request) {
                 $request->validate([
                     'name' => ['required', 'string'],
                 ]);

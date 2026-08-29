@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureActiveWorkforceUser
@@ -21,7 +22,7 @@ class EnsureActiveWorkforceUser
         }
 
         $hasActiveMembership = $u->memberships()->where('status', 'active')->exists();
-        $hasPlatformRole = \Illuminate\Support\Facades\DB::table('platform_role_assignments')->where('user_id', $u->id)->exists();
+        $hasPlatformRole = DB::table('platform_role_assignments')->where('user_id', $u->id)->exists();
         if (! $hasActiveMembership && ! $hasPlatformRole) {
             $u->tokens()->delete();
             if ($r->hasSession()) {

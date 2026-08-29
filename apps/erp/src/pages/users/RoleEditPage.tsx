@@ -67,10 +67,7 @@ export default function RoleEditPage() {
           title="Role not found"
           description="The requested custom role could not be located in this organization."
           action={
-            <Button
-              nativeButton={false}
-              render={<Link to={tenantRoutes.roles(tenantKey)} />}
-            >
+            <Button nativeButton={false} render={<Link to={tenantRoutes.roles(tenantKey)} />}>
               Back to roles
             </Button>
           }
