@@ -1,9 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import {
-  createLeaveFormSchema,
-  LEAVE_REASON_MAX_LENGTH,
-} from "../schemas/leave.schema";
+import { createLeaveFormSchema, LEAVE_REASON_MAX_LENGTH } from "../schemas/leave.schema";
 import type { LeaveFormValues } from "../schemas/leave.schema";
 
 interface LeaveFormProps {
