@@ -7,21 +7,39 @@ function joinPath(base: string, path = "") {
   return suffix ? `${base}/${suffix}` : base;
 }
 
+/** Canonical browser routes. API authentication remains under /api/v1/auth/*. */
 export const ERP_PATHS = {
   root: "/",
-  auth: "/auth",
-  signIn: "/auth/sign-in",
-  loginAlias: "/auth/login",
-  forgotPassword: "/auth/forgot-password",
-  resetPassword: "/auth/reset-password",
-  mfa: "/auth/mfa",
-  signOut: "/auth/sign-out",
+  signIn: "/sign-in",
+  signUp: "/sign-up",
+  verifyEmail: "/verify-email",
+  verifySignIn: "/verify-sign-in",
+  verifyPhone: "/verify-phone",
+  forgotPassword: "/forgot-password",
+  resetPassword: "/reset-password",
+  acceptInvitation: "/accept-invitation/:token",
+  ssoCallback: "/sso/callback/:provider",
+  signOut: "/sign-out",
   tenantSelect: "/select-tenant",
   tenantSwitch: "/switch-tenant",
+  onboarding: "/onboarding",
+  onboardingOrganization: "/onboarding/organization",
+  onboardingCompany: "/onboarding/company",
+  onboardingLocations: "/onboarding/locations",
+  onboardingDepartments: "/onboarding/departments",
+  onboardingSettings: "/onboarding/settings",
+  onboardingModules: "/onboarding/modules",
+  onboardingTeam: "/onboarding/team",
+  onboardingSecurity: "/onboarding/security",
+  onboardingComplete: "/onboarding/complete",
 } as const;
 
 export function authCallbackPath(provider: string) {
-  return `/auth/callback/${encodeSegment(provider)}`;
+  return `/sso/callback/${encodeSegment(provider)}`;
+}
+
+export function invitationPath(token: string) {
+  return `/accept-invitation/${encodeSegment(token)}`;
 }
 
 export function tenantPath(tenantKey: string, path = "") {
@@ -48,6 +66,9 @@ export const tenantRoutes = {
   userDetails: (tenantKey: string, userId: string) =>
     tenantPath(tenantKey, `users/${encodeSegment(userId)}`),
   roles: (tenantKey: string) => tenantPath(tenantKey, "roles"),
+  roleCreate: (tenantKey: string) => tenantPath(tenantKey, "roles/new"),
+  roleEdit: (tenantKey: string, roleId: string) =>
+    tenantPath(tenantKey, `roles/${encodeSegment(roleId)}/edit`),
   settings: (tenantKey: string) => tenantPath(tenantKey, "settings"),
   profileSettings: (tenantKey: string) => tenantPath(tenantKey, "settings/profile"),
   securitySettings: (tenantKey: string) => tenantPath(tenantKey, "settings/security"),

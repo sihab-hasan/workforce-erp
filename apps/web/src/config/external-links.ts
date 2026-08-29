@@ -1,6 +1,6 @@
 import { env } from "./env";
 
 export const portalLinks = {
-  login: `${env.erpUrl}/auth/sign-in`,
-  forgotPassword: `${env.erpUrl}/auth/forgot-password`,
+  login: `${env.erpUrl}/sign-in`,
+  forgotPassword: `${env.erpUrl}/forgot-password`,
 } as const;

@@ -3,7 +3,8 @@ import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { AuthProvider as SharedAuthProvider, useAuth, type AuthSession } from "@workforce-erp/auth";
 import { ApiError } from "@workforce-erp/api-client";
 import { Button } from "@workforce-erp/ui/components/button";
-import { AUTH_UNAUTHORIZED_EVENT } from "#lib/api";
+import { StepUpVerificationDialog } from "./components/StepUpVerificationDialog";
+import { AUTH_UNAUTHORIZED_EVENT, registerStepUpHandler } from "#lib/api";
 import { authenticationApi, toAuthSession } from "./api/authentication.api";
 
 const AUTH_SERVICE_ERROR = "Unable to connect to the authentication service. Please try again.";
@@ -25,6 +26,37 @@ export function AppAuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [bootstrapError, setBootstrapError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  const [stepUpRequest, setStepUpRequest] = useState<{
+    resolve: () => void;
+    reject: (reason?: unknown) => void;
+  } | null>(null);
+
+  useEffect(
+    () =>
+      registerStepUpHandler(
+        () =>
+          new Promise<void>((resolve, reject) => {
+            setStepUpRequest({ resolve, reject });
+          }),
+      ),
+    [],
+  );
+
+  const beginStepUp = useCallback(() => authenticationApi.beginStepUp(), []);
+  const selectStepUpMethod = useCallback(
+    (challengeId: string, method: "totp" | "email" | "sms") =>
+      authenticationApi.selectChallengeMethod(challengeId, method),
+    [],
+  );
+  const resendStepUp = useCallback(
+    (challengeId: string) => authenticationApi.resendChallenge(challengeId),
+    [],
+  );
+  const verifyStepUp = useCallback(
+    (challengeId: string, code: string) =>
+      authenticationApi.verifyStepUpChallenge(challengeId, code),
+    [],
+  );
 
   const retry = useCallback(() => {
     setBootstrapError(null);
@@ -101,9 +133,26 @@ export function AppAuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <SharedAuthProvider initialSession={session}>
+    <SharedAuthProvider initialSession={session} onSessionChange={setSession}>
       <UnauthorizedSessionListener />
       {children}
+      <StepUpVerificationDialog
+        open={stepUpRequest !== null}
+        begin={beginStepUp}
+        selectMethod={selectStepUpMethod}
+        resend={resendStepUp}
+        verify={verifyStepUp}
+        onVerified={() => {
+          const pending = stepUpRequest;
+          setStepUpRequest(null);
+          pending?.resolve();
+        }}
+        onCancel={() => {
+          const pending = stepUpRequest;
+          setStepUpRequest(null);
+          pending?.reject(new Error("Identity verification was cancelled."));
+        }}
+      />
     </SharedAuthProvider>
   );
 }

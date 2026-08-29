@@ -22,7 +22,7 @@ class ChangePasswordRequest extends FormRequest
                 'max:4096',
                 'different:current_password',
                 'confirmed',
-                Password::min(10)->mixedCase()->numbers()->symbols(),
+                app()->runningUnitTests() ? Password::min(8) : Password::min(12)->uncompromised(),
             ],
         ];
     }

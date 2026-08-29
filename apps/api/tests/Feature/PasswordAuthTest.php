@@ -43,7 +43,7 @@ class PasswordAuthTest extends TestCase
             'email' => ' PASSWORD@example.com ',
         ])->assertOk()->assertJson([
             'success' => true,
-            'message' => 'If the account is eligible and email delivery is available, a password reset link will arrive shortly.',
+            'message' => 'If the account is eligible, password reset instructions will arrive shortly.',
         ]);
 
         Notification::assertSentTo($this->user, ResetPassword::class);
@@ -73,11 +73,11 @@ class PasswordAuthTest extends TestCase
         $this->postJson('/api/v1/auth/password/reset', [
             'token' => $resetToken,
             'email' => $this->user->email,
-            'password' => 'NewSecurePass123!',
-            'password_confirmation' => 'NewSecurePass123!',
+            'password' => 'Tr0ng!P@ssw0rd#2026',
+            'password_confirmation' => 'Tr0ng!P@ssw0rd#2026',
         ])->assertOk()->assertJsonPath('success', true);
 
-        $this->assertTrue(Hash::check('NewSecurePass123!', $this->user->fresh()->password));
+        $this->assertTrue(Hash::check('Tr0ng!P@ssw0rd#2026', $this->user->fresh()->password));
         $this->assertSame(0, $this->user->tokens()->count());
 
         $this->withHeader('Authorization', "Bearer {$firstToken}")
@@ -90,8 +90,8 @@ class PasswordAuthTest extends TestCase
         $this->postJson('/api/v1/auth/password/reset', [
             'token' => 'invalid-token',
             'email' => $this->user->email,
-            'password' => 'NewSecurePass123!',
-            'password_confirmation' => 'NewSecurePass123!',
+            'password' => 'Tr0ng!P@ssw0rd#2026',
+            'password_confirmation' => 'Tr0ng!P@ssw0rd#2026',
         ])->assertUnprocessable()->assertJsonPath(
             'errors.email.0',
             'This password reset link is invalid or has expired.'

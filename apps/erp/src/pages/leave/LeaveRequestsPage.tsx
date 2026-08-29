@@ -12,6 +12,7 @@ import {
   LoadingState,
   StatusPill,
 } from "#components/erp/ErpPage";
+import { LeaveBalanceCard } from "#features/leave/components/LeaveBalanceCard";
 import { companyRoutes } from "#routes/paths";
 export default function LeaveRequestListPage() {
   const { tenantKey = "", companyKey = "" } = useParams();
@@ -43,6 +44,7 @@ export default function LeaveRequestListPage() {
         </>
       }
     >
+      <LeaveBalanceCard className="mb-6" />
       {q.isLoading ? (
         <LoadingState />
       ) : q.isError ? (

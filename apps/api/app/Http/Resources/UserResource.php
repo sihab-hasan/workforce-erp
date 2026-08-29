@@ -7,6 +7,16 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserResource extends JsonResource
 {
+    private const LEGACY_ROLES = ['owner', 'admin', 'manager', 'staff', 'readonly'];
+
+    private const ROLE_COMPAT = [
+        'organization_owner' => 'owner',
+        'organization_admin' => 'admin',
+        'manager' => 'manager',
+        'employee' => 'staff',
+        'auditor' => 'readonly',
+    ];
+
     public function toArray(Request $request): array
     {
         // Services load only the organizations the current actor is allowed to manage.
@@ -40,11 +50,20 @@ class UserResource extends JsonResource
             'slug' => $organization->slug,
         ] : null;
 
+        $role = (string) ($organization?->pivot?->role ?? 'staff');
+        if (! in_array($role, self::LEGACY_ROLES, true)) {
+            $membership = $this->relationLoaded('memberships') && $organization
+                ? $this->memberships->firstWhere('organization_id', $organization->id)
+                : null;
+            $canonicalRole = $membership?->roleAssignments?->first()?->role?->name;
+            $role = self::ROLE_COMPAT[$canonicalRole] ?? 'staff';
+        }
+
         return [
             'id' => (string) $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'role' => $organization?->pivot?->role ?? 'staff',
+            'role' => $role,
             'status' => $organization?->pivot?->status ?? 'inactive',
             'organization' => $organizationLink,
             'employee' => $employeeLink,

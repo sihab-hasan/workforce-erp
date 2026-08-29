@@ -1,7 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createHttpClient } from "@workforce-erp/api-client";
-import { environment } from "#config/env";
-import { handleUnauthorized } from "#lib/api";
+import { scopedHttpClient } from "#lib/api";
 import { createUsersApi } from "./users.api";
 import { usersKeys } from "../query-keys";
 import type { InviteUserPayload, UpdateUserPayload } from "../types/users.types";
@@ -11,8 +9,7 @@ import type { InviteUserPayload, UpdateUserPayload } from "../types/users.types"
 // ---------------------------------------------------------------------------
 
 function getUsersApi() {
-  const http = createHttpClient(environment.apiBaseUrl, handleUnauthorized);
-  return createUsersApi(http);
+  return createUsersApi(scopedHttpClient);
 }
 
 // ---------------------------------------------------------------------------

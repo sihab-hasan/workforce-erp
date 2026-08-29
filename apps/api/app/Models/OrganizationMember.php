@@ -9,12 +9,9 @@ class OrganizationMember extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'organization_id',
-        'user_id',
-        'role',
-        'status',
-    ];
+    protected $fillable = ['organization_id', 'user_id', 'role', 'status', 'data_scope', 'scope_data', 'activated_at', 'suspended_at'];
+
+    protected $casts = ['scope_data' => 'array', 'activated_at' => 'datetime', 'suspended_at' => 'datetime'];
 
     public function organization()
     {
@@ -24,5 +21,10 @@ class OrganizationMember extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function roleAssignments()
+    {
+        return $this->hasMany(MembershipRoleAssignment::class);
     }
 }

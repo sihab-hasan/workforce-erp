@@ -1,6 +1,12 @@
 import { createBrowserRouter, Link, Navigate } from "react-router-dom";
 import { Button } from "@workforce-erp/ui/components/button";
-import { EmptyState } from "@workforce-erp/ui-patterns/feedback";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@workforce-erp/ui/components/empty";
 import { authRoutes } from "#routes/auth.routes";
 import { tenantRoutes } from "#routes/tenant.routes";
 import { companyRoutes } from "#routes/company.routes";
@@ -11,15 +17,19 @@ function AppNotFound() {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-2xl items-center px-6 py-16">
       <RouteMetadata />
-      <EmptyState
-        title="Route not found"
-        description="This URL does not match a registered Workforce ERP page."
-        primaryAction={
+      <Empty className="min-h-72 rounded-2xl border border-dashed bg-muted/15 px-6">
+        <EmptyHeader>
+          <EmptyTitle>Route not found</EmptyTitle>
+          <EmptyDescription>
+            This URL does not match a registered Workforce ERP page.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent className="flex-row flex-wrap justify-center">
           <Button nativeButton={false} render={<Link to={ERP_PATHS.tenantSelect} />}>
             Select organization
           </Button>
-        }
-      />
+        </EmptyContent>
+      </Empty>
     </main>
   );
 }

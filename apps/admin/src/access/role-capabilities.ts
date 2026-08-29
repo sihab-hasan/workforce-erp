@@ -1,7 +1,2 @@
-import { PLATFORM_CAPABILITIES, type PlatformCapability } from "#access/capabilities";
-import type { PlatformRole } from "#access/roles";
-
-export const PLATFORM_ROLE_CAPABILITIES: Record<PlatformRole, readonly PlatformCapability[]> = {
-  owner: PLATFORM_CAPABILITIES,
-  admin: PLATFORM_CAPABILITIES,
-};
+/** Platform capabilities are supplied by /api/v1/platform/context; no static role map is authoritative. */
+export {};

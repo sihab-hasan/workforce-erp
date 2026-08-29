@@ -2,7 +2,16 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -39,7 +48,7 @@ class Handler extends ExceptionHandler
 
     protected function handleApiException(Throwable $exception)
     {
-        if ($exception instanceof \Illuminate\Validation\ValidationException) {
+        if ($exception instanceof ValidationException) {
             return response()->json([
                 'success' => false,
                 'message' => $exception->getMessage(),
@@ -47,44 +56,44 @@ class Handler extends ExceptionHandler
             ], 422);
         }
 
-        if ($exception instanceof \Illuminate\Auth\AuthenticationException) {
+        if ($exception instanceof AuthenticationException) {
             return response()->json([
                 'success' => false,
                 'message' => $exception->getMessage() ?: 'Unauthenticated.',
             ], 401);
         }
 
-        if ($exception instanceof \Illuminate\Auth\Access\AuthorizationException ||
-            $exception instanceof \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException) {
+        if ($exception instanceof AuthorizationException ||
+            $exception instanceof AccessDeniedHttpException) {
             return response()->json([
                 'success' => false,
                 'message' => 'This action is unauthorized.',
             ], 403);
         }
 
-        if ($exception instanceof \Illuminate\Database\Eloquent\ModelNotFoundException ||
-            $exception instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
+        if ($exception instanceof ModelNotFoundException ||
+            $exception instanceof NotFoundHttpException) {
             return response()->json([
                 'success' => false,
                 'message' => 'Resource not found.',
             ], 404);
         }
 
-        if ($exception instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException) {
+        if ($exception instanceof MethodNotAllowedHttpException) {
             return response()->json([
                 'success' => false,
                 'message' => 'Method not allowed.',
             ], 405);
         }
 
-        if ($exception instanceof \Symfony\Component\HttpKernel\Exception\ConflictHttpException) {
+        if ($exception instanceof ConflictHttpException) {
             return response()->json([
                 'success' => false,
                 'message' => $exception->getMessage() ?: 'Resource conflict.',
             ], 409);
         }
 
-        if ($exception instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
+        if ($exception instanceof HttpExceptionInterface) {
             return response()->json([
                 'success' => false,
                 'message' => $exception->getMessage(),

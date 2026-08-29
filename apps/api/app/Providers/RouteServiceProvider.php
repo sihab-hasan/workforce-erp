@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
@@ -11,64 +12,23 @@ use Illuminate\Support\Str;
 
 class RouteServiceProvider extends ServiceProvider
 {
-    public const HOME = '/home';
+    public const HOME = '/';
 
     public function boot(): void
     {
-        RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
-        });
-
-        RateLimiter::for('login', function (Request $request) {
-            return Limit::perMinute(10)->by($this->emailAndIpKey($request));
-        });
-
-        RateLimiter::for('otp-request', function (Request $request) {
-            return Limit::perMinute(5)->by($this->emailAndIpKey($request));
-        });
-
-        RateLimiter::for('otp-verify', function (Request $request) {
-            return Limit::perMinute(10)->by($this->emailAndIpKey($request));
-        });
-
-        RateLimiter::for('password-reset', function (Request $request) {
-            return Limit::perMinute(5)->by($this->emailAndIpKey($request));
-        });
-
-        RateLimiter::for('password-change', function (Request $request) {
-            return Limit::perMinute(5)->by(($request->user()?->id ?: 'guest').'|'.$request->ip());
-        });
-
-        RateLimiter::for('sso', function (Request $request) {
-            return Limit::perMinute(20)->by($request->ip());
-        });
-
-        RateLimiter::for('service', function (Request $request) {
-            return Limit::perMinute(60)->by($request->ip());
-        });
-
+        $definitions = ['login' => 10, 'registration' => 5, 'registration-resend' => 3, 'forgot-password' => 5, 'password-reset' => 5, 'password-change' => 5, 'mfa-verify' => 10, 'mfa-send-email' => 5, 'mfa-send-sms' => 5, 'phone-verification' => 5, 'email-change' => 5, 'phone-change' => 5, 'invitation-acceptance' => 10, 'sso' => 20, 'access-request' => 10, 'service-token' => 10, 'service' => 60];
+        foreach ($definitions as $name => $limit) {
+            RateLimiter::for($name, fn (Request $r) => Limit::perMinute($limit)->by($this->identityKey($r)));
+        } RateLimiter::for('api', fn (Request $r) => Limit::perMinute(60)->by($r->user()?->id ?: $r->ip()));
         $this->routes(function () {
-            // Keep liveness independent from sessions, auth, throttling and the database.
-            // This route is intentionally outside the `api` middleware group so a broken
-            // session/database dependency cannot leave health checks hanging forever.
-            Route::get('/api/health', static function () {
-                return new \Illuminate\Http\JsonResponse([
-                    'status' => 'ok',
-                    'service' => 'workforce-erp-api',
-                ]);
-            });
-
-            Route::middleware('api')
-                ->prefix('api')
-                ->group(base_path('routes/api.php'));
-
-            Route::middleware('web')
-                ->group(base_path('routes/web.php'));
+            Route::get('/api/health', static fn () => new JsonResponse(['status' => 'ok', 'service' => 'workforce-erp-api']));
+            Route::middleware('api')->prefix('api')->group(base_path('routes/api.php'));
+            Route::middleware('web')->group(base_path('routes/web.php'));
         });
     }
 
-    private function emailAndIpKey(Request $request): string
+    private function identityKey(Request $r): string
     {
-        return Str::lower(trim((string) $request->input('email'))).'|'.$request->ip();
+        return Str::lower(trim((string) $r->input('email', $r->user()?->email ?? ''))).'|'.$r->ip();
     }
 }

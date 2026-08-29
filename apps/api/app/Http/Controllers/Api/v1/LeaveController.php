@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
+use App\Models\OrganizationMember;
+use App\Models\Permission;
 use App\Models\WorkforceNotification;
-use App\Services\OrganizationAccessService;
+use App\Services\AuthorizationService;
+use App\Services\DataScopeService;
 use App\Services\WorkforceScopeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,28 +19,28 @@ use Illuminate\Validation\Rule;
 
 class LeaveController extends Controller
 {
-    private const MANAGER_ROLES = ['owner', 'admin', 'manager'];
-
     public function __construct(
         private readonly WorkforceScopeService $scope,
-        private readonly OrganizationAccessService $access,
+        private readonly DataScopeService $dataScope,
+        private readonly AuthorizationService $authorization,
     ) {}
 
     public function index(Request $request): JsonResponse
     {
         $org = $this->scope->organization($request, true);
         $branch = $this->scope->branch($request, false);
-        $role = $this->scope->role($request);
         $query = LeaveRequest::query()->where('organization_id', $org->id)
             ->with(['employee.department', 'leaveType', 'reviewer']);
         if ($branch) {
             $query->where('branch_id', $branch->id);
         }
 
-        $isManager = in_array($role, self::MANAGER_ROLES, true);
-        if (! $isManager || $request->boolean('mine')) {
-            $employeeIds = $this->access->ownEmployeeIds($request->user(), [(int) $org->id]);
-            $query->whereIn('employee_id', $employeeIds ?: [0]);
+        $this->authorization->authorize($request->user(), (int) $org->id, 'leave.view');
+        if ($request->boolean('mine')) {
+            $ownId = Employee::query()->where('organization_id', $org->id)->where('user_id', $request->user()->id)->value('id');
+            $query->where('employee_id', $ownId ?: 0);
+        } else {
+            $this->dataScope->applyEmployeeRelatedScope($query, $request->user(), (int) $org->id);
         }
         if ($request->filled('status') && $request->input('status') !== 'all') {
             $query->where('status', $request->input('status'));
@@ -62,7 +65,8 @@ class LeaveController extends Controller
     {
         $org = $this->scope->organization($request, true);
         $types = LeaveType::query()->where('organization_id', $org->id)->where('is_active', true)->orderBy('name')->get();
-        $ownEmployeeId = $this->access->ownEmployeeIds($request->user(), [(int) $org->id])[0] ?? null;
+        $this->authorization->authorize($request->user(), (int) $org->id, 'leave.view');
+        $ownEmployeeId = Employee::query()->where('organization_id', $org->id)->where('user_id', $request->user()->id)->value('id');
         $used = $ownEmployeeId ? LeaveRequest::query()->where('employee_id', $ownEmployeeId)->where('status', 'approved')->whereYear('start_date', now()->year)->selectRaw('leave_type_id, SUM(total_days) as used')->groupBy('leave_type_id')->pluck('used', 'leave_type_id') : collect();
 
         return $this->successResponse([
@@ -82,7 +86,6 @@ class LeaveController extends Controller
     {
         $org = $this->scope->organization($request, true);
         $branch = $this->scope->branch($request, false);
-        $role = $this->scope->role($request);
         $data = $request->validate([
             'employee_id' => ['nullable', 'integer', Rule::exists('employees', 'id')->where('organization_id', $org->id)],
             'leave_type_id' => ['required', 'integer', Rule::exists('leave_types', 'id')->where('organization_id', $org->id)],
@@ -90,11 +93,17 @@ class LeaveController extends Controller
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'reason' => ['nullable', 'string', 'max:5000'],
         ]);
-        $ownEmployeeIds = $this->access->ownEmployeeIds($request->user(), [(int) $org->id]);
-        $employeeId = isset($data['employee_id']) ? (int) $data['employee_id'] : ($ownEmployeeIds[0] ?? 0);
-        $isManager = in_array($role, self::MANAGER_ROLES, true);
-        if (! $employeeId || (! $isManager && ! in_array($employeeId, $ownEmployeeIds, true))) {
-            abort(403, 'You cannot submit leave for this employee.');
+        $this->authorization->authorize($request->user(), (int) $org->id, 'leave.view');
+        $ownEmployeeId = (int) (Employee::query()->where('organization_id', $org->id)->where('user_id', $request->user()->id)->value('id') ?: 0);
+        $employeeId = isset($data['employee_id']) ? (int) $data['employee_id'] : $ownEmployeeId;
+        if (! $employeeId) {
+            abort(403, 'No employee profile is available for this leave request.');
+        }
+        $canManage = $this->authorization->can($request->user(), (int) $org->id, 'leave.manage');
+        if ($employeeId !== $ownEmployeeId) {
+            if (! $canManage) {
+                abort(403, 'You cannot submit leave for this employee.');
+            } $this->dataScope->assertEmployee($request->user(), (int) $org->id, $employeeId);
         }
         $employee = Employee::query()->whereKey($employeeId)->where('organization_id', $org->id)->firstOrFail();
         if ($branch && (int) $employee->branch_id !== (int) $branch->id) {
@@ -154,7 +163,11 @@ class LeaveController extends Controller
     private function review(Request $request, LeaveRequest $leaveRequest, string $status): JsonResponse
     {
         $this->assertScoped($request, $leaveRequest);
-        $this->scope->assertRole($request, self::MANAGER_ROLES);
+        $this->scope->authorize($request, 'leave.approve');
+        $this->dataScope->assertEmployee($request->user(), (int) $leaveRequest->organization_id, (int) $leaveRequest->employee_id);
+        if ((int) ($leaveRequest->employee?->user_id ?? 0) === (int) $request->user()->id) {
+            abort(409, 'Maker and checker must be different users.');
+        }
         if ($leaveRequest->status !== 'pending') {
             abort(409, 'Only pending leave requests can be reviewed.');
         }
@@ -192,17 +205,22 @@ class LeaveController extends Controller
     private function assertAccess(Request $request, LeaveRequest $leave, bool $ownRequired = false): void
     {
         $this->assertScoped($request, $leave);
-        $role = $this->scope->role($request);
-        if (! $ownRequired && in_array($role, self::MANAGER_ROLES, true)) {
+        $this->authorization->authorize($request->user(), (int) $leave->organization_id, 'leave.view');
+        $ownId = (int) (Employee::query()->where('organization_id', $leave->organization_id)->where('user_id', $request->user()->id)->value('id') ?: 0);
+        if ((int) $leave->employee_id === $ownId) {
             return;
         }
-        $own = $this->access->ownEmployeeIds($request->user(), [(int) $leave->organization_id]);
-        abort_unless(in_array((int) $leave->employee_id, $own, true), 403);
+        if ($ownRequired) {
+            abort(403);
+        }
+        $this->authorization->authorize($request->user(), (int) $leave->organization_id, 'leave.manage');
+        $this->dataScope->assertEmployee($request->user(), (int) $leave->organization_id, (int) $leave->employee_id);
     }
 
     private function notifyManagers(int $organizationId, int $excludeUserId, string $type, string $title, string $message, string $actionUrl): void
     {
-        $userIds = \App\Models\OrganizationMember::query()->where('organization_id', $organizationId)->where('status', 'active')->whereIn('role', self::MANAGER_ROLES)->where('user_id', '!=', $excludeUserId)->pluck('user_id');
+        $permissionId = Permission::query()->where('name', 'leave.approve')->value('id');
+        $userIds = OrganizationMember::query()->where('organization_id', $organizationId)->where('status', 'active')->where('user_id', '!=', $excludeUserId)->whereHas('roleAssignments.role.permissions', fn ($q) => $q->where('permissions.id', $permissionId))->pluck('user_id');
         foreach ($userIds as $userId) {
             WorkforceNotification::create([
                 'organization_id' => $organizationId, 'user_id' => $userId, 'type' => $type,

@@ -3,8 +3,39 @@ import type { Permission } from "@workforce-erp/contracts";
 import { Navigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth } from "@workforce-erp/auth";
 import { useAuthorization } from "@workforce-erp/authorization";
-import { AccessDenied } from "@workforce-erp/ui-patterns/feedback";
+import { Button } from "@workforce-erp/ui/components/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@workforce-erp/ui/components/empty";
 import { AUTH_PATHS, safeReturnTo } from "#features/authentication/navigation";
+
+function AccessDenied({ onBack }: { onBack?: () => void }) {
+  return (
+    <Empty className="min-h-[22rem] px-6">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <span aria-hidden="true">⛔</span>
+        </EmptyMedia>
+        <EmptyTitle>Access restricted</EmptyTitle>
+        <EmptyDescription>
+          You don't have permission to view this content. Request access from an administrator if you believe this is unexpected.
+        </EmptyDescription>
+      </EmptyHeader>
+      {onBack ? (
+        <EmptyContent className="flex-row justify-center">
+          <Button variant="outline" onClick={onBack}>
+            Go back
+          </Button>
+        </EmptyContent>
+      ) : null}
+    </Empty>
+  );
+}
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();

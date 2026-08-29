@@ -7,34 +7,35 @@ use App\Http\Requests\Auth\SsoCallbackRequest;
 use App\Services\AuthService;
 use App\Services\SsoService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class SSOController extends Controller
 {
     public function __construct(
-        private readonly SsoService $ssoService,
-        private readonly AuthService $authService
+        private readonly SsoService $sso,
+        private readonly AuthService $auth,
     ) {}
 
-    public function redirectToProvider(string $provider): JsonResponse
+    public function redirectToProvider(Request $request, string $provider): JsonResponse
     {
-        $redirect = $this->ssoService->redirect($provider);
+        $client = $this->auth->normalizeClient((string) $request->query('client', 'erp'));
 
         return response()->json([
             'success' => true,
-            ...$redirect,
+            ...$this->sso->redirect($provider, $client),
         ]);
     }
 
     public function handleProviderCallback(SsoCallbackRequest $request, string $provider): JsonResponse
     {
-        $validated = $request->validated();
-        $user = $this->ssoService->authenticate($provider, $validated['code'], $validated['state']);
-        $payload = $this->authService->establishBrowserSession($request, $user);
-        $payload['sso_provider'] = $user->sso_provider;
+        $client = $this->auth->normalizeClient((string) $request->validated('client'));
+        $user = $this->sso->authenticate(
+            $provider,
+            (string) $request->validated('code'),
+            (string) $request->validated('state'),
+            $client,
+        );
 
-        return response()->json([
-            'success' => true,
-            'user' => $payload,
-        ]);
+        return response()->json($this->auth->beginBrowserAuthentication($request, $user, 'sso:'.$provider));
     }
 }

@@ -10,7 +10,7 @@ import { AppMobileNavigation } from "#components/shell/AppMobileNavigation";
 import { RouteMetadata } from "#components/metadata/RouteMetadata";
 import { FloatingClockWidget } from "#features/timesheets/components/FloatingClockWidget";
 
-/** Big-version PortalLayout presentation mapped onto the mini tenant scope. */
+/** Tenant layout presentation mapped onto the tenant scope. */
 export function TenantLayout() {
   const { pathname } = useLocation();
   const { tenantKey } = useParams();

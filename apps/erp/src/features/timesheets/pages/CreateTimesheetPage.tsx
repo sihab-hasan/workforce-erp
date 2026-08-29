@@ -1,8 +1,8 @@
 import { ArrowLeft } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@workforce-erp/ui/components/button";
-import { Separator } from "@workforce-erp/ui/components/separator";
+import { ErpPage } from "#components/erp/ErpPage";
 import { companyRoutes } from "#routes/paths";
 import { TimesheetForm, type TimesheetFormValues } from "../components/TimesheetForm";
 import { useCreateTimesheet } from "../api/timesheets.mutations";
@@ -44,28 +44,22 @@ export default function CreateTimesheetPage() {
   }
 
   return (
-    <div className="space-y-6 pb-20 md:pb-0">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-            People · Timesheets
-          </p>
-          <h2 className="mt-1 font-heading text-xl font-semibold sm:text-2xl">Create Timesheet</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Add a manual work-log entry using the existing timesheet API.
-          </p>
-        </div>
-        <Button variant="outline" size="sm" onClick={() => navigate(listPath)}>
-          <ArrowLeft className="mr-2 size-4" /> Back to timesheets
+    <ErpPage
+      title="Create timesheet"
+      description="Add a manual work-log entry using verified employee timestamps."
+      actions={
+        <Button variant="outline" nativeButton={false} render={<Link to={listPath} />}>
+          <ArrowLeft />
+          Back to timesheets
         </Button>
-      </header>
-      <Separator />
+      }
+    >
       <TimesheetForm
         submitLabel="Create timesheet"
         pending={createTimesheet.isPending}
         onCancel={() => navigate(listPath)}
         onSubmit={save}
       />
-    </div>
+    </ErpPage>
   );
 }
