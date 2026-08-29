@@ -101,16 +101,19 @@ Open `http://localhost:5174/`.
 Set provider credentials in `apps/api/.env`:
 
 ```dotenv
-PORTAL_URL=http://localhost:5174/portal
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
+PORTAL_URL=http://localhost:5174
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
 GOOGLE_REDIRECT_URI=http://localhost:5174/sso/callback/google
 MICROSOFT_CLIENT_ID=
 MICROSOFT_CLIENT_SECRET=
+MICROSOFT_TENANT_ID=common
 MICROSOFT_REDIRECT_URI=http://localhost:5174/sso/callback/microsoft
 ```
 
-The redirect URIs must also be registered with Google/Microsoft. The API rejects SSO redirect requests when provider credentials are missing. Each SSO transaction generates a one-time state plus an S256 PKCE verifier/challenge pair; the verifier stays server-side and is consumed with the state during the callback. Provider HTTP calls have bounded connect/request timeouts.
+The redirect URIs must match those registered with Google Cloud Console and Microsoft Entra ID (Azure AD). The API rejects SSO redirect requests when provider credentials are missing. Each SSO transaction generates a one-time state plus an S256 PKCE verifier/challenge pair; the verifier stays server-side and is consumed with the state during the callback. Provider HTTP calls have bounded connect/request timeouts.
+
+> **Note on Microsoft Entra ID:** Microsoft requires app registrations to be created within an organization/workplace Entra ID tenant rather than an unverified personal account. For local development, Google SSO and built-in credentials work out of the box.
 
 ## Mail / OTP / password recovery
 
