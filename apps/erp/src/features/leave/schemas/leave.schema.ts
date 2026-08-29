@@ -72,18 +72,29 @@ export function createLeaveFormSchema(remainingDays: number | null) {
  feature/leave-management-92
         const totalDays = countWorkingDays(values.start_date, values.end_date);
 
-        const totalDays = countCalendarDays(values.start_date, values.end_date);
- develop
+      const totalDays = countCalendarDays(values.start_date, values.end_date);
         if (totalDays > remainingDays) {
           ctx.addIssue({
+
             code: "custom",
+
             path: ["balance"],
+
             message: `This request needs ${totalDays} working day${totalDays === 1 ? "" : "s"} but only ${remainingDays} day${remainingDays === 1 ? "" : "s"} remain for the selected leave type.`,
+
           });
+
         }
+
       }
+
     });
+
 }
 
+
+
 export type LeaveFormSchema = ReturnType<typeof createLeaveFormSchema>;
-export type LeaveFormValues = z.infer<LeaveFormSchema>;
+
+export type LeaveFormValues = z.infer<LeaveFormSchema>; 
+
