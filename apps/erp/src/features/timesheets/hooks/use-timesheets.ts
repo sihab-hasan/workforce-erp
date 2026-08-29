@@ -26,3 +26,6 @@ export function useTodayTimesheet(employeeId?: string) {
 export function useTimesheetDetail(id: string) {
   return useQuery(timesheetDetailQueryOptions(id));
 }
+
+export { useLiveClockTimer, calcElapsedUnits, formatClockTime } from "./use-live-clock-timer";
+export type { LiveClockTimerResult } from "./use-live-clock-timer";
