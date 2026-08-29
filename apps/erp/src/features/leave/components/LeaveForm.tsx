@@ -7,14 +7,14 @@ import {
 import type { LeaveFormValues } from "../schemas/leave.schema";
 
 interface LeaveFormProps {
-  remainingDays: number | null;
-  onSubmit: (values: LeaveFormValues) => void;
+  remainingDays?: number | null;
+  onSubmit?: (values: LeaveFormValues) => void;
   onCancel?: () => void | Promise<void>;
 }
 
-export function LeaveForm({ remainingDays, onSubmit }: LeaveFormProps) {
+export function LeaveForm({ remainingDays = null, onSubmit = () => {} }: LeaveFormProps) {
   const form = useForm<LeaveFormValues>({
-    resolver: zodResolver(createLeaveFormSchema(remainingDays)),
+    resolver: zodResolver(createLeaveFormSchema(remainingDays ?? null)),
     defaultValues: {
       leave_type_id: "",
       start_date: "",
