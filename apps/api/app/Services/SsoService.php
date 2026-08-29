@@ -2,12 +2,16 @@
 
 namespace App\Services;
 
+use App\Models\Organization;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\UserSsoIdentity;
 use Firebase\JWT\JWK;
 use Firebase\JWT\JWT;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -52,12 +56,80 @@ class SsoService
         if (! $user) {
             $user = User::query()->where('email', $email)->first();
             if (! $user) {
-                abort(403, 'No eligible Workforce account is available for this identity.');
-            } $existing = UserSsoIdentity::query()->where('user_id', $user->id)->where('provider', $provider)->first();
+                $user = DB::transaction(function () use ($email, $profile) {
+                    $fullName = trim((string) ($profile['metadata']['name'] ?? '')) ?: explode('@', $email)[0];
+                    $newUser = User::query()->create([
+                        'name' => $fullName,
+                        'email' => $email,
+                        'password' => Hash::make(Str::random(32)),
+                        'email_verified_at' => now(),
+                        'password_initialized_at' => now(),
+                        'status' => 'active',
+                    ]);
+
+                    $orgName = $fullName."'s Team";
+                    $baseSlug = Str::slug($orgName) ?: 'organization';
+                    $slug = $baseSlug;
+                    $counter = 2;
+                    while (Organization::withTrashed()->where('slug', $slug)->exists()) {
+                        $slug = $baseSlug.'-'.$counter++;
+                    }
+
+                    $organization = Organization::query()->create([
+                        'name' => $orgName,
+                        'slug' => $slug,
+                        'country' => 'US',
+                        'status' => 'active',
+                        'plan' => 'trial',
+                        'trial_started_at' => now(),
+                        'trial_ends_at' => now()->addDays(14),
+                        'subscription_status' => 'trialing',
+                        'onboarding_status' => 'in_progress',
+                        'onboarding_step' => 'organization',
+                    ]);
+
+                    $membership = $newUser->memberships()->create([
+                        'organization_id' => $organization->id,
+                        'role' => 'owner',
+                        'status' => 'active',
+                        'data_scope' => 'ORGANIZATION',
+                        'activated_at' => now(),
+                    ]);
+
+                    app(RegistrationService::class)->ensureDefaultRoles($organization->id);
+                    $ownerRole = Role::query()
+                        ->where('organization_id', $organization->id)
+                        ->where('name', 'organization_owner')
+                        ->first();
+
+                    if ($ownerRole) {
+                        $membership->roleAssignments()->create([
+                            'role_id' => $ownerRole->id,
+                            'scope' => 'ORGANIZATION',
+                            'reason' => 'SSO initial tenant owner provisioning',
+                        ]);
+                    }
+
+                    return $newUser;
+                });
+            }
+
+            $existing = UserSsoIdentity::query()->where('user_id', $user->id)->where('provider', $provider)->first();
             if ($existing && (! hash_equals((string) $existing->provider_subject_id, $subject) || ! hash_equals((string) $existing->issuer, $issuer))) {
                 abort(409, 'A different account from this provider is already linked.');
-            } if (! $existing) {
-                $identity = UserSsoIdentity::query()->create(['user_id' => $user->id, 'provider' => $provider, 'issuer' => $issuer, 'provider_tenant' => $tenant, 'provider_subject_id' => $subject, 'provider_user_id' => $subject, 'email' => $email, 'metadata' => $profile['metadata'] ?? []]);
+            }
+
+            if (! $existing) {
+                $identity = UserSsoIdentity::query()->create([
+                    'user_id' => $user->id,
+                    'provider' => $provider,
+                    'issuer' => $issuer,
+                    'provider_tenant' => $tenant,
+                    'provider_subject_id' => $subject,
+                    'provider_user_id' => $subject,
+                    'email' => $email,
+                    'metadata' => $profile['metadata'] ?? [],
+                ]);
             }
         }
         if (! $user || $user->status !== 'active' || $user->locked_at) {

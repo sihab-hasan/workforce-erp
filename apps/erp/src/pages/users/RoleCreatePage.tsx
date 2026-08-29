@@ -3,12 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, ShieldPlus } from "lucide-react";
 import { Button } from "@workforce-erp/ui/components/button";
 import { toast } from "sonner";
-import {
-  ErpPage,
-  ErrorState,
-  LoadingState,
-  SectionCard,
-} from "#components/erp/ErpPage";
+import { ErpPage, ErrorState, LoadingState, SectionCard } from "#components/erp/ErpPage";
 import { RoleForm } from "#features/users/components/RoleForm";
 import {
   type PermissionOption,

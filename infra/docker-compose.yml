@@ -101,6 +101,8 @@ services:
   queue:
     <<: *api-runtime
     restart: unless-stopped
+    healthcheck:
+      disable: true
     command:
       - php
       - artisan
@@ -121,6 +123,8 @@ services:
   scheduler:
     <<: *api-runtime
     restart: unless-stopped
+    healthcheck:
+      disable: true
     command: ["php", "artisan", "schedule:work"]
     depends_on:
       mysql:

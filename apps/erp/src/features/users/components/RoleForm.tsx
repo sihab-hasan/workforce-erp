@@ -12,7 +12,6 @@ import {
   type RoleRecord,
 } from "./role-form.constants";
 
-
 export interface RoleFormProps {
   initial?: RoleRecord | null;
   permissions: PermissionOption[];
@@ -21,13 +20,7 @@ export interface RoleFormProps {
   onSubmit: (payload: RolePayload) => void;
 }
 
-export function RoleForm({
-  initial,
-  permissions,
-  submitting,
-  onCancel,
-  onSubmit,
-}: RoleFormProps) {
+export function RoleForm({ initial, permissions, submitting, onCancel, onSubmit }: RoleFormProps) {
   const [name, setName] = useState(initial?.name ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [selected, setSelected] = useState<string[]>(initial?.permissions ?? []);

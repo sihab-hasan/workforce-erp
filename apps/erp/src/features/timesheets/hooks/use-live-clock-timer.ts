@@ -111,10 +111,7 @@ export function useLiveClockTimer(clockInIso?: string | null | undefined): LiveC
     [clockInIso, currentTime],
   );
 
-  const formattedStartTime = useMemo(
-    () => formatClockTime(clockInIso),
-    [clockInIso],
-  );
+  const formattedStartTime = useMemo(() => formatClockTime(clockInIso), [clockInIso]);
 
   return {
     ...elapsedUnits,

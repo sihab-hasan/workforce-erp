@@ -5,7 +5,7 @@ return [
         static fn (string $host): string => trim($host),
         explode(',', (string) env('TRUSTED_HOSTS', ''))
     ))),
-    'portal_url' => rtrim((string) env('PORTAL_URL', 'http://localhost:5174'), '/'),
+    'portal_url' => rtrim((string) env('PORTAL_URL', env('PUBLIC_ERP_URL', env('ERP_URL', 'http://localhost:5174'))), '/'),
 
     /*
     |--------------------------------------------------------------------------
