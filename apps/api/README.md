@@ -27,13 +27,10 @@ The implementation follows the referenced `api-sample`'s easy-to-follow **route 
 From the repository root:
 
 ```bash
-./infra/scripts/setup.sh
-```
-
-On Windows PowerShell:
-
-```powershell
-./infra/scripts/setup.ps1
+# Automated Docker & secret initialization:
+pnpm docker:setup
+# or:
+bash scripts/docker-setup.sh
 ```
 
 To set up only the API manually with the default MySQL development configuration:
@@ -67,10 +64,10 @@ Optional token lifetime and browser CORS origins are environment-driven:
 SANCTUM_TOKEN_EXPIRATION=480
 SANCTUM_TOKEN_PREFIX=workforce_
 CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173,http://localhost:5174,http://localhost:5175
-TRUSTED_HOSTS=localhost,localhost
+TRUSTED_HOSTS=localhost,127.0.0.1
 ```
 
-The example uses an eight-hour (`480` minute) token lifetime. Set `SANCTUM_TOKEN_EXPIRATION` to the session lifetime required by the deployment; leaving it blank opts back into Sanctum's non-expiring personal-access-token behavior. Issued token rows also receive a concrete `expires_at`, so the Sessions page reports the real expiry. Set `TRUSTED_HOSTS` to the API hostnames accepted by the deployment; the local example permits only `localhost` and `localhost`.
+The example uses an eight-hour (`480` minute) token lifetime. Set `SANCTUM_TOKEN_EXPIRATION` to the session lifetime required by the deployment; leaving it blank opts back into Sanctum's non-expiring personal-access-token behavior. Issued token rows also receive a concrete `expires_at`, so the Sessions page reports the real expiry. Set `TRUSTED_HOSTS` to the API hostnames accepted by the deployment; the local example permits only `localhost` and `127.0.0.1`.
 
 ### Service-account authentication
 
