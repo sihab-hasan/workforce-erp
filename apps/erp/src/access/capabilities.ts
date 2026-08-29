@@ -6,6 +6,7 @@ export const CAPABILITIES = [
   "employee.manage",
   "leave.manage",
   "leave.approve",
+  "leave.request",
   "timesheet.manage",
   "approval.approve",
   "document.manage",
