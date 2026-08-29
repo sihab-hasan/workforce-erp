@@ -14,7 +14,7 @@ feature/leave-management-92
  */
 export function countWorkingDays(startIso: string, endIso: string): number {
 
- * Counts calendar days in the inclusive [startIso, endIso] range, matching the
+ 
  * backend calculation (`diffInDays + 1` in LeaveController). Dates are parsed
  * as UTC so the count is unaffected by DST transitions.
  */
