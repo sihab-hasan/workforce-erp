@@ -14,8 +14,8 @@ export const env = {
   // absolute endpoint paths such as `/api/v1/users` and `/sanctum/...`.
   legacyApiBaseUrl: apiBaseUrl,
   webUrl: normalizeBaseUrl(import.meta.env.VITE_WEB_URL) || "http://localhost:5173",
-  erpUrl: normalizeBaseUrl(import.meta.env.VITE_ERP_URL) || "http://localhost:5174",
-  adminUrl: normalizeBaseUrl(import.meta.env.VITE_ADMIN_URL) || "http://localhost:5175",
+  erpUrl: normalizeBaseUrl(import.meta.env.VITE_ERP_URL) || "http://localhost:5173/erp",
+  adminUrl: normalizeBaseUrl(import.meta.env.VITE_ADMIN_URL) || "http://localhost:5173/admin",
   mode: import.meta.env.MODE,
 } as const;
 

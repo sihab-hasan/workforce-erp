@@ -1,0 +1,129 @@
+name: workforce-erp
+
+x-api-app: &api-app
+  build:
+    context: ..
+    dockerfile: infra/docker/Dockerfile.api
+  env_file:
+    - ../.env.docker
+  environment:
+    APP_KEY: "${APP_KEY:-}"
+    DB_CONNECTION: mysql
+    DB_HOST: mysql
+    DB_PORT: 3306
+    REDIS_HOST: redis
+    REDIS_PORT: 6379
+    MAIL_HOST: mailpit
+    MAIL_PORT: 1025
+  volumes:
+    - api_storage:/var/www/html/storage/app
+  networks:
+    - workforce
+
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: "${DB_DATABASE:-workforce_erp}"
+      MYSQL_USER: "${DB_USERNAME:-workforce}"
+      MYSQL_PASSWORD: "${DB_PASSWORD:-workforce-local-only}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-workforce-root-local-only}"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        ["CMD-SHELL", 'mysqladmin ping -h 127.0.0.1 -uroot -p"$${MYSQL_ROOT_PASSWORD}" --silent']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - workforce
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    environment:
+      REDIS_PASSWORD: "${REDIS_PASSWORD:-workforce-redis-local-only}"
+    command: ["sh", "-c", 'exec redis-server --appendonly yes --requirepass "$${REDIS_PASSWORD}"']
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", 'redis-cli -a "$${REDIS_PASSWORD}" ping | grep -q PONG']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - workforce
+
+  api-migrate:
+    <<: *api-app
+    restart: "no"
+    command: ["php", "artisan", "migrate", "--force"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  api:
+    <<: *api-app
+    restart: unless-stopped
+    depends_on:
+      api-migrate:
+        condition: service_completed_successfully
+
+  queue:
+    <<: *api-app
+    restart: unless-stopped
+    command: ["php", "artisan", "queue:work", "redis", "--sleep=3", "--tries=3", "--timeout=90"]
+    depends_on:
+      api-migrate:
+        condition: service_completed_successfully
+
+  scheduler:
+    <<: *api-app
+    restart: unless-stopped
+    command: ["php", "artisan", "schedule:work"]
+    depends_on:
+      api-migrate:
+        condition: service_completed_successfully
+
+  mailpit:
+    image: axllent/mailpit:v1.21
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+    networks:
+      - workforce
+
+  caddy:
+    build:
+      context: ..
+      dockerfile: infra/docker/Dockerfile.frontend
+      args:
+        VITE_API_BASE_URL: "${VITE_API_BASE_URL:-}"
+        VITE_API_URL: "${VITE_API_URL:-/api}"
+        VITE_WEB_URL: "${VITE_WEB_URL:-http://localhost:8080}"
+        VITE_ERP_URL: "${VITE_ERP_URL:-http://localhost:8080/erp/}"
+        VITE_ADMIN_URL: "${VITE_ADMIN_URL:-http://localhost:8080/admin/}"
+    restart: unless-stopped
+    ports:
+      - "${APP_HTTP_PORT:-8080}:80"
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - workforce
+
+volumes:
+  mysql_data:
+  redis_data:
+  api_storage:
+
+networks:
+  workforce:

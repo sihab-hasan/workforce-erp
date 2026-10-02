@@ -20,7 +20,6 @@ export const workspace = defineConfig(
     files: [
       "services/**/*.{js,ts,mjs,cjs,mts,cts}",
       "tooling/**/*.{js,ts,mjs,cjs,mts,cts}",
-      "scripts/**/*.{js,ts,mjs,cjs,mts,cts}",
       "e2e/**/*.{js,ts,mjs,cjs,mts,cts}",
       "*.config.{js,ts,mjs,cjs,mts,cts}",
     ],

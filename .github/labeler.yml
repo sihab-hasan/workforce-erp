@@ -14,10 +14,6 @@ api:
   - changed-files:
       - any-glob-to-any-file: "apps/api/**"
 
-worker:
-  - changed-files:
-      - any-glob-to-any-file: "services/worker/**"
-
 packages:
   - changed-files:
       - any-glob-to-any-file: "packages/**"
@@ -25,7 +21,6 @@ packages:
 tooling:
   - changed-files:
       - any-glob-to-any-file: "tooling/**"
-      - any-glob-to-any-file: "scripts/**"
 
 infra:
   - changed-files:
@@ -34,7 +29,6 @@ infra:
 
 docs:
   - changed-files:
-      - any-glob-to-any-file: "docs/**"
       - any-glob-to-any-file: "**/*.md"
 
 ci:

@@ -95,7 +95,7 @@ CI runs for:
 - pull requests targeting `main`
 - manual workflow dispatches
 
-The Node workflow uses full Git history and Nx affected SHAs, then runs repository validation, import-boundary checks, type checking, linting, and builds for affected Node projects.
+The Node workflow uses full Git history and Nx affected SHAs, then checks formatting and runs type checking, linting, and builds for affected Node projects.
 
 The API workflow validates Composer metadata, installs Composer dependencies, and runs the Laravel test suite.
 
@@ -105,7 +105,7 @@ The API workflow validates Composer metadata, installs Composer dependencies, an
 
 - a push to `main` starts the production deployment workflow
 - a manual production workflow run is rejected when started from any branch other than `main`
-- repository validation must pass before the deployment handoff job
+- the Node and API validation jobs must pass before the deployment handoff job
 - production secrets belong in the GitHub `production` Environment, never in repository files
 
 The current workflow contains the production gate and validation handoff. Provider-specific deployment commands still need to be added when the hosting target is finalized.

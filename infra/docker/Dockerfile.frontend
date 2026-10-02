@@ -1,0 +1,26 @@
+FROM node:22-alpine AS build
+
+WORKDIR /repo
+COPY . .
+RUN corepack enable && pnpm install --frozen-lockfile
+
+ARG VITE_API_BASE_URL=
+ARG VITE_API_URL=/api
+ARG VITE_WEB_URL=http://localhost:8080
+ARG VITE_ERP_URL=http://localhost:8080/erp/
+ARG VITE_ADMIN_URL=http://localhost:8080/admin/
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL \
+    VITE_API_URL=$VITE_API_URL \
+    VITE_WEB_URL=$VITE_WEB_URL \
+    VITE_ERP_URL=$VITE_ERP_URL \
+    VITE_ADMIN_URL=$VITE_ADMIN_URL
+
+RUN VITE_BASE_PATH=/ pnpm nx build @workforce-erp/web \
+    && VITE_BASE_PATH=/erp/ pnpm nx build @workforce-erp/erp \
+    && VITE_BASE_PATH=/admin/ pnpm nx build @workforce-erp/admin
+
+FROM caddy:2-alpine
+COPY infra/Caddyfile /etc/caddy/Caddyfile
+COPY --from=build /repo/apps/web/dist /srv/web
+COPY --from=build /repo/apps/erp/dist /srv/erp
+COPY --from=build /repo/apps/admin/dist /srv/admin

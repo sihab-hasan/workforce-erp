@@ -39,7 +39,7 @@ pnpm dev:admin
 pnpm dev
 ```
 
-The Admin application will be available at **`http://localhost:5175`**.
+The Admin application is available at **`http://localhost:5173/admin/`** when all frontend apps are running.
 
 ### Quality & Build Commands
 
@@ -79,11 +79,11 @@ apps/admin/src/
 
 Environment variables are inherited from the root `.env`:
 
-| Variable                | Default (Local)         | Purpose                                    |
-| ----------------------- | ----------------------- | ------------------------------------------ |
-| `ADMIN_DEV_PORT`        | `5175`                  | Local Vite dev server port                 |
-| `ADMIN_PREVIEW_PORT`    | `4175`                  | Local Vite preview port                    |
-| `VITE_API_PROXY_TARGET` | `http://127.0.0.1:8000` | Backend API target for Vite proxy          |
-| `VITE_API_URL`          | `/api`                  | Base path for API client calls             |
-| `VITE_ERP_URL`          | `http://localhost:5174` | Cross-app URL for ERP customer application |
-| `VITE_WEB_URL`          | `http://localhost:5173` | Cross-app URL for public marketing website |
+| Variable                | Default (Local)              | Purpose                                    |
+| ----------------------- | ---------------------------- | ------------------------------------------ |
+| `ADMIN_DEV_PORT`        | `5175`                       | Local Vite dev server port                 |
+| `ADMIN_PREVIEW_PORT`    | `4175`                       | Local Vite preview port                    |
+| `VITE_API_PROXY_TARGET` | `http://127.0.0.1:8000`      | Backend API target for Vite proxy          |
+| `VITE_API_URL`          | `/api`                       | Base path for API client calls             |
+| `VITE_ERP_URL`          | `http://localhost:5173/erp/` | Cross-app URL for ERP customer application |
+| `VITE_WEB_URL`          | `http://localhost:5173`      | Cross-app URL for public marketing website |

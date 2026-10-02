@@ -6,7 +6,7 @@
 - Feature requests: use the feature request issue form.
 - Project setup and shared commands: check the root `README.md`.
 - Repository automation or CI questions: check `.github/GITHUB-CONFIG.md`.
-- Infrastructure questions: check `infra/README.md`.
+- Deployment questions: check the production note in `infra/README.md`.
 
 ## Before opening an issue
 

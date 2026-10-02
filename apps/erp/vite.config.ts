@@ -12,6 +12,7 @@ function numberEnv(value: string | undefined, fallback: number) {
 export default defineConfig(({ mode }) => {
   const fileEnv = loadEnv(mode, repoEnvDir, "");
   const read = (name: string) => fileEnv[name];
+  const base = process.env.VITE_BASE_PATH || read("ERP_BASE_PATH") || "/erp/";
   const proxyTarget = read("VITE_API_PROXY_TARGET") || "http://127.0.0.1:8000";
   const proxy = {
     "/api": { target: proxyTarget, changeOrigin: true },
@@ -19,6 +20,7 @@ export default defineConfig(({ mode }) => {
   };
 
   return {
+    base,
     envDir: repoEnvDir,
     plugins: [react(), tailwindcss()],
     server: {

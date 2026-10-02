@@ -24,16 +24,7 @@ The implementation follows the referenced `api-sample`'s easy-to-follow **route 
 
 ## Local setup
 
-From the repository root:
-
-```bash
-# Automated Docker & secret initialization:
-pnpm docker:setup
-# or:
-bash scripts/docker-setup.sh
-```
-
-To set up only the API manually with the default MySQL development configuration:
+To set up the API locally with a MySQL development database:
 
 ```bash
 cd apps/api
@@ -63,7 +54,7 @@ Optional token lifetime and browser CORS origins are environment-driven:
 ```dotenv
 SANCTUM_TOKEN_EXPIRATION=480
 SANCTUM_TOKEN_PREFIX=workforce_
-CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173,http://localhost:5174,http://localhost:5175
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
 TRUSTED_HOSTS=localhost,127.0.0.1
 ```
 
@@ -74,8 +65,6 @@ The example uses an eight-hour (`480` minute) token lifetime. Set `SANCTUM_TOKEN
 Server-to-server integrations use dedicated service accounts rather than employee identities or a shared global token. An authorized tenant administrator creates a service account, assigns explicit permissions and data scopes, and receives a client credential only at creation/rotation time. The worker exchanges that credential for a short-lived audience-bound Bearer token at `POST /api/v1/auth/service-token`.
 
 Protected machine endpoints use `service.account` plus explicit `service.permission:*` and `service.scope:*` middleware. Credentials and access tokens are hashed at rest, support rotation/revocation/expiry, and never default to wildcard permissions.
-
-The optional Node worker accepts `WORKER_SERVICE_CLIENT_ID`, `WORKER_SERVICE_CLIENT_SECRET`, and `WORKER_SERVICE_AUDIENCE` from deployment secret management. Never commit real service credentials.
 
 ## ERP + API development
 
@@ -88,24 +77,24 @@ pnpm dev:api
 Terminal 2:
 
 ```bash
-pnpm dev:erp
+pnpm dev
 ```
 
-Open `http://localhost:5174/`.
+Open the ERP at `http://localhost:5173/erp/`.
 
 ## SSO configuration
 
 Set provider credentials in `apps/api/.env`:
 
 ```dotenv
-PORTAL_URL=http://localhost:5174
+PORTAL_URL=http://localhost:5173/erp/
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
-GOOGLE_REDIRECT_URI=http://localhost:5174/sso/callback/google
+GOOGLE_REDIRECT_URI=http://localhost:5173/erp/sso/callback/google
 MICROSOFT_CLIENT_ID=
 MICROSOFT_CLIENT_SECRET=
 MICROSOFT_TENANT_ID=common
-MICROSOFT_REDIRECT_URI=http://localhost:5174/sso/callback/microsoft
+MICROSOFT_REDIRECT_URI=http://localhost:5173/erp/sso/callback/microsoft
 ```
 
 The redirect URIs must match those registered with Google Cloud Console and Microsoft Entra ID (Azure AD). The API rejects SSO redirect requests when provider credentials are missing. Each SSO transaction generates a one-time state plus an S256 PKCE verifier/challenge pair; the verifier stays server-side and is consumed with the state during the callback. Provider HTTP calls have bounded connect/request timeouts.

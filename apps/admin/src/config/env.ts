@@ -5,14 +5,14 @@ function normalizeBaseUrl(value: string | undefined) {
 const apiBaseUrl = normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL);
 const apiUrl =
   normalizeBaseUrl(import.meta.env.VITE_API_URL) || (apiBaseUrl ? `${apiBaseUrl}/api` : "/api");
-const erpUrl = normalizeBaseUrl(import.meta.env.VITE_ERP_URL) || "http://localhost:5174";
+const erpUrl = normalizeBaseUrl(import.meta.env.VITE_ERP_URL) || "http://localhost:5173/erp";
 
 export const env = {
   apiUrl,
   apiBaseUrl,
   webUrl: normalizeBaseUrl(import.meta.env.VITE_WEB_URL) || "http://localhost:5173",
   erpUrl,
-  adminUrl: normalizeBaseUrl(import.meta.env.VITE_ADMIN_URL) || "http://localhost:5175",
+  adminUrl: normalizeBaseUrl(import.meta.env.VITE_ADMIN_URL) || "http://localhost:5173/admin",
   // Compatibility property used by the transferred Admin auth page.
   portalUrl: erpUrl,
   mode: import.meta.env.MODE,

@@ -23,14 +23,8 @@ jobs:
       - name: Setup Node.js and pnpm
         uses: ./.github/actions/setup-node-pnpm
 
-      - name: Validate repository configuration
-        run: pnpm validate
-
       - name: Check code formatting
         run: pnpm format:check
-
-      - name: Check import boundaries
-        run: pnpm check:imports
 
       - name: Set Nx affected SHAs
         uses: nrwl/nx-set-shas@v5

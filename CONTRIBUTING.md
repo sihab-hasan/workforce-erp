@@ -6,7 +6,7 @@ Use `develop` as the integration base unless the repository owner specifies anot
 
 ## Setup
 
-Follow `docs/setup.md` before making changes.
+Follow the root `README.md` for workspace setup and local development. The optional Docker Desktop stack is described in `infra/README.md`.
 
 ## Before opening a pull request
 

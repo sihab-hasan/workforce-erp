@@ -25,11 +25,11 @@ From the monorepo root:
 # Start ERP app only:
 pnpm dev:erp
 
-# Or start all frontend apps and worker together:
+# Or start all frontend apps together:
 pnpm dev
 ```
 
-The ERP application will be available at **`http://localhost:5174`**.
+The ERP application is available at **`http://localhost:5173/erp/`** when all frontend apps are running.
 
 ### Quality & Build Commands
 
@@ -70,11 +70,11 @@ apps/erp/src/
 
 Environment variables are inherited from the root `.env`:
 
-| Variable                | Default (Local)         | Purpose                                                 |
-| ----------------------- | ----------------------- | ------------------------------------------------------- |
-| `ERP_DEV_PORT`          | `5174`                  | Local Vite dev server port                              |
-| `ERP_PREVIEW_PORT`      | `4174`                  | Local Vite preview port                                 |
-| `VITE_API_PROXY_TARGET` | `http://127.0.0.1:8000` | Backend API target for Vite `/api` and `/sanctum` proxy |
-| `VITE_API_URL`          | `/api`                  | Base path for API client calls                          |
-| `VITE_WEB_URL`          | `http://localhost:5173` | Cross-app URL for public marketing website              |
-| `VITE_ADMIN_URL`        | `http://localhost:5175` | Cross-app URL for platform administration               |
+| Variable                | Default (Local)                | Purpose                                                 |
+| ----------------------- | ------------------------------ | ------------------------------------------------------- |
+| `ERP_DEV_PORT`          | `5174`                         | Local Vite dev server port                              |
+| `ERP_PREVIEW_PORT`      | `4174`                         | Local Vite preview port                                 |
+| `VITE_API_PROXY_TARGET` | `http://127.0.0.1:8000`        | Backend API target for Vite `/api` and `/sanctum` proxy |
+| `VITE_API_URL`          | `/api`                         | Base path for API client calls                          |
+| `VITE_WEB_URL`          | `http://localhost:5173`        | Cross-app URL for public marketing website              |
+| `VITE_ADMIN_URL`        | `http://localhost:5173/admin/` | Cross-app URL for platform administration               |

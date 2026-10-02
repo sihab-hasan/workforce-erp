@@ -54,7 +54,7 @@ jobs:
             echo 'Source branch: `main`'
             echo 'Environment: `production`'
             echo ''
-            echo 'Repository validation passed.'
+            echo 'Node and API CI checks passed.'
             echo ''
             echo '> Provider-specific deployment commands are not configured yet.'
             echo '> Add the hosting/deployment step here once the production target and credentials are finalized.'

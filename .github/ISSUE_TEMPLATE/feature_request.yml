@@ -13,7 +13,6 @@ body:
         - ERP app (apps/erp)
         - Admin app (apps/admin)
         - Laravel API (apps/api)
-        - Worker service (services/worker)
         - Shared package (packages/*)
         - Tooling or scripts
         - CI or GitHub Actions

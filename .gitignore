@@ -64,11 +64,6 @@ apps/api/storage/logs/*.log
 *.sqlite-journal
 apps/api/database/*.sqlite
 
-# Docker and TLS certificates / ACME data
-certbot/
-infra/certbot/conf/
-infra/certbot/www/
-
  feature/leave-management-92
 # Local tooling (e.g., downloaded PHP runtime for the API test suite)
 .tools/
