@@ -1,6 +1,6 @@
 # Local Docker Desktop Stack
 
-This Compose stack is for local development and is not production-ready. It uses Caddy for static frontend hosting and same-origin API routing, PHP/Apache for Laravel, MySQL, Redis, Laravel queue/scheduler processes, and Mailpit.
+This Compose stack is for local development and is not production-ready. It uses Caddy for static frontend hosting and same-origin API routing, PHP/Apache for Laravel, MySQL, Redis, and Laravel queue/scheduler processes. Outgoing mail uses Gmail SMTP.
 
 ## Start
 
@@ -23,7 +23,10 @@ Local URLs (single origin, no subdomains):
 - ERP: `http://localhost:8080/erp/`
 - Admin: `http://localhost:8080/admin/`
 - API: `http://localhost:8080/api`
-- Mailpit: `http://localhost:8025`
+
+## Gmail SMTP
+
+Set `MAIL_USERNAME` and `MAIL_FROM_ADDRESS` to the Google account address, and `MAIL_PASSWORD` to a Google App Password. App Passwords require 2-Step Verification; do not use your normal Google account password. Keep the App Password only in the ignored `.env.docker` file.
 
 Stop the stack with `pnpm docker:down`. This removes containers and the network but preserves named MySQL, Redis, and upload volumes. Do not add `-v` unless intentionally deleting local data.
 

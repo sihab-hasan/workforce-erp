@@ -121,7 +121,7 @@ Clock-in and clock-out command endpoints derive timestamps from API server time.
 
 ## Framework lifecycle
 
-The repository targets Laravel 13 on PHP 8.3+. Composer must generate and validate the real Laravel 13 lockfile in a connected release environment, followed by migrations, route inspection, Pint, the full feature suite, dependency audit, and Portal/API integration checks before deployment.
+The repository targets Laravel 13 on PHP 8.4+. Composer must validate the Laravel 13 lockfile in a connected release environment, followed by migrations, route inspection, Pint, the full feature suite, dependency audit, and Portal/API integration checks before deployment.
 
 ## Adding a new module
 

@@ -31,7 +31,7 @@ cd apps/api
 composer install
 cp .env.example .env
 php artisan key:generate
-# Create the MySQL database `workforce_erp`, then:
+# Create the MySQL database `workforce_erp_db`, then:
 php artisan migrate
 php artisan db:seed
 php artisan serve --host=localhost --port=8000
@@ -103,7 +103,7 @@ The redirect URIs must match those registered with Google Cloud Console and Micr
 
 ## Mail / OTP / password recovery
 
-Authentication email delivery is real SMTP; OTP values and password-reset tokens are never exposed through application logs. The `.env.example` points to `localhost:1025`, so run a local SMTP catcher such as Mailpit-compatible SMTP or replace those settings with a real provider before testing invitations, OTP, or password recovery. If OTP delivery fails, the undelivered OTP row is deleted. Public OTP/password-recovery responses remain deliberately generic so account existence or eligibility is not disclosed.
+Authentication email delivery uses SMTP; OTP values and password-reset tokens are never exposed through application logs. For local testing, configure Gmail SMTP in `apps/api/.env` with `smtp.gmail.com`, port `587`, TLS, and a Google App Password. App Passwords require 2-Step Verification; do not use your normal Google account password. If OTP delivery fails, the undelivered OTP row is deleted. Public OTP/password-recovery responses remain deliberately generic so account existence or eligibility is not disclosed.
 
 OTP values are stored as password hashes rather than plaintext, expire after five minutes, and are single-use. Laravel's password broker owns password-reset token creation/validation; reset links target the configured `PORTAL_URL`. Password reset and authenticated password change revoke all existing Sanctum tokens and require a fresh sign-in. Expired token rows are pruned daily by the Laravel scheduler.
 
@@ -111,7 +111,7 @@ Live clock-in/clock-out actions use API server time and reject client-supplied `
 
 ## Framework lifecycle note
 
-This V1 source targets Laravel 13 with PHP 8.3+. The release environment must run Composer with network access to generate a fresh lockfile and validate Sanctum, PHPUnit, migrations, middleware, dependency audit, and deployment compatibility before production promotion.
+This V1 source targets Laravel 13 with PHP 8.4+. The release environment must run Composer with network access to validate the lockfile, Sanctum, PHPUnit, migrations, middleware, dependency audit, and deployment compatibility before production promotion.
 
 ## Validation and testing
 
