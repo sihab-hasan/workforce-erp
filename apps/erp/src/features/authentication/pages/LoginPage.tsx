@@ -5,7 +5,6 @@ import { AUTH_PATHS, safeReturnTo } from "#features/authentication/navigation";
 import { AuthCard } from "#features/authentication/components/AuthCard";
 import { LoginForm } from "#features/authentication/components/LoginForm";
 import { SocialLoginButtons } from "#features/authentication/components/SocialLoginButtons";
-import { ERP_PATHS } from "#routes/paths";
 
 export default function LoginPage() {
   const navigate = useNavigate();
