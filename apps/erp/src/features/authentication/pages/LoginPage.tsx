@@ -44,9 +44,7 @@ export default function LoginPage() {
         </div>
       )}
 
-      <LoginForm
-        onSuccess={() => navigate(returnTo, { replace: true })}
-      />
+      <LoginForm onSuccess={() => navigate(returnTo, { replace: true })} />
 
       <div className="relative my-4 flex items-center gap-3" aria-hidden="true">
         <div className="h-px flex-1 bg-border" />

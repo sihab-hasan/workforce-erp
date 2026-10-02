@@ -55,56 +55,56 @@ export function SignInPage() {
       }
     >
       <form className="space-y-5" onSubmit={login}>
-          <div className="space-y-1.5">
-            <Label htmlFor="admin-email">Work email</Label>
-            <div className="relative">
-              <Mail className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                id="admin-email"
-                className="pl-8"
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="admin-email">Work email</Label>
+          <div className="relative">
+            <Mail className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="admin-email"
+              className="pl-8"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="admin-password">Password</Label>
-            <div className="relative">
-              <Lock className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                id="admin-password"
-                className="px-8"
-                type={show ? "text" : "password"}
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <button
-                type="button"
-                aria-label={show ? "Hide password" : "Show password"}
-                onClick={() => setShow((v) => !v)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
-              >
-                {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-              </button>
-            </div>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="admin-password">Password</Label>
+          <div className="relative">
+            <Lock className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="admin-password"
+              className="px-8"
+              type={show ? "text" : "password"}
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              aria-label={show ? "Hide password" : "Show password"}
+              onClick={() => setShow((v) => !v)}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+            >
+              {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+            </button>
           </div>
-          {error ? (
-            <p role="alert" className="text-sm text-destructive">
-              {error}
-            </p>
-          ) : null}
-          <Button className="w-full" disabled={loading}>
-            {loading ? (
-              <>
-                <Loader2 className="animate-spin" /> Signing in…
-              </>
-            ) : (
-              "Sign in"
-            )}
-          </Button>
+        </div>
+        {error ? (
+          <p role="alert" className="text-sm text-destructive">
+            {error}
+          </p>
+        ) : null}
+        <Button className="w-full" disabled={loading}>
+          {loading ? (
+            <>
+              <Loader2 className="animate-spin" /> Signing in…
+            </>
+          ) : (
+            "Sign in"
+          )}
+        </Button>
       </form>
     </AuthCard>
   );

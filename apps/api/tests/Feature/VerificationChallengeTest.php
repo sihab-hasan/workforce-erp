@@ -24,7 +24,7 @@ class VerificationChallengeTest extends TestCase
             'email_verified_at' => now(),
         ]);
         $service = app(VerificationChallengeService::class);
-        $challenge = $service->create($user, 'login', 'password', 'erp', ['email']);
+        $challenge = $service->create($user, 'step_up', 'password', 'erp', ['email']);
         $challenge = $service->selectAndSend($challenge, 'email');
 
         $code = null;
@@ -38,7 +38,7 @@ class VerificationChallengeTest extends TestCase
         $this->assertTrue(Hash::check((string) $code, (string) $challenge->code_hash));
 
         $this->expectException(HttpException::class);
-        $service->verify($challenge->fresh(), 'step_up', (string) $code);
+        $service->verify($challenge->fresh(), 'sensitive_action', (string) $code);
     }
 
     public function test_consumed_code_cannot_be_reused(): void
@@ -50,18 +50,18 @@ class VerificationChallengeTest extends TestCase
             'email_verified_at' => now(),
         ]);
         $service = app(VerificationChallengeService::class);
-        $challenge = $service->selectAndSend($service->create($user, 'login', 'password', 'erp', ['email']), 'email');
+        $challenge = $service->selectAndSend($service->create($user, 'step_up', 'password', 'erp', ['email']), 'email');
         $code = null;
         Mail::assertSent(VerificationCodeMail::class, function (VerificationCodeMail $mail) use (&$code): bool {
             $code = $mail->code;
 
             return true;
         });
-        $service->verify($challenge->fresh(), 'login', (string) $code);
+        $service->verify($challenge->fresh(), 'step_up', (string) $code);
         $this->assertNotNull($challenge->fresh()->consumed_at);
         $this->assertNull($challenge->fresh()->code_hash);
 
         $this->expectException(HttpException::class);
-        $service->verify($challenge->fresh(), 'login', (string) $code);
+        $service->verify($challenge->fresh(), 'step_up', (string) $code);
     }
 }

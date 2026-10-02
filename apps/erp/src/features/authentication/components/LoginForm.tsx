@@ -7,10 +7,7 @@ import { Button } from "@workforce-erp/ui/components/button";
 import { Input } from "@workforce-erp/ui/components/input";
 import { Label } from "@workforce-erp/ui/components/label";
 import { cn } from "@workforce-erp/ui/lib/utils";
-import {
-  authenticationApi,
-  toAuthSession,
-} from "#features/authentication/api/authentication.api";
+import { authenticationApi, toAuthSession } from "#features/authentication/api/authentication.api";
 import { AUTH_PATHS } from "#features/authentication/navigation";
 
 export interface LoginFormProps {
