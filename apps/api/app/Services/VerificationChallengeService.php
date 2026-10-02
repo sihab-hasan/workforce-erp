@@ -14,7 +14,7 @@ class VerificationChallengeService
 {
     public const METHODS = ['totp', 'email', 'sms'];
 
-    public const PURPOSES = ['login', 'step_up', 'email_verification', 'phone_verification', 'factor_management', 'sensitive_action', 'registration', 'email_change', 'phone_change'];
+    public const PURPOSES = ['step_up', 'email_verification', 'phone_verification', 'factor_management', 'sensitive_action', 'registration', 'email_change', 'phone_change'];
 
     public function __construct(private readonly TotpService $totp, private readonly SmsProviderInterface $sms, private readonly SecurityAuditService $audit) {}
 

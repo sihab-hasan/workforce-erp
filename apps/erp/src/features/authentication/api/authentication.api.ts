@@ -32,13 +32,11 @@ export interface VerificationChallengePayload {
   client: "erp" | "admin" | string;
 }
 
-export type AuthBeginResponse =
-  | { success: true; status: "authenticated"; user: AuthUserPayload }
-  | {
-      success: true;
-      status: "verification_required";
-      challenge: VerificationChallengePayload;
-    };
+export interface AuthBeginResponse {
+  success: true;
+  status: "authenticated";
+  user: AuthUserPayload;
+}
 
 export interface AuthSessionRecord {
   id: string;
@@ -71,7 +69,6 @@ export interface AuthContextPayload {
     email: boolean;
     phone: boolean;
     authenticator: boolean;
-    required: boolean;
   };
   session: null | {
     authentication_method?: string | null;
@@ -93,35 +90,20 @@ export interface RegistrationStartResponse {
   };
 }
 
-export type RegistrationVerifyResponse =
-  | {
-      success: true;
-      status: "authenticated";
-      next: string;
-      user: AuthUserPayload;
-      organization: { id: string; slug: string; name: string };
-    }
-  | {
-      success: true;
-      status: "verification_required";
-      next: string;
-      challenge: VerificationChallengePayload;
-      organization: { id: string; slug: string; name: string };
-    };
+export interface RegistrationVerifyResponse {
+  success: true;
+  status: "authenticated";
+  next: string;
+  user: AuthUserPayload;
+  organization: { id: string; slug: string; name: string };
+}
 
-export type InvitationAcceptResponse =
-  | {
-      success: true;
-      status: "accepted" | "authenticated";
-      user: AuthUserPayload;
-      organization: { id: string; slug: string; name: string };
-    }
-  | {
-      success: true;
-      status: "verification_required";
-      challenge: VerificationChallengePayload;
-      organization: { id: string; slug: string; name: string };
-    };
+export interface InvitationAcceptResponse {
+  success: true;
+  status: "accepted" | "authenticated";
+  user: AuthUserPayload;
+  organization: { id: string; slug: string; name: string };
+}
 
 export interface InvitationPreview {
   email: string;
@@ -214,12 +196,6 @@ export const authenticationApi = {
     apiClient.post<{ success: true; challenge: VerificationChallengePayload }>(
       `/api/v1/auth/challenges/${encodeURIComponent(challengeId)}/resend`,
       undefined,
-      { withAuth: false },
-    ),
-  verifyLoginChallenge: (challengeId: string, code: string) =>
-    apiClient.post<{ success: true; status: "authenticated"; user: AuthUserPayload }>(
-      `/api/v1/auth/challenges/${encodeURIComponent(challengeId)}/verify`,
-      { purpose: "login", code },
       { withAuth: false },
     ),
   register: (payload: {

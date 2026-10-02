@@ -35,17 +35,6 @@ export default function VerifyEmailPage() {
       const tenant = response.organization.slug;
       sessionStorage.setItem("workforce-erp.onboarding.tenant", tenant);
       const onboardingPath = `${ERP_PATHS.onboarding}?tenant=${encodeURIComponent(tenant)}`;
-
-      if (response.status === "verification_required") {
-        const verificationParams = new URLSearchParams({
-          challenge: response.challenge.id,
-          methods: response.challenge.available_methods.join(","),
-          returnTo: onboardingPath,
-        });
-        navigate(`${AUTH_PATHS.verifySignIn}?${verificationParams.toString()}`, { replace: true });
-        return;
-      }
-
       signIn(toAuthSession(response));
       navigate(onboardingPath, { replace: true });
     } catch (error) {

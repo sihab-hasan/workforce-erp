@@ -25,11 +25,30 @@ class AuthService
     {
         $email = strtolower(trim((string) $credentials['email']));
         $user = User::query()->where('email', $email)->first();
-        $ok = Hash::check((string) $credentials['password'], $user?->password ?? self::DUMMY_PASSWORD_HASH);
 
-        if (! $user || ! $ok) {
+        if (! $user) {
             $this->audit->record('login.failed', $user, [
                 'subject_user_id' => $user?->id,
+                'success' => false,
+                'failure_reason' => 'invalid_credentials',
+            ]);
+            abort(401, 'Invalid email or password.');
+        }
+
+        if (! $this->isCompatibleHashAlgorithm($user->password)) {
+            $this->audit->record('login.failed', $user, [
+                'subject_user_id' => $user->id,
+                'success' => false,
+                'failure_reason' => 'hash_algorithm_mismatch',
+            ]);
+            abort(401, 'Invalid email or password.');
+        }
+
+        $ok = Hash::check((string) $credentials['password'], $user->password);
+
+        if (! $ok) {
+            $this->audit->record('login.failed', $user, [
+                'subject_user_id' => $user->id,
                 'success' => false,
                 'failure_reason' => 'invalid_credentials',
             ]);
@@ -41,34 +60,23 @@ class AuthService
         return $user;
     }
 
+    private function isCompatibleHashAlgorithm(string $hash): bool
+    {
+        $algoName = password_get_info($hash)['algoName'] ?? null;
+        $driver = strtolower((string) config('hashing.driver', 'bcrypt'));
+
+        return match ($driver) {
+            'bcrypt' => $algoName === 'bcrypt',
+            'argon' => in_array($algoName, ['argon', 'argon2id'], true),
+            'argon2id' => in_array($algoName, ['argon2id', 'argon'], true),
+            default => true,
+        };
+    }
+
     public function beginBrowserAuthentication(Request $request, User $user, string $primaryMethod): array
     {
         $client = $this->normalizeClient((string) $request->input('client', 'erp'));
         $this->assertClientAllowed($user, $client);
-
-        $methods = $this->challenges->availableMethods($user);
-        $requiresVerification = $this->requiresMfa($user) || $this->risk->requiresVerification($user, $request);
-
-        if ($requiresVerification) {
-            if ($methods === []) {
-                abort(428, 'Verification setup is required before this account can sign in.');
-            }
-
-            $challenge = $this->challenges->create(
-                $user,
-                'login',
-                $primaryMethod,
-                $client,
-                $methods,
-                ['risk' => $this->risk->signals($user, $request)],
-            );
-
-            return [
-                'success' => true,
-                'status' => 'verification_required',
-                'challenge' => $this->challengePayload($challenge),
-            ];
-        }
 
         return [
             'success' => true,
@@ -101,29 +109,6 @@ class AuthService
         ]);
 
         return $this->userPayload($user);
-    }
-
-    public function finalizeLoginChallenge(Request $request, string $challengeId, string $code): array
-    {
-        $challenge = $this->challengeForPurpose($challengeId, 'login');
-        $verified = $this->challenges->verify($challenge, 'login', $code);
-
-        return $this->establishBrowserSession(
-            $request,
-            $verified['user'],
-            $verified['authentication_method'],
-            (string) $challenge->client,
-        );
-    }
-
-    public function challengeForPurpose(string $id, string $purpose): VerificationChallenge
-    {
-        $challenge = VerificationChallenge::query()->with('user')->find($id);
-        if (! $challenge || ! hash_equals((string) $challenge->purpose, $purpose)) {
-            abort(400, 'Invalid or expired verification challenge.');
-        }
-
-        return $challenge;
     }
 
     public function challengePayload(VerificationChallenge $challenge): array
@@ -285,7 +270,6 @@ class AuthService
                 'email' => (bool) $user->email_verified_at,
                 'phone' => (bool) $user->phone_verified_at,
                 'authenticator' => $user->authenticatorFactors()->whereNotNull('confirmed_at')->exists(),
-                'required' => $this->requiresMfa($user),
             ],
             'session' => $request->hasSession() ? [
                 'authentication_method' => $request->session()->get('authentication_method'),

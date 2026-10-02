@@ -40,9 +40,7 @@ export type AdminChallenge = {
   resend_available_at: string | null;
   client: string;
 };
-export type AdminAuthBegin =
-  | { success: true; status: "authenticated"; user: AdminAuthUser }
-  | { success: true; status: "verification_required"; challenge: AdminChallenge };
+export type AdminAuthBegin = { success: true; status: "authenticated"; user: AdminAuthUser };
 export type PlatformContext = {
   user: { id: string; name: string; email: string };
   platform_roles: string[];
@@ -80,12 +78,6 @@ export const apiClient = {
     client.post<{ success: true; challenge: AdminChallenge }>(
       `/api/v1/auth/challenges/${encodeURIComponent(id)}/resend`,
       undefined,
-      { withAuth: false },
-    ),
-  verifyChallenge: (id: string, code: string) =>
-    client.post<{ success: true; status: "authenticated"; user: AdminAuthUser }>(
-      `/api/v1/auth/challenges/${encodeURIComponent(id)}/verify`,
-      { purpose: "login", code },
       { withAuth: false },
     ),
   me: () => client.get<{ success: boolean; user: AdminAuthUser }>("/api/v1/auth/me"),

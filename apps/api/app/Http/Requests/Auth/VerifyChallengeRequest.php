@@ -13,6 +13,6 @@ class VerifyChallengeRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['code' => ['required', 'regex:/^\d{6}$/'], 'purpose' => ['required', 'in:login,step_up,email_verification,phone_verification,factor_management,sensitive_action'], 'client' => ['nullable', 'in:erp,admin,web']];
+        return ['code' => ['required', 'regex:/^\d{6}$/'], 'purpose' => ['required', 'in:step_up,email_verification,phone_verification,factor_management,sensitive_action'], 'client' => ['nullable', 'in:erp,admin,web']];
     }
 }

@@ -13,8 +13,6 @@ export default function LoginPage() {
   const returnTo = safeReturnTo(searchParams.get("returnTo"));
   const resetSucceeded = searchParams.get("reset") === "success";
   const passwordChanged = searchParams.get("passwordChanged") === "success";
-  const returnQuery =
-    returnTo !== ERP_PATHS.tenantSelect ? `&returnTo=${encodeURIComponent(returnTo)}` : "";
 
   return (
     <AuthCard
@@ -48,14 +46,6 @@ export default function LoginPage() {
 
       <LoginForm
         onSuccess={() => navigate(returnTo, { replace: true })}
-        onVerificationRequired={(challenge) =>
-          navigate(
-            `${AUTH_PATHS.verifySignIn}?challenge=${encodeURIComponent(challenge.id)}&methods=${encodeURIComponent(challenge.available_methods.join(","))}${returnQuery}`,
-            {
-              replace: true,
-            },
-          )
-        }
       />
 
       <div className="relative my-4 flex items-center gap-3" aria-hidden="true">

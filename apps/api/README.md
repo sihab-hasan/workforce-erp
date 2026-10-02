@@ -8,7 +8,7 @@ The implementation follows the referenced `api-sample`'s easy-to-follow **route 
 
 - Versioned JSON APIs under `/api/v1`
 - Laravel Sanctum bearer-token authentication (`login`, `me`, session list/revoke, `logout`, `logout-all`)
-- Passwordless email OTP authentication with hashed-at-rest codes and non-enumerating request responses
+- Email verification during registration with hashed-at-rest codes and non-enumerating responses
 - Real password recovery via Laravel password broker plus authenticated password change; both recovery/change revoke existing API sessions
 - Google and Microsoft SSO authorization-code flows with one-time state, PKCE (S256), and provider timeouts
 - Tenant-aware Users APIs for owner/admin user management
@@ -45,7 +45,7 @@ The Portal Vite dev server proxies `/api` to `http://localhost:8000`. To target 
 
 ### Portal / user routes
 
-Password, Google SSO, and Microsoft SSO are the supported primary user authentication methods. Required MFA is completed before a final privileged browser session is established. First-party ERP/Admin browser clients use Laravel Sanctum stateful authentication with database-backed HttpOnly cookies and CSRF protection; browser auth tokens are not stored in `localStorage`.
+Password, Google SSO, and Microsoft SSO are the supported primary user authentication methods. Email is verified during registration; sign-in creates a first-party Laravel Sanctum session without a second MFA prompt. Sensitive actions can still require step-up verification. Browser sessions use database-backed HttpOnly cookies and CSRF protection; browser auth tokens are not stored in `localStorage`.
 
 Business routes are protected with `auth:sanctum`, explicit tenant context, active membership, permissions, data scopes, resource policies, SoD/business rules, and subscription/module entitlements as applicable.
 

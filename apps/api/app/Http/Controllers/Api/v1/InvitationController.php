@@ -74,9 +74,7 @@ class InvitationController extends Controller
             ]);
         }
 
-        // Never bypass privileged MFA merely because the invitation token was
-        // valid. The membership is accepted atomically, then normal sign-in
-        // policy decides whether a full application session may be created.
+        // Accept the membership, then create the normal browser session.
         $authentication = $this->auth->beginBrowserAuthentication($request, $user, 'invitation+email');
 
         return response()->json([

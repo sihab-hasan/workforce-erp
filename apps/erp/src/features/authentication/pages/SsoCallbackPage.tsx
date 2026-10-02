@@ -60,13 +60,6 @@ export default function SsoCallbackPage() {
       .completeSso(provider, code, state)
       .then((response) => {
         cleanup();
-        if (response.status === "verification_required") {
-          navigate(
-            `${AUTH_PATHS.verifySignIn}?challenge=${encodeURIComponent(response.challenge.id)}&methods=${encodeURIComponent(response.challenge.available_methods.join(","))}&returnTo=${encodeURIComponent(returnTo)}`,
-            { replace: true },
-          );
-          return;
-        }
         signIn(toAuthSession(response));
         navigate(returnTo, { replace: true });
       })

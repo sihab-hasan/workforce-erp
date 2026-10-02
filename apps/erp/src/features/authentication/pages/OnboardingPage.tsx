@@ -73,7 +73,6 @@ const DEFAULTS: Record<Step, FormState> = {
   modules: { modules: ["hr", "attendance", "leave", "documents", "reports", "users", "security"] },
   team: { invitations: [{ name: "", email: "", roles: ["employee"], data_scope: "OWN" }] },
   security: {
-    require_mfa_for_privileged: true,
     allow_email_code: true,
     allow_sms_code: true,
     allow_authenticator: true,
@@ -569,12 +568,11 @@ function StepFields({
     return (
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          Only Authenticator App, Email Code and SMS Code are supported. Privileged users should
-          require MFA.
+          Registration verifies email. Sign-in uses password or SSO without an extra MFA prompt;
+          verification remains available for sensitive actions.
         </p>
         {(
           [
-            ["require_mfa_for_privileged", "Require MFA for privileged users"],
             ["allow_authenticator", "Allow Authenticator App"],
             ["allow_email_code", "Allow Email Code"],
             ["allow_sms_code", "Allow SMS Code"],

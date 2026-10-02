@@ -270,9 +270,9 @@ export default function AccountSecurityPage() {
         >
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between rounded-lg border p-3">
-              <span className="text-muted-foreground">MFA Enforcement</span>
+              <span className="text-muted-foreground">Current sign-in method</span>
               <span className="font-medium text-foreground">
-                {context?.session?.mfa_level ?? "Standard"}
+                {context?.session?.authentication_method ?? "Unknown"}
               </span>
             </div>
             {tenantKey && (

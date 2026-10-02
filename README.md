@@ -43,9 +43,9 @@ php apps/api/artisan key:generate
 
 ## Authentication & security
 
-The customer ERP uses first-party Sanctum cookie sessions with CSRF protection; browser authentication tokens are not stored in `localStorage`. Public browser routes use canonical paths such as `/sign-in`, `/sign-up`, `/verify-sign-in`, `/accept-invitation/:token`, and `/onboarding/*`; `/api/v1/auth/*` remains the internal API namespace.
+The customer ERP uses first-party Sanctum cookie sessions with CSRF protection; browser authentication tokens are not stored in `localStorage`. Public browser routes use canonical paths such as `/sign-in`, `/sign-up`, `/verify-email`, `/accept-invitation/:token`, and `/onboarding/*`; `/api/v1/auth/*` remains the internal API namespace.
 
-Verification methods are limited to **Authenticator App (TOTP)**, **Email Code**, and **SMS Code**. Privileged accounts require verification before the final authenticated session is established. Tenant business requests require an explicit `X-Tenant-Key` and the backend verifies active membership, roles, permissions, data scope, policies, SoD/business rules, and step-up requirements. Platform administration has separate platform roles and `/api/v1/platform/*` authorization.
+Registration requires email verification. Password, Google, and Microsoft sign-in establish a session directly; Authenticator App (TOTP), Email Code, and SMS Code remain available for step-up verification of sensitive actions. Tenant business requests require an explicit `X-Tenant-Key` and the backend verifies active membership, roles, permissions, data scope, policies, SoD/business rules, and step-up requirements. Platform administration has separate platform roles and `/api/v1/platform/*` authorization.
 
 ## Development
 

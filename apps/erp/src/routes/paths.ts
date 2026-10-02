@@ -13,7 +13,6 @@ export const ERP_PATHS = {
   signIn: "/sign-in",
   signUp: "/sign-up",
   verifyEmail: "/verify-email",
-  verifySignIn: "/verify-sign-in",
   verifyPhone: "/verify-phone",
   forgotPassword: "/forgot-password",
   resetPassword: "/reset-password",

@@ -4,7 +4,6 @@ import { AuthLayout } from "#layouts/AuthLayout";
 import SignInPage from "#pages/auth/sign-in/SignInPage";
 import ForgotPasswordPage from "#features/authentication/pages/ForgotPasswordPage";
 import InvitationPage from "#features/authentication/pages/InvitationPage";
-import MfaChallengePage from "#features/authentication/pages/MfaChallengePage";
 import ResetPasswordPage from "#features/authentication/pages/ResetPasswordPage";
 import SignUpPage from "#features/authentication/pages/SignUpPage";
 import SsoCallbackPage from "#features/authentication/pages/SsoCallbackPage";
@@ -22,7 +21,6 @@ export const authRoutes: RouteObject[] = [
       { path: "sign-in", element: anonymous(<SignInPage />) },
       { path: "sign-up", element: anonymous(<SignUpPage />) },
       { path: "verify-email", element: anonymous(<VerifyEmailPage />) },
-      { path: "verify-sign-in", element: anonymous(<MfaChallengePage />) },
       { path: "forgot-password", element: anonymous(<ForgotPasswordPage />) },
       { path: "reset-password", element: anonymous(<ResetPasswordPage />) },
       { path: "sso/callback/:provider", element: anonymous(<SsoCallbackPage />) },

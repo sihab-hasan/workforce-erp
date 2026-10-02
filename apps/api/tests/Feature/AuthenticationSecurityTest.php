@@ -30,21 +30,17 @@ class AuthenticationSecurityTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
-    public function test_privileged_login_requires_verification_before_full_session(): void
+    public function test_privileged_login_establishes_session_without_login_mfa(): void
     {
         [$user] = $this->member('organization_owner', true);
 
-        $response = $this->postJson('/api/v1/auth/login', [
+        $this->postJson('/api/v1/auth/login', [
             'email' => $user->email,
             'password' => 'a sufficiently long employee passphrase',
             'client' => 'erp',
-        ]);
+        ])->assertOk()->assertJsonPath('status', 'authenticated');
 
-        $response->assertOk()
-            ->assertJsonPath('status', 'verification_required')
-            ->assertJsonPath('challenge.purpose', 'login')
-            ->assertJsonPath('challenge.available_methods.0', 'email');
-        $this->assertGuest();
+        $this->assertAuthenticatedAs($user);
     }
 
     public function test_tenant_owner_cannot_use_platform_admin_client(): void

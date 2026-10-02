@@ -363,7 +363,6 @@ class OnboardingController extends Controller
     private function security(Request $request, $org, array $payload): array
     {
         $data = validator($payload, [
-            'require_mfa_for_privileged' => ['required', 'boolean'],
             'allow_email_code' => ['required', 'boolean'],
             'allow_sms_code' => ['required', 'boolean'],
             'allow_authenticator' => ['required', 'boolean'],

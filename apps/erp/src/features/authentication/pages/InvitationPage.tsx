@@ -64,14 +64,6 @@ export default function InvitationPage() {
         preview.identity_setup_required ? { password, password_confirmation: confirm } : {},
       );
       const returnTo = tenantRoutes.selectCompany(response.organization.slug);
-      if (response.status === "verification_required") {
-        const methods = response.challenge.available_methods.join(",");
-        navigate(
-          `${AUTH_PATHS.verifySignIn}?challenge=${encodeURIComponent(response.challenge.id)}&methods=${encodeURIComponent(methods)}&returnTo=${encodeURIComponent(returnTo)}`,
-          { replace: true },
-        );
-        return;
-      }
       signIn(toAuthSession(response));
       navigate(returnTo, { replace: true });
     } catch (e) {

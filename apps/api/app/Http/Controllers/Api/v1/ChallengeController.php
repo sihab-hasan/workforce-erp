@@ -48,14 +48,6 @@ class ChallengeController extends Controller
     {
         $purpose = $request->validated('purpose');
 
-        if ($purpose === 'login') {
-            return response()->json([
-                'success' => true,
-                'status' => 'authenticated',
-                'user' => $this->auth->finalizeLoginChallenge($request, $id, $request->validated('code')),
-            ]);
-        }
-
         $challenge = VerificationChallenge::query()->with('user')->findOrFail($id);
 
         if (! $request->user() || (int) $request->user()->id !== (int) $challenge->user_id) {
