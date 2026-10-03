@@ -13,16 +13,16 @@
 
 মূল ফলাফল:
 
-| বিষয় | অবস্থা |
-|---|---|
-| Laravel Notification class + custom channel | ✅ যুক্ত হয়েছে |
-| Leave approved / rejected ট্রিগার | ✅ আগের inline কোড প্রতিস্থাপিত |
-| Leave submitted (অনুমোদকের জন্য) ট্রিগার | ✅ |
-| Office document shared ট্রিগার | ✅ নতুন |
-| Mark-as-read + unread-count API | ✅ বিদ্যমান রুটই ব্যবহৃত (কোনো নতুন রুট লেখা হয়নি) |
-| হেডারে bell + লাল unread badge | ✅ নতুন কম্পোনেন্ট, ক্লিকে বিদ্যমান NotificationsPage-এ নেভিগেট |
-| Realtime (Echo/WebSocket) | ✅ **backend সম্পূর্ণ প্রস্তুত** (`ShouldBroadcast`), frontend-এ এখন **polling fallback** |
-| টিমমেটের UI / layout / CSS / core logic | ✅ **কোনো কিছুই ভাঙেনি বা পরিবর্তন হয়নি** |
+| বিষয়                                       | অবস্থা                                                                                    |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Laravel Notification class + custom channel | ✅ যুক্ত হয়েছে                                                                           |
+| Leave approved / rejected ট্রিগার           | ✅ আগের inline কোড প্রতিস্থাপিত                                                           |
+| Leave submitted (অনুমোদকের জন্য) ট্রিগার    | ✅                                                                                        |
+| Office document shared ট্রিগার              | ✅ নতুন                                                                                   |
+| Mark-as-read + unread-count API             | ✅ বিদ্যমান রুটই ব্যবহৃত (কোনো নতুন রুট লেখা হয়নি)                                       |
+| হেডারে bell + লাল unread badge              | ✅ নতুন কম্পোনেন্ট, ক্লিকে বিদ্যমান NotificationsPage-এ নেভিগেট                           |
+| Realtime (Echo/WebSocket)                   | ✅ **backend সম্পূর্ণ প্রস্তুত** (`ShouldBroadcast`), frontend-এ এখন **polling fallback** |
+| টিমমেটের UI / layout / CSS / core logic     | ✅ **কোনো কিছুই ভাঙেনি বা পরিবর্তন হয়নি**                                                |
 
 **Lead-এর সিদ্ধান্ত অনুযায়ী** হেডারে dropdown তৈরি করা হয়নি — শুধু একটি ন্যূনতম bell + লাল badge, যা ক্লিক করলে টিমমেটের তৈরি `NotificationsPage`-এ নিয়ে যায়।
 
@@ -42,28 +42,28 @@
 
 ### ৩.১ নতুন তৈরি করা ফাইল
 
-| ফাইল পাথ | লাইন | ভূমিকা |
-|---|---|---|
-| `apps/api/app/Notifications/Channels/WorkforceChannel.php` | 33 | **আর্কিটেকচারের কেন্দ্র।** বিদ্যমান `workforce_notifications` টেবিলে row লেখে, তারপর broadcast করে। ফলে `NotificationController`-এর REST contract অপরিবর্তিত থাকে। |
-| `apps/api/app/Notifications/LeaveRequestReviewed.php` | — | Leave approve/reject নোটিফিকেশন (requester-এর জন্য)। |
-| `apps/api/app/Notifications/LeaveRequestSubmitted.php` | — | নতুন leave request পর্যালোচকদের জন্য ("Leave approval required")। |
-| `apps/api/app/Notifications/DocumentShared.php` | — | অফিস ডকুমেন্ট আপলোডের সময় `document.view` permissionধারীদের নোটিফিকেশন। |
-| `apps/api/app/Events/NotificationBroadcast.php` | 41 | `ShouldBroadcast` ইভেন্ট — private user channel-ে নোটিফিকেশন পাঠায়। |
-| `apps/api/app/Services/NotificationAudience.php` | 33 | "কে কে নোটিফিকেশন পাবে?" — permission অনুযায়ী recipient নির্ধারণের shared service (Leave + Document দুই জায়গাতেই ব্যবহৃত)। |
-| `apps/api/tests/Feature/NotificationApiTest.php` | 382 | ১২টি feature টেস্ট — channel store+broadcast, broadcast payload আকৃতি, ৪টি ট্রিগার, unread-count, mark-read, mark-all-read ও security। |
+| ফাইল পাথ                                                   | লাইন | ভূমিকা                                                                                                                                                             |
+| ---------------------------------------------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `apps/api/app/Notifications/Channels/WorkforceChannel.php` | 33   | **আর্কিটেকচারের কেন্দ্র।** বিদ্যমান `workforce_notifications` টেবিলে row লেখে, তারপর broadcast করে। ফলে `NotificationController`-এর REST contract অপরিবর্তিত থাকে। |
+| `apps/api/app/Notifications/LeaveRequestReviewed.php`      | —    | Leave approve/reject নোটিফিকেশন (requester-এর জন্য)।                                                                                                               |
+| `apps/api/app/Notifications/LeaveRequestSubmitted.php`     | —    | নতুন leave request পর্যালোচকদের জন্য ("Leave approval required")।                                                                                                  |
+| `apps/api/app/Notifications/DocumentShared.php`            | —    | অফিস ডকুমেন্ট আপলোডের সময় `document.view` permissionধারীদের নোটিফিকেশন।                                                                                           |
+| `apps/api/app/Events/NotificationBroadcast.php`            | 41   | `ShouldBroadcast` ইভেন্ট — private user channel-ে নোটিফিকেশন পাঠায়।                                                                                               |
+| `apps/api/app/Services/NotificationAudience.php`           | 33   | "কে কে নোটিফিকেশন পাবে?" — permission অনুযায়ী recipient নির্ধারণের shared service (Leave + Document দুই জায়গাতেই ব্যবহৃত)।                                       |
+| `apps/api/tests/Feature/NotificationApiTest.php`           | 382  | ১২টি feature টেস্ট — channel store+broadcast, broadcast payload আকৃতি, ৪টি ট্রিগার, unread-count, mark-read, mark-all-read ও security।                             |
 
 ### ৩.২ পরিবর্তিত ব্যাকএন্ড ফাইল (শুধু additive / trigger-wiring)
 
-| ফাইল | কোথায় | কী পরিবর্তন |
-|---|---|---|
-| `apps/api/app/Http/Controllers/Api/v1/LeaveController.php` | `:202` | `WorkforceNotification::create([…])` এর ৮ লাইনের inline block সরিয়ে: `$leaveRequest->employee?->user?->notify(new LeaveRequestReviewed($leaveRequest, $status));` |
-| | `:151`, `:232-236` | `notifyManagers()` এখন `NotificationAudience` + `LeaveRequestSubmitted` ব্যবহার করে — **প্রাপকের তালিকা আগের মতো হুবহু**। |
-| | `:26` | constructor-এ `private readonly NotificationAudience $audience` যুক্ত। |
-| `apps/api/app/Http/Controllers/Api/v1/DocumentController.php` | `:77-79` | Document তৈরির পর `document.view`ধারী সদস্যদের `DocumentShared` notify। |
-| `apps/api/app/Models/WorkforceNotification.php` | `:33-52` | শুধু `toApiPayload()` মেথড যোগ — `NotificationController::serialize()` এর সাথে মিল রেখে, যাতে broadcast payload আর REST payload একই রকম থাকে। **table / `$fillable` / `$casts` / relation — কিছুই ছোঁয়া হয়নি।** |
-| `apps/api/config/broadcasting.php` | default + reverb block | `default` এখন `env('BROADCAST_CONNECTION') ?: env('BROADCAST_DRIVER', 'null')`; নতুন `reverb` connection block যোগ। **ডিফল্ট এখনও `log`/`null`, তাই আজ কোনো external service লাগে না।** |
-| `apps/api/config/app.php` | providers | `BroadcastServiceProvider` কমেন্ট থেকে চালু — না হলে `/broadcasting/auth` ও `routes/channels.php` লোড হতো না। |
-| `apps/api/.env.example` | broadcast section | `# BROADCAST_CONNECTION=reverb` (কমেন্টে) + `REVERB_APP_ID/KEY/SECRET/HOST/PORT/SCHEME` এবং `composer require laravel/reverb` নির্দেশনা। |
+| ফাইল                                                          | কোথায়                 | কী পরিবর্তন                                                                                                                                                                                                       |
+| ------------------------------------------------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/api/app/Http/Controllers/Api/v1/LeaveController.php`    | `:202`                 | `WorkforceNotification::create([…])` এর ৮ লাইনের inline block সরিয়ে: `$leaveRequest->employee?->user?->notify(new LeaveRequestReviewed($leaveRequest, $status));`                                                |
+|                                                               | `:151`, `:232-236`     | `notifyManagers()` এখন `NotificationAudience` + `LeaveRequestSubmitted` ব্যবহার করে — **প্রাপকের তালিকা আগের মতো হুবহু**।                                                                                         |
+|                                                               | `:26`                  | constructor-এ `private readonly NotificationAudience $audience` যুক্ত।                                                                                                                                            |
+| `apps/api/app/Http/Controllers/Api/v1/DocumentController.php` | `:77-79`               | Document তৈরির পর `document.view`ধারী সদস্যদের `DocumentShared` notify।                                                                                                                                           |
+| `apps/api/app/Models/WorkforceNotification.php`               | `:33-52`               | শুধু `toApiPayload()` মেথড যোগ — `NotificationController::serialize()` এর সাথে মিল রেখে, যাতে broadcast payload আর REST payload একই রকম থাকে। **table / `$fillable` / `$casts` / relation — কিছুই ছোঁয়া হয়নি।** |
+| `apps/api/config/broadcasting.php`                            | default + reverb block | `default` এখন `env('BROADCAST_CONNECTION') ?: env('BROADCAST_DRIVER', 'null')`; নতুন `reverb` connection block যোগ। **ডিফল্ট এখনও `log`/`null`, তাই আজ কোনো external service লাগে না।**                           |
+| `apps/api/config/app.php`                                     | providers              | `BroadcastServiceProvider` কমেন্ট থেকে চালু — না হলে `/broadcasting/auth` ও `routes/channels.php` লোড হতো না।                                                                                                     |
+| `apps/api/.env.example`                                       | broadcast section      | `# BROADCAST_CONNECTION=reverb` (কমেন্টে) + `REVERB_APP_ID/KEY/SECRET/HOST/PORT/SCHEME` এবং `composer require laravel/reverb` নির্দেশনা।                                                                          |
 
 ### ৩.৩ ইচ্ছাকৃতভাবে **অপরিবর্তিত** রাখা ফাইল (টিমমেটের কোড সুরক্ষা)
 
@@ -75,12 +75,12 @@
 
 রুট ফাইল: `apps/api/routes/api.php:215-220` · কন্ট্রোলার: `apps/api/app/Http/Controllers/Api/v1/NotificationController.php`
 
-| Method | URI | Controller method | ব্যবহারকারী |
-|---|---|---|---|
-| `GET` | `/api/v1/notifications` | `index()` | `NotificationsPage` (inbox list, `?status=unread|read`, pagination) |
-| `GET` | `/api/v1/notifications/unread-count` | `unreadCount()` | **নতুন: হেডারের লাল badge** |
-| `PATCH` | `/api/v1/notifications/{id}/read` | `markRead()` | `NotificationsPage` |
-| `PATCH` | `/api/v1/notifications/read-all` | `markAllRead()` | `NotificationsPage` |
+| Method  | URI                                  | Controller method | ব্যবহারকারী                                      |
+| ------- | ------------------------------------ | ----------------- | ------------------------------------------------ |
+| `GET`   | `/api/v1/notifications`              | `index()`         | `NotificationsPage` (inbox list, `?status=unread | read`, pagination) |
+| `GET`   | `/api/v1/notifications/unread-count` | `unreadCount()`   | **নতুন: হেডারের লাল badge**                      |
+| `PATCH` | `/api/v1/notifications/{id}/read`    | `markRead()`      | `NotificationsPage`                              |
+| `PATCH` | `/api/v1/notifications/read-all`     | `markAllRead()`   | `NotificationsPage`                              |
 
 সব রুট `tenant.required` মিডলওয়্যারের ভেতরে, এবং response envelope আগের মতোই `{ success, message, data, meta }` (`ApiResponseTrait`)।
 
@@ -90,22 +90,22 @@
 
 ### ৪.১ নতুন ফাইল
 
-| ফাইল পাথ | লাইন | ভূমিকা |
-|---|---|---|
-| `apps/erp/src/lib/realtime.ts` | 136 | **Echo/WebSocket client-এর সম্পূর্ণ লজিক এখানেই।** `isRealtimeEnabled()` env দেখে সিদ্ধান্ত নেয়; `subscribeToNotifications(userId, cb)` private channel-ে `.notification.created` শোনে। `laravel-echo` ও `pusher-js` **dynamic `import()`** দিয়ে লোড হয় — realtime কনফিগ না থাকলে এই ৬২+১২ kB কোড ব্রাউজারে নামেই না। |
-| `apps/erp/src/features/notifications/hooks/use-unread-notification-count.ts` | 37 | **API সংযোগের আসল জায়গা।** `GET /api/v1/notifications/unread-count` কে TanStack Query দিয়ে আনে; realtime না থাকলে **২০ সেকেন্ড** polling, realtime চালু থাকলে **১২০ সেকেন্ড** backstop + Echo listener। |
-| `apps/erp/src/features/notifications/components/NotificationBell.tsx` | 42 | Bell আইকন + লাল unread badge + `NotificationsPage`-এ নেভিগেশন। `99+` cap, আর unread থাকলে `aria-label="Notifications, N unread"` (accessibility)। |
+| ফাইল পাথ                                                                     | লাইন | ভূমিকা                                                                                                                                                                                                                                                                                                                   |
+| ---------------------------------------------------------------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `apps/erp/src/lib/realtime.ts`                                               | 136  | **Echo/WebSocket client-এর সম্পূর্ণ লজিক এখানেই।** `isRealtimeEnabled()` env দেখে সিদ্ধান্ত নেয়; `subscribeToNotifications(userId, cb)` private channel-ে `.notification.created` শোনে। `laravel-echo` ও `pusher-js` **dynamic `import()`** দিয়ে লোড হয় — realtime কনফিগ না থাকলে এই ৬২+১২ kB কোড ব্রাউজারে নামেই না। |
+| `apps/erp/src/features/notifications/hooks/use-unread-notification-count.ts` | 37   | **API সংযোগের আসল জায়গা।** `GET /api/v1/notifications/unread-count` কে TanStack Query দিয়ে আনে; realtime না থাকলে **২০ সেকেন্ড** polling, realtime চালু থাকলে **১২০ সেকেন্ড** backstop + Echo listener।                                                                                                                |
+| `apps/erp/src/features/notifications/components/NotificationBell.tsx`        | 42   | Bell আইকন + লাল unread badge + `NotificationsPage`-এ নেভিগেশন। `99+` cap, আর unread থাকলে `aria-label="Notifications, N unread"` (accessibility)।                                                                                                                                                                        |
 
 ### ৪.২ পরিবর্তিত ফ্রন্টএন্ড ফাইল
 
-| ফাইল | লাইন | কী |
-|---|---|---|
-| `apps/erp/src/components/shell/AppHeader.tsx` | `:19` | `import { NotificationBell } from "#features/notifications/components/NotificationBell";` |
-| | `:86` | আগের ১১ লাইনের bell `<Button>` block সরিয়ে শুধু `<NotificationBell />` — পুরো ফাইলে মোট **৪ লাইন যোগ, ১৪ লাইন বাদ**; **theme toggle, `<Separator>`, breadcrumb, avatar menu — সব আগের জায়গায় আগের মতো।** |
-| | import cleanup | অব্যবহৃত `Bell` (lucide) ও `companyRoutes` import সরানো হয়েছে, কারণ ESLint `--max-warnings=0` সেটি pass করত না। |
-| `apps/erp/src/vite-env.d.ts` | env declarations | ৯টি optional ভ্যারিয়েবল টাইপ যোগ: `VITE_REVERB_APP_KEY/HOST/PORT/SCHEME`, `VITE_PUSHER_APP_KEY/HOST/PORT/SCHEME/APP_CLUSTER`। |
-| `apps/erp/package.json` | dependencies | `laravel-echo ^2.5.0`, `pusher-js ^8.6.0` (alphabetical position)। |
-| `.env.example` (root) | broadcast block | `VITE_REVERB_*` / `VITE_PUSHER_*` commented উদাহরণ + ব্যাখ্যা। |
+| ফাইল                                          | লাইন             | কী                                                                                                                                                                                                          |
+| --------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/erp/src/components/shell/AppHeader.tsx` | `:19`            | `import { NotificationBell } from "#features/notifications/components/NotificationBell";`                                                                                                                   |
+|                                               | `:86`            | আগের ১১ লাইনের bell `<Button>` block সরিয়ে শুধু `<NotificationBell />` — পুরো ফাইলে মোট **৪ লাইন যোগ, ১৪ লাইন বাদ**; **theme toggle, `<Separator>`, breadcrumb, avatar menu — সব আগের জায়গায় আগের মতো।** |
+|                                               | import cleanup   | অব্যবহৃত `Bell` (lucide) ও `companyRoutes` import সরানো হয়েছে, কারণ ESLint `--max-warnings=0` সেটি pass করত না।                                                                                            |
+| `apps/erp/src/vite-env.d.ts`                  | env declarations | ৯টি optional ভ্যারিয়েবল টাইপ যোগ: `VITE_REVERB_APP_KEY/HOST/PORT/SCHEME`, `VITE_PUSHER_APP_KEY/HOST/PORT/SCHEME/APP_CLUSTER`।                                                                              |
+| `apps/erp/package.json`                       | dependencies     | `laravel-echo ^2.5.0`, `pusher-js ^8.6.0` (alphabetical position)।                                                                                                                                          |
+| `.env.example` (root)                         | broadcast block  | `VITE_REVERB_*` / `VITE_PUSHER_*` commented উদাহরণ + ব্যাখ্যা।                                                                                                                                              |
 
 ### ৪.৩ ইচ্ছাকৃতভাবে **অপরিবর্তিত** ফ্রন্টএন্ড ফাইল
 
@@ -176,12 +176,12 @@
 
 ### ট্রিগার ম্যাট্রিক্স (কখন কোন নোটিফিকেশন তৈরি হয়)
 
-| ঘটনা | Notification class | `type` | প্রাপক |
-|---|---|---|---|
-| Leave approved | `LeaveRequestReviewed` | `leave.approved` | Requester (employee-র linked user) |
-| Leave rejected | `LeaveRequestReviewed` | `leave.rejected` | Requester |
-| Leave submitted | `LeaveRequestSubmitted` | `leave.requested` | `leave.approve` permissionসম্পন্ন active সদস্য (requester বাদে) |
-| Document uploaded | `DocumentShared` | `document.shared` | `document.view` permissionসম্পন্ন active সদস্য (uploader বাদে) |
+| ঘটনা              | Notification class      | `type`            | প্রাপক                                                          |
+| ----------------- | ----------------------- | ----------------- | --------------------------------------------------------------- |
+| Leave approved    | `LeaveRequestReviewed`  | `leave.approved`  | Requester (employee-র linked user)                              |
+| Leave rejected    | `LeaveRequestReviewed`  | `leave.rejected`  | Requester                                                       |
+| Leave submitted   | `LeaveRequestSubmitted` | `leave.requested` | `leave.approve` permissionসম্পন্ন active সদস্য (requester বাদে) |
+| Document uploaded | `DocumentShared`        | `document.shared` | `document.view` permissionসম্পন্ন active সদস্য (uploader বাদে)  |
 
 ---
 
@@ -206,16 +206,16 @@
 
 ## ৭. যাচাইকরণের প্রকৃত অবস্থা (আনুষ্ঠানিক নয়, সৎ প্রতিবেদন)
 
-| চেক | ফলাফল |
-|---|---|
-| `pnpm install --no-frozen-lockfile` | ✅ exit code 0 |
-| `pnpm typecheck` (erp) | ✅ pass |
-| `pnpm lint --max-warnings=0` (erp) | ✅ pass |
-| `pnpm build` (erp production) | ✅ pass |
-| Build output | ✅ `echo-*.js` **11.66 kB** ও `pusher-*.js` **62.18 kB** আলাদা **lazy chunk** — main 1040 kB bundle-এর বাইরে। অর্থাৎ realtime কনফিগ না করলে WebSocket কোড ব্যবহারকারীর নেটওয়ার্ক থেকে নামেই না। |
-| `php -l` সব ১২টি স্পর্শকৃত PHP ফাইল | ✅ "No syntax errors detected" |
-| **PHPUnit টেস্ট** | ⚠️ **এই মেশিনে চালানো যায়নি** |
-| `git status` যাচাই | ✅ `NotificationController.php`, `routes/api.php`, `routes/channels.php`, `NotificationsPage.tsx` — কোনোটিই modified তালিকায় নেই |
+| চেক                                 | ফলাফল                                                                                                                                                                                            |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm install --no-frozen-lockfile` | ✅ exit code 0                                                                                                                                                                                   |
+| `pnpm typecheck` (erp)              | ✅ pass                                                                                                                                                                                          |
+| `pnpm lint --max-warnings=0` (erp)  | ✅ pass                                                                                                                                                                                          |
+| `pnpm build` (erp production)       | ✅ pass                                                                                                                                                                                          |
+| Build output                        | ✅ `echo-*.js` **11.66 kB** ও `pusher-*.js` **62.18 kB** আলাদা **lazy chunk** — main 1040 kB bundle-এর বাইরে। অর্থাৎ realtime কনফিগ না করলে WebSocket কোড ব্যবহারকারীর নেটওয়ার্ক থেকে নামেই না। |
+| `php -l` সব ১২টি স্পর্শকৃত PHP ফাইল | ✅ "No syntax errors detected"                                                                                                                                                                   |
+| **PHPUnit টেস্ট**                   | ⚠️ **এই মেশিনে চালানো যায়নি**                                                                                                                                                                   |
+| `git status` যাচাই                  | ✅ `NotificationController.php`, `routes/api.php`, `routes/channels.php`, `NotificationsPage.tsx` — কোনোটিই modified তালিকায় নেই                                                                |
 
 **PHPUnit চালানো না যাওয়ার কারণ:** এই মেশিনে PHP `8.2.12`, কিন্তু `apps/api/composer.json` requirement `php: ^8.4`। এছাড়া `apps/api/vendor/` নেই (composer install হয়নি), `apps/api/.env` নেই, এবং Docker/Reverb container চলছে না। চুক্তি অনুযায়ী আমি কোড + টেস্ট লিখেছি, রান আপনার environment-এ করে আমাকে ফলাফল জানাবেন।
 
