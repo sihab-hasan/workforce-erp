@@ -15,7 +15,6 @@ import { tenantRoutes } from "#routes/tenants.routes";
 import { organizationRoutes } from "#routes/organizations.routes";
 import { userRoutes } from "#routes/users.routes";
 import { inquiriesRoutes } from "#routes/inquiries.routes";
-import { roleRoutes } from "#routes/roles.routes";
 import { settingsRoutes } from "#routes/settings.routes";
 import { ADMIN_PATHS } from "#routes/paths";
 import { RouteMetadata } from "#components/metadata/RouteMetadata";
@@ -63,7 +62,6 @@ export const router = createBrowserRouter(
         ...organizationRoutes,
         ...userRoutes,
         ...inquiriesRoutes,
-        ...roleRoutes,
         ...settingsRoutes,
         { path: "*", element: <AdminNotFound insideShell /> },
       ],

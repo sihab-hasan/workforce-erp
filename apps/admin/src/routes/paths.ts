@@ -12,8 +12,6 @@ export const ADMIN_PATHS = {
   users: "/users",
   userCreate: "/users/new",
   inquiries: "/inquiries",
-  roles: "/roles",
-  capabilityMatrix: "/roles/capabilities",
   settings: "/settings",
 } as const;
 
@@ -39,8 +37,4 @@ export function adminUserDetailsPath(userId: string | number) {
 
 export function adminUserEditPath(userId: string | number) {
   return `${adminUserDetailsPath(userId)}/edit`;
-}
-
-export function adminRoleDetailsPath(roleId: string | number) {
-  return `${ADMIN_PATHS.roles}/${encodeSegment(roleId)}`;
 }

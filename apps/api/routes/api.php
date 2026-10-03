@@ -313,6 +313,12 @@ Route::prefix('v1')->group(function () {
             Route::get('/notifications/unread-count', [PlatformController::class, 'unreadNotificationsCount']);
             Route::patch('/notifications/{notification}/read', [PlatformController::class, 'markNotificationRead']);
             Route::patch('/notifications/read-all', [PlatformController::class, 'markAllNotificationsRead']);
+
+            // Platform Settings & Health
+            Route::get('/settings', [PlatformController::class, 'getSettings']);
+            Route::put('/settings', [PlatformController::class, 'updateSettings']);
+            Route::post('/settings/cache-clear', [PlatformController::class, 'clearSystemCache']);
+            Route::get('/settings/health', [PlatformController::class, 'systemHealth']);
         });
     });
 });

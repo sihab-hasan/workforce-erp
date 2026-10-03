@@ -34,7 +34,6 @@ const items = [
   { label: "Organizations", to: ADMIN_PATHS.organizations, icon: Building2 },
   { label: "Inquiries", to: ADMIN_PATHS.inquiries, icon: MessageSquare, badge: true },
   { label: "Users", to: ADMIN_PATHS.users, icon: Users },
-  { label: "Roles", to: ADMIN_PATHS.roles, icon: ShieldCheck },
   { label: "Settings", to: ADMIN_PATHS.settings, icon: Settings },
 ];
 

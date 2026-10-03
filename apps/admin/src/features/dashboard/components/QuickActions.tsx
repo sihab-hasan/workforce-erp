@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { UserPlus, Building2, ShieldCheck, KeyRound, Sliders, PlusCircle } from "lucide-react";
+import { UserPlus, Building2, ShieldCheck, MessageSquare, Sliders, PlusCircle } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -36,10 +36,10 @@ export function QuickActions({ className }: { className?: string }) {
       iconBg: "bg-blue-500/10 dark:bg-blue-500/20",
     },
     {
-      label: "Roles & Capabilities",
-      description: "Fine-tune platform RBAC permissions",
-      to: ADMIN_PATHS.roles,
-      icon: KeyRound,
+      label: "Contact Inquiries",
+      description: "View and respond to customer lead requests",
+      to: ADMIN_PATHS.inquiries,
+      icon: MessageSquare,
       iconColor: "text-amber-500",
       iconBg: "bg-amber-500/10 dark:bg-amber-500/20",
     },
