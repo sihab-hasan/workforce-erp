@@ -17,6 +17,7 @@ export default defineConfig(({ mode }) => {
   const proxy = {
     "/api": { target: proxyTarget, changeOrigin: true },
     "/sanctum": { target: proxyTarget, changeOrigin: true },
+    "/broadcasting": { target: proxyTarget, changeOrigin: true },
   };
 
   return {
