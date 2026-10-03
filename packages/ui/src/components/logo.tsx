@@ -17,11 +17,7 @@ export interface LogoIconProps extends React.SVGProps<SVGSVGElement> {
  * - No hardcoded width/height attributes so it scales fluidly via CSS / Tailwind classes.
  * - Uses `currentColor` for dynamic theming across light, dark, and inverted container surfaces.
  */
-export function LogoIcon({
-  variant = "default",
-  className,
-  ...props
-}: LogoIconProps) {
+export function LogoIcon({ variant = "default", className, ...props }: LogoIconProps) {
   if (variant === "badge") {
     return (
       <svg
@@ -29,24 +25,11 @@ export function LogoIcon({
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
-        className={cn(
-          "h-8 w-auto aspect-square shrink-0",
-          className,
-        )}
+        className={cn("h-8 w-auto aspect-square shrink-0", className)}
         {...props}
       >
-        <rect
-          width="64"
-          height="64"
-          rx="16"
-          className="fill-current opacity-15 dark:opacity-25"
-        />
-        <rect
-          width="64"
-          height="64"
-          rx="16"
-          className="stroke-current stroke-1 opacity-20"
-        />
+        <rect width="64" height="64" rx="16" className="fill-current opacity-15 dark:opacity-25" />
+        <rect width="64" height="64" rx="16" className="stroke-current stroke-1 opacity-20" />
         <path
           d="M14 18h8l5 28h-8L14 18Zm14 0h8l5 28h-8l-5-28Zm18 0h8L43 46h-8l11-28Z"
           fill="currentColor"
@@ -61,10 +44,7 @@ export function LogoIcon({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
-      className={cn(
-        "h-8 w-auto aspect-square shrink-0",
-        className,
-      )}
+      className={cn("h-8 w-auto aspect-square shrink-0", className)}
       {...props}
     >
       <path
@@ -119,14 +99,8 @@ export function Logo({
   const sizeConfig = SIZE_STYLES[size];
 
   return (
-    <div
-      className={cn("inline-flex items-center gap-2.5 select-none", className)}
-      {...props}
-    >
-      <LogoIcon
-        variant={variant}
-        className={cn(sizeConfig.icon, iconClassName)}
-      />
+    <div className={cn("inline-flex items-center gap-2.5 select-none", className)} {...props}>
+      <LogoIcon variant={variant} className={cn(sizeConfig.icon, iconClassName)} />
       {!iconOnly && (
         <span className="flex min-w-0 flex-col leading-none">
           {sublabel && (
