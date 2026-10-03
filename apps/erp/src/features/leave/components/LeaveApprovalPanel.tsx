@@ -10,6 +10,8 @@ import {
   CardTitle,
 } from "@workforce-erp/ui/components/card";
 
+import type { LeaveStatus } from "../types/leave.types";
+
 // ─── Inline WorkflowTimeline ───────────────────────────────────────────────
 interface TimelineStep {
   id: string;
@@ -138,11 +140,11 @@ export interface LeaveApprovalPanelProps {
   endDate: string;
   totalDays: number;
   reason: string;
-  status: "pending" | "approved" | "rejected";
-  isPending?: boolean;
-  onApprove?: (remarks: string) => void;
-  onReject?: (remarks: string) => void;
-  className?: string;
+  status: LeaveStatus;
+  isPending?: boolean | undefined;
+  onApprove?: ((remarks: string) => void) | undefined;
+  onReject?: ((remarks: string) => void) | undefined;
+  className?: string | undefined;
 }
 
 export function LeaveApprovalPanel({
@@ -173,9 +175,28 @@ export function LeaveApprovalPanel({
     {
       id: "manager-approval",
       title: "Line Manager Review",
-      description: status === "pending" ? "Awaiting decision" : `Marked as ${status}`,
-      status: status === "pending" ? "Pending" : status === "approved" ? "Approved" : "Rejected",
-      tone: status === "pending" ? "warning" : status === "approved" ? "success" : "danger",
+      description:
+        status === "pending"
+          ? "Awaiting decision"
+          : status === "cancelled"
+            ? "Cancelled by applicant"
+            : `Marked as ${status}`,
+      status:
+        status === "pending"
+          ? "Pending"
+          : status === "approved"
+            ? "Approved"
+            : status === "cancelled"
+              ? "Cancelled"
+              : "Rejected",
+      tone:
+        status === "pending"
+          ? "warning"
+          : status === "approved"
+            ? "success"
+            : status === "cancelled"
+              ? "neutral"
+              : "danger",
       current: status === "pending",
     },
     {
@@ -184,7 +205,9 @@ export function LeaveApprovalPanel({
       description:
         status === "approved"
           ? "Processed into payroll & leave balances"
-          : "Pending prior approvals",
+          : status === "cancelled"
+            ? "No deduction (request cancelled)"
+            : "Pending prior approvals",
       status: status === "approved" ? "Completed" : "Queued",
       tone: status === "approved" ? "success" : "neutral",
     },

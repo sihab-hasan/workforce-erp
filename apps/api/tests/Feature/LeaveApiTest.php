@@ -290,4 +290,65 @@ class LeaveApiTest extends TestCase
             ->patchJson("/api/v1/leave-requests/{$leave->id}/approve")
             ->assertStatus(409);
     }
+
+    public function test_pending_leave_reserves_balance(): void
+    {
+        $user = $this->createUser('staff@example.com');
+        $this->employee = $this->createEmployee($user);
+        $monday = $this->juneMonday();
+
+        // 8 days pending
+        $this->createLeaveRecord($this->employee, [
+            'start_date' => $monday->copy()->addWeeks(2)->toDateString(),
+            'end_date' => $monday->copy()->addWeeks(3)->addDays(2)->toDateString(),
+            'total_days' => 8,
+            'status' => 'pending',
+        ]);
+
+        // Attempting to request 3 days when only 2 remain should fail with 422
+        $response = $this->withHeaders($this->headers($user))->postJson('/api/v1/leave-requests', [
+            'leave_type_id' => $this->leaveType->id,
+            'start_date' => $monday->copy()->addWeeks(5)->toDateString(),
+            'end_date' => $monday->copy()->addWeeks(5)->addDays(2)->toDateString(),
+        ]);
+
+        $response->assertStatus(422)
+            ->assertExactJson([
+                'message' => 'Insufficient leave balance. Requested: 3 days, Remaining: 2 days.',
+            ]);
+    }
+
+    public function test_leave_types_crud(): void
+    {
+        $admin = $this->createUser('admin@example.com', 'admin');
+
+        // List types
+        $this->withHeaders($this->headers($admin))
+            ->getJson('/api/v1/leave-types')
+            ->assertOk()
+            ->assertJsonFragment(['code' => 'ANNUAL']);
+
+        // Create type
+        $response = $this->withHeaders($this->headers($admin))->postJson('/api/v1/leave-types', [
+            'name' => 'Sick Leave',
+            'code' => 'SICK',
+            'annual_allowance' => 12,
+            'is_paid' => true,
+        ]);
+        $response->assertStatus(201)
+            ->assertJsonPath('data.code', 'SICK')
+            ->assertJsonPath('data.annual_allowance', 12);
+
+        $sickTypeId = $response->json('data.id');
+
+        // Update type
+        $this->withHeaders($this->headers($admin))->putJson("/api/v1/leave-types/{$sickTypeId}", [
+            'annual_allowance' => 14,
+        ])->assertOk()->assertJsonPath('data.annual_allowance', 14);
+
+        // Delete type
+        $this->withHeaders($this->headers($admin))
+            ->deleteJson("/api/v1/leave-types/{$sickTypeId}")
+            ->assertOk();
+    }
 }
