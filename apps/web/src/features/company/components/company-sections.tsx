@@ -9,7 +9,7 @@ import { GlobalOfficesSection as GlobalOfficesComponent } from "./GlobalOfficesS
 import { BenefitsSection as BenefitsComponent } from "./BenefitsSection";
 import { CompanyCallToActionSection as CallToActionComponent } from "./CompanyCallToActionSection";
 import { Container } from "#layouts/Container";
-import { Briefcase, Handshake, Users2 } from "lucide-react";
+import { Briefcase, Handshake } from "lucide-react";
 import { Link } from "react-router-dom";
 import { WEB_PATHS } from "#routes/paths";
 import { buttonVariants } from "@workforce-erp/ui/components/button";
@@ -269,10 +269,10 @@ export function PartnerNetworkSection({ className }: { className?: string }) {
   );
 }
 
-export function PartnerBenefitsSection({ className }: { className?: string }) {
+export function PartnerBenefitsSection({ className: _className }: { className?: string } = {}) {
   return null;
 }
 
-export function PartnerProgramsSection({ className }: { className?: string }) {
+export function PartnerProgramsSection({ className: _className }: { className?: string } = {}) {
   return null;
 }

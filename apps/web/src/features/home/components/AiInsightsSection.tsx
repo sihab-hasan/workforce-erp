@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Activity, BrainCircuit, LineChart, Sparkles, Target, TrendingUp } from "lucide-react";
+import { Activity, BrainCircuit, LineChart, Target, TrendingUp } from "lucide-react";
 import { Container } from "#layouts/Container";
 import { cn } from "@workforce-erp/ui/lib/utils";
 import { bindScrollAnimation, gsap, prefersReducedMotion, useGSAP } from "@workforce-erp/ui/motion";

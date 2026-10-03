@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Calendar, CheckCircle2, ChevronRight, Milestone } from "lucide-react";
 import { Container } from "#layouts/Container";
 import { cn } from "@workforce-erp/ui/lib/utils";
 import type { TimelineMilestone } from "../types/company.types";

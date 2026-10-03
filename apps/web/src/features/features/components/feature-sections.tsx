@@ -8,7 +8,6 @@ import {
   Clock,
   FileText,
   LayoutDashboard,
-  Lock,
   ShieldCheck,
   Sparkles,
   Users,
@@ -19,7 +18,6 @@ import {
 import { Link } from "react-router-dom";
 import { WEB_PATHS } from "#routes/paths";
 import { Container } from "#layouts/Container";
-import { Section } from "#layouts/Section";
 import { buttonVariants } from "@workforce-erp/ui/components/button";
 import { cn } from "@workforce-erp/ui/lib/utils";
 

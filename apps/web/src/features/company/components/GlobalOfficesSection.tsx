@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Building2, Clock, Globe2, MapPin } from "lucide-react";
+import { Building2, Clock, MapPin } from "lucide-react";
 import { Container } from "#layouts/Container";
 import { cn } from "@workforce-erp/ui/lib/utils";
 import type { CompanyOffice } from "../types/company.types";

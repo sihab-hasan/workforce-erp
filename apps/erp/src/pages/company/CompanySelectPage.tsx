@@ -21,8 +21,8 @@ export function CompanySelectPage() {
 
   const companies = query.data ?? [];
 
-  if (!canManageCompanies && companies.length === 1) {
-    const only = companies[0]!;
+  if (!canManageCompanies && companies.length === 1 && companies[0]) {
+    const only = companies[0];
     return <Navigate to={companyRoutes.dashboard(tenantKey, only.code || only.id)} replace />;
   }
 
