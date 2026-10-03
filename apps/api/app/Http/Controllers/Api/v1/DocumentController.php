@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Document;
+use App\Notifications\DocumentShared;
 use App\Services\DataScopeService;
+use App\Services\NotificationAudience;
 use App\Services\WorkforceScopeService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -14,7 +16,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DocumentController extends Controller
 {
-    public function __construct(private readonly WorkforceScopeService $scope, private readonly DataScopeService $dataScope) {}
+    public function __construct(private readonly WorkforceScopeService $scope, private readonly DataScopeService $dataScope, private readonly NotificationAudience $audience) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -71,6 +73,10 @@ class DocumentController extends Controller
             'mime_type' => $file->getMimeType(),
             'size_bytes' => $file->getSize(),
         ])->load('uploader');
+
+        foreach ($this->audience->usersWithPermission((int) $org->id, 'document.view', (int) $request->user()->id) as $member) {
+            $member->notify(new DocumentShared($document));
+        }
 
         return $this->successResponse($this->serialize($document), 'Document uploaded successfully', 201);
     }

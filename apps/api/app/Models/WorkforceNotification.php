@@ -29,4 +29,25 @@ class WorkforceNotification extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Mirrors NotificationController::serialize() so broadcast payloads stay
+     * byte-identical to the REST contract the ERP frontend already consumes.
+     *
+     * @return array<string, mixed>
+     */
+    public function toApiPayload(): array
+    {
+        return [
+            'id' => (string) $this->id,
+            'type' => $this->type,
+            'title' => $this->title,
+            'message' => $this->message,
+            'action_url' => $this->action_url,
+            'data' => $this->data ?? [],
+            'read_at' => $this->read_at?->toIso8601String(),
+            'is_read' => (bool) $this->read_at,
+            'created_at' => $this->created_at?->toIso8601String(),
+        ];
+    }
 }
