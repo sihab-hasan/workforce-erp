@@ -56,30 +56,37 @@ export function SignInPage() {
         </a>
       }
     >
-      <form className="space-y-5" onSubmit={login}>
+      <form className="space-y-4" onSubmit={login}>
         <div className="space-y-1.5">
-          <Label htmlFor="admin-email">Work email</Label>
+          <Label htmlFor="admin-email" className="text-xs font-semibold text-foreground/90">
+            Work Email
+          </Label>
           <div className="relative">
-            <Mail className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="admin-email"
-              className="pl-8"
+              className="h-10.5 rounded-xl border-border/80 bg-background/60 pl-9 text-sm transition-all focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20"
               type="email"
               autoComplete="email"
+              placeholder="admin@organization.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
         </div>
+
         <div className="space-y-1.5">
-          <Label htmlFor="admin-password">Password</Label>
+          <Label htmlFor="admin-password" className="text-xs font-semibold text-foreground/90">
+            Password
+          </Label>
           <div className="relative">
-            <Lock className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="admin-password"
-              className="px-8"
+              className="h-10.5 rounded-xl border-border/80 bg-background/60 px-9 text-sm transition-all focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/20"
               type={show ? "text" : "password"}
               autoComplete="current-password"
+              placeholder="••••••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -87,22 +94,32 @@ export function SignInPage() {
               type="button"
               aria-label={show ? "Hide password" : "Show password"}
               onClick={() => setShow((v) => !v)}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground transition hover:text-foreground"
             >
               {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
           </div>
         </div>
+
         {error ? (
-          <p role="alert" className="text-sm text-destructive">
-            {error}
-          </p>
+          <div
+            role="alert"
+            className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs font-medium text-destructive"
+          >
+            <span className="size-1.5 rounded-full bg-destructive shrink-0" />
+            <span>{error}</span>
+          </div>
         ) : null}
-        <Button type="submit" className="w-full" disabled={loading}>
+
+        <Button
+          type="submit"
+          className="mt-2 h-11 w-full rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-md transition-all hover:bg-primary/90 hover:shadow-lg disabled:opacity-50"
+          disabled={loading}
+        >
           {loading ? (
-            <>
-              <Loader2 className="animate-spin" /> Signing in…
-            </>
+            <span className="flex items-center gap-2">
+              <Loader2 className="size-4 animate-spin" /> Signing in…
+            </span>
           ) : (
             "Sign in"
           )}

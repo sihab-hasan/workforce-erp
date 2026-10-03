@@ -14,18 +14,27 @@ class AuthorizationService
     public function __construct(private readonly BreakGlassService $breakGlass) {}
 
     private const ALL_PERMISSIONS = [
-        'user.view', 'user.invite', 'user.manage', 'user.create', 'user.update', 'user.delete',
-        'role.view', 'role.manage', 'role.assign',
-        'employee.view', 'employee.create', 'employee.update', 'employee.delete', 'employee.manage',
+        'organization.view', 'organization.manage', 'organization.owner.assign',
+        'company.view', 'company.manage',
         'department.view', 'department.manage',
         'designation.view', 'designation.manage',
         'branch.view', 'branch.manage',
+        'employee.view', 'employee.create', 'employee.update', 'employee.delete', 'employee.manage', 'employee.read',
         'timesheet.view', 'timesheet.create', 'timesheet.update', 'timesheet.approve', 'timesheet.manage', 'timesheet.clock',
         'leave.view', 'leave.create', 'leave.update', 'leave.approve', 'leave.manage',
+        'approval.view', 'approval.approve',
         'document.view', 'document.upload', 'document.delete', 'document.manage',
+        'notification.view',
         'report.view', 'report.export', 'report.manage',
-        'security.manage', 'security.view', 'session.manage', 'audit.view',
-        'organization.view', 'organization.manage', 'organization.owner.assign',
+        'user.view', 'user.invite', 'user.manage', 'user.create', 'user.update', 'user.delete',
+        'role.view', 'role.manage', 'role.assign',
+        'settings.view', 'settings.manage',
+        'security.manage', 'security.view', 'session.manage', 'domain.manage', 'subscription.view',
+        'onboarding.manage', 'access_request.create', 'access_request.approve', 'service_account.manage',
+        'audit.view', 'impersonation.start', 'break_glass.start',
+        'payroll.prepare', 'payroll.approve', 'payment.approve',
+        'vendor.create', 'vendor.approve', 'purchase.create', 'purchase.approve',
+        'journal.create', 'journal.post', 'refund.create', 'refund.approve',
     ];
 
     private const MANAGER_PERMISSIONS = [

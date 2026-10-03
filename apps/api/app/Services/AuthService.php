@@ -205,7 +205,7 @@ class AuthService
                 ->whereIn('status', ['active', 'invited'])
                 ->exists();
 
-            if (! $hasMembership) {
+            if (! $hasMembership && $this->authorization->platformRoles($user) === []) {
                 abort(403, 'This account is not authorized for the customer ERP application.');
             }
         }
@@ -328,8 +328,16 @@ class AuthService
         $actor = $request->user();
         $sessionId = $request->hasSession() ? $request->session()->getId() : null;
 
+        if ($sessionId) {
+            DB::table('sessions')->where('id', $sessionId)->delete();
+        }
+
         Auth::guard('web')->logout();
+        Auth::forgetGuards();
+        $request->setUserResolver(fn () => null);
+
         if ($request->hasSession()) {
+            $request->session()->flush();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
         }

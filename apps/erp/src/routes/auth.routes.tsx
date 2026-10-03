@@ -20,7 +20,7 @@ export const authRoutes: RouteObject[] = [
     children: [
       { path: "sign-in", element: anonymous(<SignInPage />) },
       { path: "sign-up", element: anonymous(<SignUpPage />) },
-      { path: "verify-email", element: anonymous(<VerifyEmailPage />) },
+      { path: "verify-email", element: <VerifyEmailPage /> },
       { path: "forgot-password", element: anonymous(<ForgotPasswordPage />) },
       { path: "reset-password", element: anonymous(<ResetPasswordPage />) },
       { path: "sso/callback/:provider", element: anonymous(<SsoCallbackPage />) },

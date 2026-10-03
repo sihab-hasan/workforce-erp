@@ -100,6 +100,10 @@ class Handler extends ExceptionHandler
             ], $exception->getStatusCode());
         }
 
+        \Illuminate\Support\Facades\Log::error('API 500: ' . $exception->getMessage(), [
+            'exception' => $exception,
+        ]);
+
         // Never expose exception messages, classes, or stack traces in API responses.
         return response()->json([
             'success' => false,
