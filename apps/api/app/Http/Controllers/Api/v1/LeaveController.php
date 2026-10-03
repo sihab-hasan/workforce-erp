@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
-use App\Models\OrganizationMember;
-use App\Models\Permission;
-use App\Models\WorkforceNotification;
+use App\Notifications\LeaveRequestReviewed;
+use App\Notifications\LeaveRequestSubmitted;
 use App\Services\AuthorizationService;
 use App\Services\DataScopeService;
+use App\Services\NotificationAudience;
 use App\Services\WorkforceScopeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,6 +23,7 @@ class LeaveController extends Controller
         private readonly WorkforceScopeService $scope,
         private readonly DataScopeService $dataScope,
         private readonly AuthorizationService $authorization,
+        private readonly NotificationAudience $audience,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -147,7 +148,7 @@ class LeaveController extends Controller
             'total_days' => $days,
             'status' => 'pending',
         ])->load(['employee.department', 'leaveType', 'reviewer']);
-        $this->notifyManagers($org->id, $request->user()->id, 'leave.requested', 'Leave approval required', $employee->name.' submitted a leave request.', '/approvals');
+        $this->notifyManagers($org->id, $request->user()->id, $employee->name);
 
         return $this->successResponse($this->serialize($leave), 'Leave request submitted successfully', 201);
     }
@@ -198,16 +199,7 @@ class LeaveController extends Controller
             'reviewed_at' => now(),
             'review_note' => $data['review_note'] ?? null,
         ]);
-        if ($leaveRequest->employee?->user_id) {
-            WorkforceNotification::create([
-                'organization_id' => $leaveRequest->organization_id,
-                'user_id' => $leaveRequest->employee->user_id,
-                'type' => 'leave.'.$status,
-                'title' => 'Leave request '.ucfirst($status),
-                'message' => 'Your leave request from '.$leaveRequest->start_date->toDateString().' to '.$leaveRequest->end_date->toDateString().' was '.$status.'.',
-                'action_url' => '/leave/'.$leaveRequest->id,
-            ]);
-        }
+        $leaveRequest->employee?->user?->notify(new LeaveRequestReviewed($leaveRequest, $status));
 
         return $this->successResponse($this->serialize($leaveRequest->fresh()->load(['employee.department', 'leaveType', 'reviewer'])), 'Leave request '.$status);
     }
@@ -237,15 +229,10 @@ class LeaveController extends Controller
         $this->dataScope->assertEmployee($request->user(), (int) $leave->organization_id, (int) $leave->employee_id);
     }
 
-    private function notifyManagers(int $organizationId, int $excludeUserId, string $type, string $title, string $message, string $actionUrl): void
+    private function notifyManagers(int $organizationId, int $excludeUserId, string $employeeName): void
     {
-        $permissionId = Permission::query()->where('name', 'leave.approve')->value('id');
-        $userIds = OrganizationMember::query()->where('organization_id', $organizationId)->where('status', 'active')->where('user_id', '!=', $excludeUserId)->whereHas('roleAssignments.role.permissions', fn ($q) => $q->where('permissions.id', $permissionId))->pluck('user_id');
-        foreach ($userIds as $userId) {
-            WorkforceNotification::create([
-                'organization_id' => $organizationId, 'user_id' => $userId, 'type' => $type,
-                'title' => $title, 'message' => $message, 'action_url' => $actionUrl,
-            ]);
+        foreach ($this->audience->usersWithPermission($organizationId, 'leave.approve', $excludeUserId) as $reviewer) {
+            $reviewer->notify(new LeaveRequestSubmitted($organizationId, $employeeName));
         }
     }
 
