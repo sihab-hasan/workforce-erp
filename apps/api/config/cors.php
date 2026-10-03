@@ -18,7 +18,7 @@ $allowedOrigins = array_values(array_unique(array_filter(array_map(
     ))
 ))));
 
-if ($appUrl !== '' && !in_array(rtrim($appUrl, '/'), $allowedOrigins, true)) {
+if ($appUrl !== '' && ! in_array(rtrim($appUrl, '/'), $allowedOrigins, true)) {
     $allowedOrigins[] = rtrim($appUrl, '/');
 }
 
