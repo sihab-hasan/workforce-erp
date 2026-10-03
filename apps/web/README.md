@@ -65,10 +65,10 @@ apps/web/src/
 
 Environment variables are inherited from the root `.env`:
 
-| Variable                | Default (Local)                | Purpose                                    |
-| ----------------------- | ------------------------------ | ------------------------------------------ |
-| `WEB_DEV_PORT`          | `5173`                         | Local Vite dev server port                 |
-| `WEB_PREVIEW_PORT`      | `4173`                         | Local Vite preview port                    |
-| `VITE_API_PROXY_TARGET` | `http://127.0.0.1:8000`        | Backend API target for Vite proxy          |
-| `VITE_ERP_URL`          | `http://localhost:5173/erp/`   | Cross-app URL for ERP customer application |
-| `VITE_ADMIN_URL`        | `http://localhost:5173/admin/` | Cross-app URL for platform administration  |
+| Variable                | Default (Local)                                              | Purpose                                    |
+| ----------------------- | ------------------------------------------------------------ | ------------------------------------------ |
+| `WEB_DEV_PORT`          | `5173`                                                       | Local Vite dev server port                 |
+| `WEB_PREVIEW_PORT`      | `4173`                                                       | Local Vite preview port                    |
+| `VITE_API_PROXY_TARGET` | `http://127.0.0.1:8000`                                      | Backend API target for Vite proxy          |
+| `VITE_ERP_URL`          | Origin-relative `/erp` (or `http://localhost:5173/erp/`)     | Cross-app URL for ERP customer application |
+| `VITE_ADMIN_URL`        | Origin-relative `/admin` (or `http://localhost:5173/admin/`) | Cross-app URL for platform administration  |

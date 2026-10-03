@@ -1,12 +1,26 @@
 <?php
 
-$allowedOrigins = array_values(array_filter(array_map(
+$defaultOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5173',
+];
+
+$appUrl = trim((string) env('APP_URL', ''));
+if ($appUrl !== '') {
+    $defaultOrigins[] = rtrim($appUrl, '/');
+}
+
+$allowedOrigins = array_values(array_unique(array_filter(array_map(
     'trim',
     explode(',', (string) env(
         'CORS_ALLOWED_ORIGINS',
-        'http://localhost:3000,http://localhost:5173'
+        implode(',', $defaultOrigins)
     ))
-)));
+))));
+
+if ($appUrl !== '' && !in_array(rtrim($appUrl, '/'), $allowedOrigins, true)) {
+    $allowedOrigins[] = rtrim($appUrl, '/');
+}
 
 return [
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
