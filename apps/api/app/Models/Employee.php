@@ -44,6 +44,24 @@ class Employee extends Model
         'name',
     ];
 
+    protected static function booted(): void
+    {
+        static::saving(function (Employee $employee) {
+            if ($employee->user_id || ! $employee->email || ! $employee->organization_id) {
+                return;
+            }
+
+            $userId = User::query()
+                ->whereRaw('LOWER(email) = ?', [strtolower(trim($employee->email))])
+                ->whereHas('memberships', fn ($q) => $q->where('organization_id', $employee->organization_id))
+                ->value('id');
+
+            if ($userId) {
+                $employee->user_id = $userId;
+            }
+        });
+    }
+
     public function getNameAttribute()
     {
         return trim("{$this->first_name} {$this->last_name}");

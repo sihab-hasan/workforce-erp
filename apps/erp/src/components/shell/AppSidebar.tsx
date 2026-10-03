@@ -57,90 +57,39 @@ export function AppSidebar() {
   const tenantBase = tenantKey ? tenantRoutes.root(tenantKey) : "";
   const companyBase = tenantKey && companyKey ? companyRoutes.root(tenantKey, companyKey) : "";
 
+  const isManager = authorization.canAny(["employee.manage", "leave.approve"]);
+
+  const ownerCompanyItems: NavItem[] = [
+    { label: "Dashboard", path: companyRoutes.dashboard(validTenantKey, validCompanyKey), icon: LayoutDashboard },
+    { label: "Departments", path: companyRoutes.departments(validTenantKey, validCompanyKey), icon: Building2 },
+    { label: "Employees", path: companyRoutes.employees(validTenantKey, validCompanyKey), icon: Users },
+    { label: "Approvals", path: companyRoutes.approvals(validTenantKey, validCompanyKey), icon: CheckCircle2 },
+    { label: "Documents", path: companyRoutes.documents(validTenantKey, validCompanyKey), icon: FileText },
+    { label: "Reports", path: companyRoutes.reports(validTenantKey, validCompanyKey), icon: Workflow },
+    { label: "Notifications", path: companyRoutes.notifications(validTenantKey, validCompanyKey), icon: Bell },
+  ];
+
+  const employeeCompanyItems: NavItem[] = [
+    { label: "Dashboard", path: companyRoutes.dashboard(validTenantKey, validCompanyKey), icon: LayoutDashboard },
+    { label: "Leave request", path: companyRoutes.leave(validTenantKey, validCompanyKey), icon: ClipboardList },
+    { label: "Timesheet", path: companyRoutes.timesheets(validTenantKey, validCompanyKey), icon: Timer },
+    { label: "Documents", path: companyRoutes.documents(validTenantKey, validCompanyKey), icon: FileText },
+    { label: "Reports", path: companyRoutes.reports(validTenantKey, validCompanyKey), icon: Workflow },
+    { label: "Notifications", path: companyRoutes.notifications(validTenantKey, validCompanyKey), icon: Bell },
+  ];
+
   const companyItems: NavItem[] = companyBase
-    ? [
-        {
-          label: "Dashboard",
-          path: companyRoutes.dashboard(validTenantKey, validCompanyKey),
-          icon: LayoutDashboard,
-        },
-        {
-          label: "Departments",
-          path: companyRoutes.departments(validTenantKey, validCompanyKey),
-          icon: Building2,
-          permissions: ["department.manage"],
-        },
-        {
-          label: "Employees",
-          path: companyRoutes.employees(validTenantKey, validCompanyKey),
-          icon: Users,
-          permissions: ["employee.read"],
-        },
-        {
-          label: "Leave",
-          path: companyRoutes.leave(validTenantKey, validCompanyKey),
-          icon: ClipboardList,
-          permissions: ["leave.manage", "leave.approve"],
-        },
-        {
-          label: "Timesheets",
-          path: companyRoutes.timesheets(validTenantKey, validCompanyKey),
-          icon: Timer,
-          permissions: ["timesheet.manage", "timesheet.manage"],
-        },
-        {
-          label: "Approvals",
-          path: companyRoutes.approvals(validTenantKey, validCompanyKey),
-          icon: CheckCircle2,
-          permissions: ["approval.approve"],
-        },
-        {
-          label: "Documents",
-          path: companyRoutes.documents(validTenantKey, validCompanyKey),
-          icon: FileText,
-          permissions: ["document.manage"],
-        },
-        {
-          label: "Reports",
-          path: companyRoutes.reports(validTenantKey, validCompanyKey),
-          icon: Workflow,
-          permissions: ["report.view"],
-        },
-        {
-          label: "Notifications",
-          path: companyRoutes.notifications(validTenantKey, validCompanyKey),
-          icon: Bell,
-          permissions: ["notification.view"],
-        },
-      ]
+    ? isManager
+      ? ownerCompanyItems
+      : employeeCompanyItems
     : [];
 
   const organizationItems: NavItem[] = tenantBase
     ? [
-        {
-          label: "Organization",
-          path: tenantRoutes.organization(validTenantKey),
-          icon: Building2,
-          permissions: ["organization.manage"],
-        },
-        {
-          label: "Companies",
-          path: tenantRoutes.companies(validTenantKey),
-          icon: LayoutDashboard,
-          permissions: ["company.manage"],
-        },
-        {
-          label: "Users",
-          path: tenantRoutes.users(validTenantKey),
-          icon: Users,
-          permissions: ["user.manage"],
-        },
-        {
-          label: "Roles",
-          path: tenantRoutes.roles(validTenantKey),
-          icon: ShieldCheck,
-          permissions: ["role.manage"],
-        },
+        { label: "Organization", path: tenantRoutes.organization(validTenantKey), icon: Building2, permissions: ["organization.manage"] },
+        { label: "Companies", path: tenantRoutes.companies(validTenantKey), icon: LayoutDashboard, permissions: ["company.manage"] },
+        { label: "Users", path: tenantRoutes.users(validTenantKey), icon: Users, permissions: ["user.manage"] },
+        { label: "Roles", path: tenantRoutes.roles(validTenantKey), icon: ShieldCheck, permissions: ["role.manage"] },
         { label: "Settings", path: tenantRoutes.settings(validTenantKey), icon: Settings },
       ]
     : [];

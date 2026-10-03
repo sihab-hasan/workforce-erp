@@ -9,7 +9,7 @@ export const leaveRoutes: RouteObject[] = [
   {
     path: "leave",
     element: (
-      <AuthorizedRoute anyOf={["leave.request", "leave.review"]}>
+      <AuthorizedRoute capability="leave.view">
         <LeaveRequestsPage />
       </AuthorizedRoute>
     ),
@@ -17,7 +17,7 @@ export const leaveRoutes: RouteObject[] = [
   {
     path: "leave/new",
     element: (
-      <AuthorizedRoute capability="leave.request">
+      <AuthorizedRoute capability="leave.view">
         <LeaveRequestCreatePage />
       </AuthorizedRoute>
     ),
@@ -25,7 +25,7 @@ export const leaveRoutes: RouteObject[] = [
   {
     path: "leave/history",
     element: (
-      <AuthorizedRoute anyOf={["leave.request", "leave.review"]}>
+      <AuthorizedRoute capability="leave.view">
         <LeaveHistoryPage />
       </AuthorizedRoute>
     ),
@@ -33,7 +33,7 @@ export const leaveRoutes: RouteObject[] = [
   {
     path: "leave/:leaveRequestId",
     element: (
-      <AuthorizedRoute anyOf={["leave.request", "leave.review"]}>
+      <AuthorizedRoute capability="leave.view">
         <LeaveRequestDetailsPage />
       </AuthorizedRoute>
     ),

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Building, ChevronRight, Plus } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
+import { useAuthorization } from "@workforce-erp/authorization";
 import { Button } from "@workforce-erp/ui/components/button";
 import { Card, CardContent } from "@workforce-erp/ui/components/card";
 import { apiGet, errorMessage } from "#features/erp-core/api";
@@ -10,41 +11,61 @@ import { companyRoutes, tenantRoutes } from "#routes/paths";
 
 export function CompanySelectPage() {
   const { tenantKey = "" } = useParams();
+  const authorization = useAuthorization();
+  const canManageCompanies = authorization.can("company.manage");
+
   const query = useQuery({
     queryKey: ["companies", tenantKey],
     queryFn: () => apiGet<CompanyRecord[]>("/api/v1/companies"),
   });
+
+  const companies = query.data ?? [];
+
+  if (!canManageCompanies && companies.length === 1) {
+    const only = companies[0]!;
+    return <Navigate to={companyRoutes.dashboard(tenantKey, only.code || only.id)} replace />;
+  }
+
   return (
     <ErpPage
       title="Select company"
       description="Choose the company or branch workspace for operational ERP modules."
       actions={
-        <Button nativeButton={false} render={<Link to={tenantRoutes.companyCreate(tenantKey)} />}>
-          <Plus />
-          New company
-        </Button>
+        canManageCompanies ? (
+          <Button nativeButton={false} render={<Link to={tenantRoutes.companyCreate(tenantKey)} />}>
+            <Plus />
+            New company
+          </Button>
+        ) : undefined
       }
     >
       {query.isLoading ? (
         <LoadingState label="Loading companies…" />
       ) : query.isError ? (
         <ErrorState message={errorMessage(query.error)} onRetry={() => void query.refetch()} />
-      ) : (query.data?.length ?? 0) === 0 ? (
-        <EmptyPanel
-          title="No companies yet"
-          description="Create the first company to start using company-scoped ERP modules."
-          action={
-            <Button
-              nativeButton={false}
-              render={<Link to={tenantRoutes.companyCreate(tenantKey)} />}
-            >
-              Create company
-            </Button>
-          }
-        />
+      ) : companies.length === 0 ? (
+        canManageCompanies ? (
+          <EmptyPanel
+            title="No companies yet"
+            description="Create the first company to start using company-scoped ERP modules."
+            action={
+              <Button
+                nativeButton={false}
+                render={<Link to={tenantRoutes.companyCreate(tenantKey)} />}
+              >
+                Create company
+              </Button>
+            }
+          />
+        ) : (
+          <EmptyPanel
+            title="You are not assigned to a branch yet"
+            description="Ask your organization owner to add you as an employee in a company/branch using this same email address."
+          />
+        )
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {query.data?.map((company) => (
+          {companies.map((company) => (
             <Link
               key={company.id}
               to={companyRoutes.dashboard(tenantKey, company.code || company.id)}

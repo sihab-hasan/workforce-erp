@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\v1\OrganizationController;
 use App\Http\Controllers\Api\v1\OTPController;
 use App\Http\Controllers\Api\v1\PlatformController;
 use App\Http\Controllers\Api\v1\ProfileController;
+use App\Http\Controllers\Api\v1\PublicAboutController;
 use App\Http\Controllers\Api\v1\RegistrationController;
 use App\Http\Controllers\Api\v1\ReportController;
 use App\Http\Controllers\Api\v1\RoleController;
@@ -34,6 +35,8 @@ Route::get('/healthz', fn () => response()->json(['status' => 'ok', 'service' =>
 Route::get('/', fn () => response()->json(['name' => 'Workforce ERP API', 'status' => 'ok']));
 
 Route::prefix('v1')->group(function () {
+    Route::get('/public/about', [PublicAboutController::class, 'index']);
+
     Route::prefix('auth')->group(function () {
         Route::post('/register', [RegistrationController::class, 'start'])->middleware('throttle:registration');
         Route::post('/registrations/{id}/resend', [RegistrationController::class, 'resend'])->middleware('throttle:registration-resend');
