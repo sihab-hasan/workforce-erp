@@ -1,6 +1,6 @@
 # Local Docker Desktop Stack
 
-This Compose stack is for local development and is not production-ready. It uses Caddy for static frontend hosting and same-origin API routing, PHP/Apache for Laravel, MySQL, Redis, and Laravel queue/scheduler processes. Outgoing mail uses Gmail SMTP.
+This Compose stack uses Nginx for static frontend hosting and same-origin API routing, PHP/Apache for Laravel, MySQL, Redis, and Laravel queue/scheduler processes. Outgoing mail uses Gmail SMTP.
 
 ## Start
 

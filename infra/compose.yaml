@@ -91,7 +91,7 @@ services:
       api-migrate:
         condition: service_completed_successfully
 
-  caddy:
+  nginx:
     build:
       context: ..
       dockerfile: infra/docker/Dockerfile.frontend
