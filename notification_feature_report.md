@@ -274,7 +274,7 @@ VITE_REVERB_SCHEME=http
 
 ---
 
-## ১০. Issue #120 PR-এর সম্পূর্ণ ফাইল তালিকা (২টি কমিট)
+## ১০. Issue #120 PR-এর সম্পূর্ণ ফাইল তালিকা (মোট ২২টি ফাইল)
 
 ```
  modified:   .env.example
