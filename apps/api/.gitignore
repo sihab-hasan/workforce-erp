@@ -4,6 +4,11 @@
 /public/build
 /public/hot
 /public/storage
+/public/app
+/public/erp
+/public/admin
+/public/assets
+/public/index.html
 /storage/*.key
 /vendor
 .env

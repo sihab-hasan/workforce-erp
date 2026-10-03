@@ -78,7 +78,7 @@ Default local URLs:
 
 ## Optional Docker Desktop stack
 
-The local Docker Compose stack uses Caddy, PHP/Apache, MySQL, and Redis. It sends email through Gmail SMTP and serves HTTP from one `localhost` origin; production deployment and TLS will be configured later.
+The local Docker Compose stack uses Nginx, PHP/Apache, MySQL, and Redis. It sends email through Gmail SMTP and serves HTTP from one `localhost` origin; production deployment and TLS will be configured later.
 
 ```bash
 cp .env.docker.example .env.docker

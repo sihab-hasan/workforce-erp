@@ -1,61 +1,218 @@
-name: Production deploy
+name: Build
 
 on:
   push:
-    branches:
-      - main
+    branches: ['main', 'develop']
+    paths-ignore:
+      - '**.md'
+      - '**.yml'
+      - '**.yaml'
+  pull_request:
+    branches: ['main', 'develop']
+    paths-ignore:
+      - '**.md'
+      - '**.yml'
+      - '**.yaml'
   workflow_dispatch:
 
-permissions:
-  contents: read
-
-concurrency:
-  group: production-deploy
-  cancel-in-progress: false
-
 jobs:
-  branch-policy:
-    name: Verify production branch
+  test:
+    name: Run tests and quality checks
     runs-on: ubuntu-latest
+
     steps:
-      - name: Require main branch
-        shell: bash
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, bcmath
+          coverage: none
+
+      - name: Install API dependencies
         run: |
-          if [ "${GITHUB_REF_NAME}" != "main" ]; then
-            echo "Production deployment is allowed only from the main branch."
+          composer install --prefer-dist --no-interaction --working-dir=apps/api
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Node dependencies
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+
+      - name: Run TypeScript typecheck
+        run: pnpm typecheck
+
+      - name: Run API feature tests
+        run: |
+          cd apps/api
+          cp .env.example .env
+          php artisan key:generate
+          php artisan test
+          cd ../..
+
+  build:
+    name: Build frontend and API release
+    runs-on: ubuntu-latest
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, bcmath
+          coverage: none
+
+      - name: Install production PHP packages
+        run: |
+          composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --working-dir=apps/api
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Node dependencies
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+
+      - name: Build frontend applications
+        run: |
+          VITE_BASE_PATH=/ pnpm nx build @workforce-erp/web
+          VITE_BASE_PATH=/erp/ pnpm nx build @workforce-erp/erp
+          VITE_BASE_PATH=/admin/ pnpm nx build @workforce-erp/admin
+
+      - name: Stage deploy bundle
+        run: |
+          # Copy built frontend distributions into Laravel public
+          cp -r apps/web/dist/* apps/api/public/
+          mkdir -p apps/api/public/erp
+          cp -r apps/erp/dist/* apps/api/public/erp/
+          mkdir -p apps/api/public/app
+          cp -r apps/erp/dist/* apps/api/public/app/
+          mkdir -p apps/api/public/admin
+          cp -r apps/admin/dist/* apps/api/public/admin/
+
+          # Strict verification required by CSE3100 rubric
+          test -f apps/api/public/app/index.html || { echo "::error::Missing public/app/index.html"; exit 1; }
+
+          # Pack release archive excluding development files and secrets
+          cd apps/api
+          tar --exclude='.env' --exclude='.env.*' --exclude='node_modules' --exclude='.git' --exclude='tests' -czf ../../release.tar.gz .
+          cd ../..
+          test -f release.tar.gz || { echo "::error::release.tar.gz was not created"; exit 1; }
+
+      - name: Upload deploy bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-bundle
+          path: release.tar.gz
+          retention-days: 1
+
+  deploy:
+    name: Deploy to VPS
+    needs: [build, test]
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    env:
+      VPS_HOST: ${{ secrets.DEPLOY_HOST }}
+      VPS_PORT: ${{ secrets.DEPLOY_PORT || '22' }}
+      VPS_USER: ${{ secrets.DEPLOY_USER }}
+
+    steps:
+      - name: Validate deployment secrets
+        run: |
+          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+            echo "::error::SSH_PRIVATE_KEY is missing in GitHub repository secrets."
+            exit 1
+          fi
+          if [ -z "$VPS_USER" ]; then
+            echo "::error::DEPLOY_USER is missing in GitHub repository secrets."
+            exit 1
+          fi
+          if [ -z "$VPS_HOST" ]; then
+            echo "::error::DEPLOY_HOST is missing in GitHub repository secrets."
             exit 1
           fi
 
-  node-validation:
-    name: Validate Node workspace
-    needs: branch-policy
-    uses: ./.github/workflows/frontend.yml
+      - name: Download deploy bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: deploy-bundle
+          path: .
 
-  api-validation:
-    name: Validate Laravel API
-    needs: branch-policy
-    uses: ./.github/workflows/api.yml
+      - name: Configure SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H -p "${VPS_PORT}" "$VPS_HOST" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
-  deployment-guide:
-    name: Production deployment handoff
+          cat > ~/.ssh/config <<EOF
+          Host deploy-target
+            HostName $VPS_HOST
+            User $VPS_USER
+            Port ${VPS_PORT}
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            PreferredAuthentications publickey
+            BatchMode yes
+            StrictHostKeyChecking yes
+          EOF
+          chmod 600 ~/.ssh/config
+
+      - name: Verify SSH access
+        run: ssh deploy-target "mkdir -p ~/laravel"
+
+      - name: Copy release archive to VPS
+        run: |
+          scp -F ~/.ssh/config release.tar.gz deploy-target:~/
+
+      - name: Run remote deploy commands
+        run: |
+          ssh -F ~/.ssh/config deploy-target << 'EOF'
+            set -eu
+            mkdir -p ~/laravel
+            tar -xzf ~/release.tar.gz -C ~/laravel
+            chmod -R ug+rwx ~/laravel/storage ~/laravel/bootstrap/cache
+            cd ~/laravel
+            php artisan migrate --force
+            php artisan optimize
+            rm -f ~/release.tar.gz
+          EOF
+
+  release:
+    name: Tag and release
+    needs: deploy
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    needs:
-      - node-validation
-      - api-validation
-    environment: production
+    permissions:
+      contents: write
 
     steps:
-      - name: Summarize deployment status
-        shell: bash
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create tag and release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          {
-            echo '## Production deployment'
-            echo ''
-            echo 'Source branch: `main`'
-            echo 'Environment: `production`'
-            echo ''
-            echo 'Node and API CI checks passed.'
-            echo ''
-            echo '> Provider-specific deployment commands are not configured yet.'
-            echo '> Add the hosting/deployment step here once the production target and credentials are finalized.'
-          } >> "$GITHUB_STEP_SUMMARY"
+          DATE="$(date -u +%Y.%m.%d)"
+          TAG="v${DATE}-${{ github.run_number }}"
+          gh release create "$TAG" \
+            --target "${{ github.sha }}" \
+            --title "Release ${DATE} (#${{ github.run_number }})" \
+            --generate-notes

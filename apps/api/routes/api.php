@@ -30,6 +30,9 @@ use App\Http\Middleware\ApiKeyMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/healthz', fn () => response()->json(['status' => 'ok', 'service' => 'workforce-erp-api']));
+Route::get('/', fn () => response()->json(['name' => 'Workforce ERP API', 'status' => 'ok']));
+
 Route::prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::post('/register', [RegistrationController::class, 'start'])->middleware('throttle:registration');

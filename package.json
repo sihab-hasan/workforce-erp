@@ -35,7 +35,7 @@
     "docker:down": "docker compose --env-file .env.docker -f infra/compose.yaml down",
     "docker:ps": "docker compose --env-file .env.docker -f infra/compose.yaml ps",
     "docker:logs:api": "docker compose --env-file .env.docker -f infra/compose.yaml logs -f api",
-    "docker:logs:caddy": "docker compose --env-file .env.docker -f infra/compose.yaml logs -f caddy",
+    "docker:logs:nginx": "docker compose --env-file .env.docker -f infra/compose.yaml logs -f nginx",
     "docker:logs:queue": "docker compose --env-file .env.docker -f infra/compose.yaml logs -f queue",
     "docker:artisan": "docker compose --env-file .env.docker -f infra/compose.yaml exec api php artisan",
     "test": "pnpm test:api"
