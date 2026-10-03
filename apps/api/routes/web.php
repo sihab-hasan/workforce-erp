@@ -22,7 +22,6 @@ Route::get('/app/{any?}', function () {
     if (file_exists(public_path('app/index.html'))) {
         return response()->file(public_path('app/index.html'));
     }
-
     return response()->file(public_path('erp/index.html'));
 })->where('any', '.*');
 
@@ -31,6 +30,5 @@ Route::get('/{any?}', function () {
     if (file_exists(public_path('index.html'))) {
         return response()->file(public_path('index.html'));
     }
-
     return response()->json(['status' => 'ok', 'message' => 'Workforce ERP API is online.'], 200);
 })->where('any', '^(?!(api|sanctum|up)($|/)).*');

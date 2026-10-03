@@ -34,13 +34,13 @@ return [
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-        'redirect' => env('GOOGLE_REDIRECT_URI', rtrim((string) env('APP_URL', 'http://localhost:5173'), '/').'/erp/sso/callback/google'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', rtrim((string) env('APP_URL', 'http://localhost:5173'), '/') . '/erp/sso/callback/google'),
     ],
 
     'microsoft' => [
         'client_id' => env('MICROSOFT_CLIENT_ID'),
         'client_secret' => env('MICROSOFT_CLIENT_SECRET'),
-        'redirect' => env('MICROSOFT_REDIRECT_URI', rtrim((string) env('APP_URL', 'http://localhost:5173'), '/').'/erp/sso/callback/microsoft'),
+        'redirect' => env('MICROSOFT_REDIRECT_URI', rtrim((string) env('APP_URL', 'http://localhost:5173'), '/') . '/erp/sso/callback/microsoft'),
         'tenant' => env('MICROSOFT_TENANT_ID', 'common'),
     ],
 
