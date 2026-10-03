@@ -2,6 +2,7 @@ import { ArrowRight, Menu, Moon, Sun, X } from "lucide-react";
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { Button } from "@workforce-erp/ui/components/button";
+import { Logo } from "@workforce-erp/ui/components/logo";
 import { useTheme } from "@workforce-erp/ui/hooks/use-theme";
 import { cn } from "@workforce-erp/ui/lib/utils";
 import { WEB_PATHS } from "#routes/paths";
@@ -37,15 +38,10 @@ export function SiteHeader() {
         <div className="mx-auto flex h-18 max-w-[1440px] items-center justify-between gap-6 px-5 sm:px-8 lg:px-12">
           <Link
             to={WEB_PATHS.home}
-            className="group flex shrink-0 items-center gap-3 rounded-sm"
+            className="group flex shrink-0 items-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Workforce ERP home"
           >
-            <span className="relative block h-6 w-8" aria-hidden="true">
-              <span className="absolute left-0 top-2 h-0.5 w-7 bg-primary transition-transform group-hover:translate-x-1" />
-              <span className="absolute left-1 top-3.5 h-0.5 w-5 bg-primary" />
-              <span className="absolute left-3 top-0 h-3.5 w-0.5 bg-primary" />
-            </span>
-            <span className="text-lg font-semibold tracking-[-0.035em]">Workforce ERP</span>
+            <Logo size="md" />
           </Link>
 
           <nav aria-label="Primary navigation" className="hidden md:block">

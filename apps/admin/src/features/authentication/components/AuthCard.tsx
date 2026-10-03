@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Building2, CheckCircle2, LockKeyhole, ShieldCheck } from "lucide-react";
 
+import { Logo, LogoIcon } from "@workforce-erp/ui/components/logo";
 import { cn } from "@workforce-erp/ui/lib/utils";
 
 interface AuthCardProps {
@@ -46,7 +47,7 @@ export function AuthCard({
 
         <div className="relative flex items-center gap-3">
           <div className="flex size-11 items-center justify-center rounded bg-primary-foreground/12 ring-1 ring-primary-foreground/20">
-            <Building2 className="size-5" />
+            <LogoIcon className="size-6 text-primary-foreground" />
           </div>
           <div>
             <p className="font-heading text-lg font-semibold tracking-tight">Workforce ERP</p>
@@ -89,13 +90,8 @@ export function AuthCard({
 
       <section className="flex min-h-svh items-center justify-center px-4 py-10 sm:px-8 lg:px-10 xl:px-14">
         <div className="w-full max-w-md">
-          <div className="mb-6 flex items-center justify-center gap-2 lg:hidden">
-            <div className="flex size-9 items-center justify-center rounded bg-primary/10 text-primary">
-              <Building2 className="size-4" />
-            </div>
-            <span className="font-heading font-semibold tracking-tight text-foreground">
-              Workforce ERP
-            </span>
+          <div className="mb-6 flex items-center justify-center lg:hidden">
+            <Logo size="md" />
           </div>
 
           <div className="rounded bg-card px-6 py-8 shadow-xl ring-1 ring-border/60 sm:px-8 sm:py-10">
