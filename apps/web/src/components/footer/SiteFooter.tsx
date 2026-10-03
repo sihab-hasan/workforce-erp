@@ -1,6 +1,7 @@
 import { CircleCheck } from "lucide-react";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
+import { Logo } from "@workforce-erp/ui/components/logo";
 
 import { bindScrollAnimation, gsap, prefersReducedMotion, useGSAP } from "@workforce-erp/ui/motion";
 
@@ -88,14 +89,13 @@ export default function SiteFooter() {
             <Link
               to={siteRoutes.home.path}
               aria-label="Workforce ERP home"
-              className="group inline-flex items-center gap-3 rounded-sm text-primary-foreground focus-visible:ring-2 focus-visible:ring-primary-foreground focus-visible:outline-none"
+              className="group inline-flex items-center rounded-sm text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground"
             >
-              <span className="relative block h-6 w-8" aria-hidden="true">
-                <span className="absolute top-2 left-0 h-0.5 w-7 origin-left bg-primary-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-x-110" />
-                <span className="absolute top-3.5 left-1 h-0.5 w-5 origin-left bg-primary-foreground transition-transform delay-75 duration-300 group-hover:scale-x-125" />
-                <span className="absolute top-0 left-3 h-3.5 w-0.5 origin-bottom bg-primary-foreground transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-y-110" />
-              </span>
-              <span className="text-lg font-semibold tracking-[-0.035em]">Workforce ERP</span>
+              <Logo
+                size="md"
+                iconClassName="text-primary-foreground"
+                textClassName="text-primary-foreground"
+              />
             </Link>
             <p className="mt-5 text-sm leading-6 text-primary-foreground/70">
               One connected platform for planning, people operations, automation, analytics, and

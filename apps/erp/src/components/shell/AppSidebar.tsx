@@ -29,6 +29,7 @@ import {
 } from "@workforce-erp/ui/components/sidebar";
 import { Avatar, AvatarFallback } from "@workforce-erp/ui/components/avatar";
 import { Badge } from "@workforce-erp/ui/components/badge";
+import { LogoIcon } from "@workforce-erp/ui/components/logo";
 import { useAuth } from "@workforce-erp/auth";
 import { useAuthorization } from "@workforce-erp/authorization";
 import { ERP_PATHS, companyRoutes, tenantRoutes } from "#routes/paths";
@@ -190,7 +191,7 @@ export function AppSidebar() {
           onClick={() => isMobile && setOpenMobile(false)}
         >
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
-            <LayoutDashboard className="size-4" aria-hidden="true" />
+            <LogoIcon className="size-5" aria-hidden="true" />
           </span>
           <span className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
             <span className="text-[10px] font-bold tracking-[0.18em] text-sidebar-primary uppercase">
