@@ -129,8 +129,6 @@ export function subscribeToNotifications(
 
   return () => {
     disposed = true;
-    void client
-      .then((echo) => echo.leave(channelName))
-      .catch(() => undefined);
+    void client.then((echo) => echo.leave(channelName)).catch(() => undefined);
   };
 }

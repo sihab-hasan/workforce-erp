@@ -12,8 +12,7 @@ export function NotificationBell() {
   const { tenantKey, companyKey } = useParams();
   const { session } = useAuth();
   const unreadCount = useUnreadNotificationCount(session?.user.id, Boolean(tenantKey));
-  const badgeLabel =
-    unreadCount > MAX_BADGE_COUNT ? `${MAX_BADGE_COUNT}+` : String(unreadCount);
+  const badgeLabel = unreadCount > MAX_BADGE_COUNT ? `${MAX_BADGE_COUNT}+` : String(unreadCount);
 
   return (
     <div className="relative">
@@ -22,9 +21,7 @@ export function NotificationBell() {
         size="icon-sm"
         aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : "Notifications"}
         onClick={() =>
-          tenantKey &&
-          companyKey &&
-          navigate(companyRoutes.notifications(tenantKey, companyKey))
+          tenantKey && companyKey && navigate(companyRoutes.notifications(tenantKey, companyKey))
         }
       >
         <Bell aria-hidden="true" />
