@@ -1,4 +1,4 @@
-import { Bell, LogOut, Moon, Sun } from "lucide-react";
+import { LogOut, Moon, Sun } from "lucide-react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@workforce-erp/ui/components/button";
 import { Separator } from "@workforce-erp/ui/components/separator";
@@ -16,7 +16,8 @@ import {
 import { useTheme } from "@workforce-erp/ui/hooks/use-theme";
 import { useAuth } from "@workforce-erp/auth";
 import { AppBreadcrumbs } from "#components/shell/AppBreadcrumbs";
-import { ERP_PATHS, companyRoutes, tenantRoutes } from "#routes/paths";
+import { NotificationBell } from "#features/notifications/components/NotificationBell";
+import { ERP_PATHS, tenantRoutes } from "#routes/paths";
 
 const TITLES: Record<string, string> = {
   dashboard: "Dashboard",
@@ -82,18 +83,7 @@ export function AppHeader() {
           >
             {isDark ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
           </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Notifications"
-            onClick={() =>
-              tenantKey &&
-              companyKey &&
-              navigate(companyRoutes.notifications(tenantKey, companyKey))
-            }
-          >
-            <Bell aria-hidden="true" />
-          </Button>
+          <NotificationBell />
           <Separator orientation="vertical" className="mx-1 h-5" />
           <DropdownMenu>
             <DropdownMenuTrigger

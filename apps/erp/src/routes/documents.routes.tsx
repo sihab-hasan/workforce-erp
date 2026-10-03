@@ -8,7 +8,7 @@ export const documentsRoutes: RouteObject[] = [
   {
     path: "documents",
     element: (
-      <AuthorizedRoute capability="document.manage">
+      <AuthorizedRoute capability="document.view">
         <DocumentsPage />
       </AuthorizedRoute>
     ),
@@ -24,7 +24,7 @@ export const documentsRoutes: RouteObject[] = [
   {
     path: "documents/:documentId",
     element: (
-      <AuthorizedRoute capability="document.manage">
+      <AuthorizedRoute capability="document.view">
         <DocumentDetailsPage />
       </AuthorizedRoute>
     ),

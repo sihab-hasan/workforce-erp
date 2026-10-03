@@ -9,7 +9,7 @@ export const timesheetsRoutes: RouteObject[] = [
   {
     path: "timesheets",
     element: (
-      <AuthorizedRoute anyOf={["timesheet.manage", "timesheet.manage"]}>
+      <AuthorizedRoute capability="timesheet.view">
         <TimesheetsPage />
       </AuthorizedRoute>
     ),
@@ -25,7 +25,7 @@ export const timesheetsRoutes: RouteObject[] = [
   {
     path: "timesheets/:timesheetId",
     element: (
-      <AuthorizedRoute anyOf={["timesheet.manage", "timesheet.manage"]}>
+      <AuthorizedRoute capability="timesheet.view">
         <TimesheetDetailsPage />
       </AuthorizedRoute>
     ),

@@ -18,6 +18,8 @@ export function SignOutFeature() {
       .logout()
       .catch(() => undefined)
       .finally(() => {
+        // Clear readable cookies on client side
+        document.cookie = "XSRF-TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         signOut();
         navigate(AUTH_PATHS.login, { replace: true });
       });

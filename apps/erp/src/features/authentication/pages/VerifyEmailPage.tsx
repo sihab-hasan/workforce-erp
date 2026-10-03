@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2, MailCheck } from "lucide-react";
+import { CheckCircle2, Loader2, MailCheck } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@workforce-erp/auth";
 import { Button } from "@workforce-erp/ui/components/button";
@@ -21,13 +21,14 @@ export default function VerifyEmailPage() {
   const { signIn } = useAuth();
   const challengeId = params.get("challenge")?.trim() ?? "";
   const [code, setCode] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!challengeId || !/^\d{6}$/.test(code) || loading) return;
+  async function submit(event?: React.FormEvent<HTMLFormElement>) {
+    if (event) event.preventDefault();
+    if (!challengeId || !/^\d{6}$/.test(code) || loading || isSuccess) return;
     setLoading(true);
     setError(null);
     try {
@@ -36,7 +37,10 @@ export default function VerifyEmailPage() {
       sessionStorage.setItem("workforce-erp.onboarding.tenant", tenant);
       const onboardingPath = `${ERP_PATHS.onboarding}?tenant=${encodeURIComponent(tenant)}`;
       signIn(toAuthSession(response));
-      navigate(onboardingPath, { replace: true });
+      setIsSuccess(true);
+      setTimeout(() => {
+        navigate(onboardingPath, { replace: true });
+      }, 700);
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Email verification could not be completed.",
@@ -75,7 +79,20 @@ export default function VerifyEmailPage() {
         </Link>
       }
     >
-      {challengeId ? (
+      {isSuccess ? (
+        <div className="flex flex-col items-center justify-center gap-3 py-6 text-center">
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-500 ring-4 ring-emerald-500/10">
+            <CheckCircle2 className="size-8" />
+          </div>
+          <div>
+            <h3 className="text-base font-semibold text-foreground">Email verified successfully</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Setting up your organization workspace…
+            </p>
+          </div>
+          <Loader2 className="mt-2 size-5 animate-spin text-primary" />
+        </div>
+      ) : challengeId ? (
         <form onSubmit={submit} className="space-y-5" noValidate>
           <div className="flex flex-col items-center gap-3">
             <Label htmlFor="registration-code">Email verification code</Label>

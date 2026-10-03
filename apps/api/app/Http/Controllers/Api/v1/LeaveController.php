@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
-use App\Models\OrganizationMember;
-use App\Models\Permission;
-use App\Models\WorkforceNotification;
+use App\Notifications\LeaveRequestReviewed;
+use App\Notifications\LeaveRequestSubmitted;
 use App\Services\AuthorizationService;
 use App\Services\DataScopeService;
+use App\Services\NotificationAudience;
 use App\Services\WorkforceScopeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,6 +23,7 @@ class LeaveController extends Controller
         private readonly WorkforceScopeService $scope,
         private readonly DataScopeService $dataScope,
         private readonly AuthorizationService $authorization,
+        private readonly NotificationAudience $audience,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -64,21 +65,30 @@ class LeaveController extends Controller
     public function options(Request $request): JsonResponse
     {
         $org = $this->scope->organization($request, true);
-        $types = LeaveType::query()->where('organization_id', $org->id)->where('is_active', true)->orderBy('name')->get();
         $this->authorization->authorize($request->user(), (int) $org->id, 'leave.view');
-        $ownEmployeeId = Employee::query()->where('organization_id', $org->id)->where('user_id', $request->user()->id)->value('id');
-        $used = $ownEmployeeId ? LeaveRequest::query()->where('employee_id', $ownEmployeeId)->where('status', 'approved')->whereYear('start_date', now()->year)->selectRaw('leave_type_id, SUM(total_days) as used')->groupBy('leave_type_id')->pluck('used', 'leave_type_id') : collect();
+        $types = LeaveType::query()->where('organization_id', $org->id)->where('is_active', true)->orderBy('name')->get();
+        $ownEmployeeId = (int) (Employee::query()->where('organization_id', $org->id)->where('user_id', $request->user()->id)->value('id') ?: 0);
+        $year = (int) now()->year;
+        $totals = $ownEmployeeId ? $this->yearTotalsByType($ownEmployeeId, $year) : collect();
 
         return $this->successResponse([
-            'types' => $types->map(fn ($type) => [
-                'id' => (string) $type->id,
-                'name' => $type->name,
-                'code' => $type->code,
-                'annual_allowance' => (float) $type->annual_allowance,
-                'is_paid' => (bool) $type->is_paid,
-                'used' => (float) ($used[$type->id] ?? 0),
-                'remaining' => max(0, (float) $type->annual_allowance - (float) ($used[$type->id] ?? 0)),
-            ])->values(),
+            'year' => $year,
+            'has_employee_profile' => $ownEmployeeId > 0,
+            'types' => $types->map(function (LeaveType $type) use ($totals) {
+                $used = (float) ($totals[$type->id]['approved'] ?? 0);
+                $pending = (float) ($totals[$type->id]['pending'] ?? 0);
+
+                return [
+                    'id' => (string) $type->id,
+                    'name' => $type->name,
+                    'code' => $type->code,
+                    'annual_allowance' => (float) $type->annual_allowance,
+                    'is_paid' => (bool) $type->is_paid,
+                    'used' => $used,
+                    'pending' => $pending,
+                    'remaining' => max(0.0, (float) $type->annual_allowance - $used - $pending),
+                ];
+            })->values(),
         ]);
     }
 
@@ -88,7 +98,8 @@ class LeaveController extends Controller
         $branch = $this->scope->branch($request, false);
         $data = $request->validate([
             'employee_id' => ['nullable', 'integer', Rule::exists('employees', 'id')->where('organization_id', $org->id)],
-            'leave_type_id' => ['required', 'integer', Rule::exists('leave_types', 'id')->where('organization_id', $org->id)],
+            // Only active leave types of the current organization can be requested.
+            'leave_type_id' => ['required', 'integer', Rule::exists('leave_types', 'id')->where('organization_id', $org->id)->where('is_active', true)],
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'reason' => ['nullable', 'string', 'max:5000'],
@@ -115,6 +126,11 @@ class LeaveController extends Controller
         // diffInWeekdays() excludes the end date, so extend the range by one
         // day to count both the first and the last day of the leave.
         $days = $start->diffInWeekdays($end->copy()->addDay());
+        if ($days < 1) {
+            return response()->json([
+                'message' => 'The selected date range does not contain any working days.',
+            ], 422);
+        }
         $overlap = LeaveRequest::query()->where('employee_id', $employee->id)->whereIn('status', ['pending', 'approved'])
             ->where(fn ($q) => $q->whereBetween('start_date', [$start->toDateString(), $end->toDateString()])->orWhereBetween('end_date', [$start->toDateString(), $end->toDateString()])->orWhere(fn ($q2) => $q2->whereDate('start_date', '<=', $start)->whereDate('end_date', '>=', $end)))->exists();
         if ($overlap) {
@@ -122,12 +138,11 @@ class LeaveController extends Controller
         }
 
         $leaveType = LeaveType::query()->whereKey((int) $data['leave_type_id'])->firstOrFail();
-        $used = (float) LeaveRequest::query()
-            ->where('employee_id', $employee->id)
-            ->where('status', 'approved')
-            ->whereYear('start_date', now()->year)
-            ->sum('total_days');
-        $remaining = max(0.0, (float) $leaveType->annual_allowance - $used);
+        // Balance is tracked per leave type and per leave year (the year the
+        // leave starts in). Pending requests reserve days so an employee cannot
+        // queue several requests that together exceed the allowance.
+        $totals = $this->yearTotalsByType($employee->id, (int) $start->year)[$leaveType->id] ?? ['approved' => 0.0, 'pending' => 0.0];
+        $remaining = max(0.0, (float) $leaveType->annual_allowance - $totals['approved'] - $totals['pending']);
 
         if ((float) $days > $remaining) {
             return response()->json([
@@ -147,7 +162,7 @@ class LeaveController extends Controller
             'total_days' => $days,
             'status' => 'pending',
         ])->load(['employee.department', 'leaveType', 'reviewer']);
-        $this->notifyManagers($org->id, $request->user()->id, 'leave.requested', 'Leave approval required', $employee->name.' submitted a leave request.', '/approvals');
+        $this->notifyManagers($org->id, $request->user()->id, $employee->name);
 
         return $this->successResponse($this->serialize($leave), 'Leave request submitted successfully', 201);
     }
@@ -192,22 +207,16 @@ class LeaveController extends Controller
             abort(409, 'Only pending leave requests can be reviewed.');
         }
         $data = $request->validate(['review_note' => ['nullable', 'string', 'max:2000']]);
+        if ($status === 'approved') {
+            $this->assertApprovable($leaveRequest);
+        }
         $leaveRequest->update([
             'status' => $status,
             'reviewed_by' => $request->user()->id,
             'reviewed_at' => now(),
             'review_note' => $data['review_note'] ?? null,
         ]);
-        if ($leaveRequest->employee?->user_id) {
-            WorkforceNotification::create([
-                'organization_id' => $leaveRequest->organization_id,
-                'user_id' => $leaveRequest->employee->user_id,
-                'type' => 'leave.'.$status,
-                'title' => 'Leave request '.ucfirst($status),
-                'message' => 'Your leave request from '.$leaveRequest->start_date->toDateString().' to '.$leaveRequest->end_date->toDateString().' was '.$status.'.',
-                'action_url' => '/leave/'.$leaveRequest->id,
-            ]);
-        }
+        $leaveRequest->employee?->user?->notify(new LeaveRequestReviewed($leaveRequest, $status));
 
         return $this->successResponse($this->serialize($leaveRequest->fresh()->load(['employee.department', 'leaveType', 'reviewer'])), 'Leave request '.$status);
     }
@@ -237,15 +246,56 @@ class LeaveController extends Controller
         $this->dataScope->assertEmployee($request->user(), (int) $leave->organization_id, (int) $leave->employee_id);
     }
 
-    private function notifyManagers(int $organizationId, int $excludeUserId, string $type, string $title, string $message, string $actionUrl): void
+    private function notifyManagers(int $organizationId, int $excludeUserId, string $employeeName): void
     {
-        $permissionId = Permission::query()->where('name', 'leave.approve')->value('id');
-        $userIds = OrganizationMember::query()->where('organization_id', $organizationId)->where('status', 'active')->where('user_id', '!=', $excludeUserId)->whereHas('roleAssignments.role.permissions', fn ($q) => $q->where('permissions.id', $permissionId))->pluck('user_id');
-        foreach ($userIds as $userId) {
-            WorkforceNotification::create([
-                'organization_id' => $organizationId, 'user_id' => $userId, 'type' => $type,
-                'title' => $title, 'message' => $message, 'action_url' => $actionUrl,
+        foreach ($this->audience->usersWithPermission($organizationId, 'leave.approve', $excludeUserId) as $reviewer) {
+            $reviewer->notify(new LeaveRequestSubmitted($organizationId, $employeeName));
+        }
+    }
+
+    /**
+     * Approved and pending day totals per leave type for one employee and year.
+     *
+     * @return \Illuminate\Support\Collection<int, array{approved: float, pending: float}>
+     */
+    private function yearTotalsByType(int $employeeId, int $year, ?int $excludeLeaveId = null)
+    {
+        return LeaveRequest::query()
+            ->where('employee_id', $employeeId)
+            ->whereIn('status', ['approved', 'pending'])
+            ->whereYear('start_date', $year)
+            ->when($excludeLeaveId, fn ($q) => $q->whereKeyNot($excludeLeaveId))
+            ->selectRaw('leave_type_id, status, SUM(total_days) as days')
+            ->groupBy('leave_type_id', 'status')
+            ->get()
+            ->groupBy('leave_type_id')
+            ->map(fn ($rows) => [
+                'approved' => (float) ($rows->firstWhere('status', 'approved')?->days ?? 0),
+                'pending' => (float) ($rows->firstWhere('status', 'pending')?->days ?? 0),
             ]);
+    }
+
+    /**
+     * Re-validates the balance at approval time. Other requests may have been
+     * approved since this one was submitted, so the submission-time check is
+     * not sufficient on its own. Only approved leave counts here: pending
+     * requests are decided first-come, first-served.
+     */
+    private function assertApprovable(LeaveRequest $leave): void
+    {
+        $type = $leave->leaveType;
+        if (! $type) {
+            abort(422, 'The leave type of this request no longer exists.');
+        }
+        $totals = $this->yearTotalsByType((int) $leave->employee_id, (int) $leave->start_date->year, (int) $leave->id)[$type->id] ?? ['approved' => 0.0, 'pending' => 0.0];
+        $remaining = max(0.0, (float) $type->annual_allowance - $totals['approved']);
+        if ((float) $leave->total_days > $remaining) {
+            abort(422, sprintf(
+                'Approving would exceed the employee\'s %s allowance. Requested: %s days, Remaining: %s days.',
+                $type->name,
+                $this->formatDays((float) $leave->total_days),
+                $this->formatDays($remaining),
+            ));
         }
     }
 

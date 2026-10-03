@@ -13,6 +13,7 @@ use App\Services\SessionSecurityService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
@@ -87,12 +88,13 @@ class AuthController extends Controller
             ]);
         }
 
+        $currentToken = $request->user()->currentAccessToken();
         $tokens = $request->user()->tokens()->get()->map(fn ($t) => [
             'id' => (string) $t->id,
             'name' => $t->name,
             'last_used_at' => $t->last_used_at?->toISOString(),
             'created_at' => $t->created_at?->toISOString(),
-            'current' => $request->user()->currentAccessToken()?->id === $t->id,
+            'current' => ($currentToken instanceof PersonalAccessToken) && $currentToken->id === $t->id,
             'kind' => 'api_token',
         ])->values()->all();
 
@@ -102,17 +104,25 @@ class AuthController extends Controller
         ]);
     }
 
-    public function revokeSession(Request $request, string $id): JsonResponse
+    public function revokeSession(Request $request, ?string $sessionId = null, ?string $id = null): JsonResponse
     {
-        if ($request->hasSession() && hash_equals($request->session()->getId(), $id)) {
+        $targetId = $sessionId ?? $id ?? (string) $request->route('sessionId') ?? (string) $request->route('id');
+
+        if ($request->hasSession() && hash_equals($request->session()->getId(), $targetId)) {
             $this->auth->logoutBrowserSession($request);
 
+            $cookieName = config('session.cookie');
+            $cookieDomain = config('session.domain');
+            $cookiePath = config('session.path', '/');
+
+            return response()->json(['success' => true])
+                ->withCookie(cookie()->forget($cookieName, $cookiePath, $cookieDomain))
+                ->withCookie(cookie()->forget('XSRF-TOKEN', $cookiePath, $cookieDomain));
+        }
+        if ($this->auth->revokeBrowserSession($request->user(), $targetId)) {
             return response()->json(['success' => true]);
         }
-        if ($this->auth->revokeBrowserSession($request->user(), $id)) {
-            return response()->json(['success' => true]);
-        }
-        $token = $request->user()->tokens()->where('id', $id)->first();
+        $token = $request->user()->tokens()->where('id', $targetId)->first();
         if ($token) {
             $token->delete();
 
@@ -123,11 +133,17 @@ class AuthController extends Controller
 
     public function revokeAllOthers(Request $request): JsonResponse
     {
-        $current = $request->session()->getId();
-        DB::table('sessions')
-            ->where('user_id', $request->user()->id)
-            ->where('id', '!=', $current)
-            ->delete();
+        $current = $request->hasSession() ? $request->session()->getId() : null;
+        $query = DB::table('sessions')->where('user_id', $request->user()->id);
+        if ($current) {
+            $query->where('id', '!=', $current);
+        }
+        $query->delete();
+
+        $currentToken = $request->user()?->currentAccessToken();
+        if ($currentToken instanceof PersonalAccessToken) {
+            $request->user()->tokens()->where('id', '!=', $currentToken->id)->delete();
+        }
 
         return response()->json([
             'success' => true,
@@ -136,25 +152,41 @@ class AuthController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
-        $request->user()?->currentAccessToken()?->delete();
+        $currentToken = $request->user()?->currentAccessToken();
+        if ($currentToken instanceof PersonalAccessToken) {
+            $currentToken->delete();
+        }
         $this->auth->logoutBrowserSession($request);
+
+        $cookieName = config('session.cookie');
+        $cookieDomain = config('session.domain');
+        $cookiePath = config('session.path', '/');
 
         return response()->json([
             'success' => true,
             'message' => 'Logged out successfully.',
-        ]);
+        ])
+        ->withCookie(cookie()->forget($cookieName, $cookiePath, $cookieDomain))
+        ->withCookie(cookie()->forget('XSRF-TOKEN', $cookiePath, $cookieDomain));
     }
 
     public function logoutAll(Request $request): JsonResponse
     {
-        $this->sessions->revokeAll($request->user());
-        if ($request->hasSession()) {
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+        $user = $request->user();
+        if ($user) {
+            $this->sessions->revokeAll($user);
+            $user->tokens()->delete();
         }
+        $this->auth->logoutBrowserSession($request);
+
+        $cookieName = config('session.cookie');
+        $cookieDomain = config('session.domain');
+        $cookiePath = config('session.path', '/');
 
         return response()->json([
             'success' => true,
-        ]);
+        ])
+        ->withCookie(cookie()->forget($cookieName, $cookiePath, $cookieDomain))
+        ->withCookie(cookie()->forget('XSRF-TOKEN', $cookiePath, $cookieDomain));
     }
 }

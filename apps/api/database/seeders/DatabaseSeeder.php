@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        if (! app()->environment('local') || ! config('workforce.local_bootstrap.enabled', false)) {
+        if (! config('workforce.local_bootstrap.enabled', false)) {
             return;
         }
 
@@ -91,11 +91,11 @@ class DatabaseSeeder extends Seeder
         Employee::query()->updateOrCreate(
             [
                 'organization_id' => $organization->id,
-                'email' => $email,
+                'employee_id' => 'LOCAL-OWNER',
             ],
             [
                 'user_id' => $user->id,
-                'employee_id' => 'LOCAL-OWNER',
+                'email' => $email,
                 'first_name' => $firstName,
                 'last_name' => $lastName,
                 'hire_date' => now()->toDateString(),
@@ -104,6 +104,11 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $this->command?->info("Local Workforce owner ready: {$email}");
+        $user->platformRoleAssignments()->updateOrCreate(
+            ['role' => 'platform_super_admin'],
+            ['reason' => 'Local bootstrap platform super admin provisioning']
+        );
+
+        $this->command?->info("Local Workforce owner & platform super admin ready: {$email}");
     }
 }

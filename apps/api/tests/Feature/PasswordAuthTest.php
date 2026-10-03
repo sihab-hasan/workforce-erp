@@ -153,4 +153,27 @@ class PasswordAuthTest extends TestCase
         $this->assertDatabaseMissing('personal_access_tokens', ['id' => $other->accessToken->id]);
         $this->assertDatabaseHas('personal_access_tokens', ['id' => $foreignToken->id]);
     }
+
+    public function test_authenticated_user_can_revoke_other_sessions_and_logout_all(): void
+    {
+        $current = $this->user->createToken('current');
+        $other1 = $this->user->createToken('other1');
+        $other2 = $this->user->createToken('other2');
+
+        $this->withHeader('Authorization', "Bearer {$current->plainTextToken}")
+            ->postJson('/api/v1/auth/sessions/revoke-others')
+            ->assertOk()
+            ->assertJsonPath('success', true);
+
+        $this->assertDatabaseMissing('personal_access_tokens', ['id' => $other1->accessToken->id]);
+        $this->assertDatabaseMissing('personal_access_tokens', ['id' => $other2->accessToken->id]);
+        $this->assertDatabaseHas('personal_access_tokens', ['id' => $current->accessToken->id]);
+
+        $this->withHeader('Authorization', "Bearer {$current->plainTextToken}")
+            ->postJson('/api/v1/auth/logout-all')
+            ->assertOk()
+            ->assertJsonPath('success', true);
+
+        $this->assertDatabaseMissing('personal_access_tokens', ['id' => $current->accessToken->id]);
+    }
 }

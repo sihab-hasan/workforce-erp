@@ -11,12 +11,15 @@ use App\Http\Controllers\Api\v1\EmployeeController;
 use App\Http\Controllers\Api\v1\IdentityController;
 use App\Http\Controllers\Api\v1\InvitationController;
 use App\Http\Controllers\Api\v1\LeaveController;
+use App\Http\Controllers\Api\v1\LeaveTypeController;
 use App\Http\Controllers\Api\v1\NotificationController;
 use App\Http\Controllers\Api\v1\OnboardingController;
 use App\Http\Controllers\Api\v1\OrganizationController;
 use App\Http\Controllers\Api\v1\OTPController;
 use App\Http\Controllers\Api\v1\PlatformController;
 use App\Http\Controllers\Api\v1\ProfileController;
+use App\Http\Controllers\Api\v1\PublicAboutController;
+use App\Http\Controllers\Api\v1\PublicContactController;
 use App\Http\Controllers\Api\v1\RegistrationController;
 use App\Http\Controllers\Api\v1\ReportController;
 use App\Http\Controllers\Api\v1\RoleController;
@@ -34,6 +37,9 @@ Route::get('/healthz', fn () => response()->json(['status' => 'ok', 'service' =>
 Route::get('/', fn () => response()->json(['name' => 'Workforce ERP API', 'status' => 'ok']));
 
 Route::prefix('v1')->group(function () {
+    Route::get('/public/about', [PublicAboutController::class, 'index']);
+    Route::post('/public/contact', [PublicContactController::class, 'store'])->middleware('throttle:60,1');
+
     Route::prefix('auth')->group(function () {
         Route::post('/register', [RegistrationController::class, 'start'])->middleware('throttle:registration');
         Route::post('/registrations/{id}/resend', [RegistrationController::class, 'resend'])->middleware('throttle:registration-resend');
@@ -183,14 +189,17 @@ Route::prefix('v1')->group(function () {
                     Route::delete('/{employee}', [EmployeeController::class, 'destroy']);
                 });
             });
-            Route::middleware('subscription.module:leave')->prefix('leave-requests')->group(function () {
-                Route::get('/options', [LeaveController::class, 'options']);
-                Route::get('', [LeaveController::class, 'index']);
-                Route::post('', [LeaveController::class, 'store']);
-                Route::get('/{leaveRequest}', [LeaveController::class, 'show']);
-                Route::patch('/{leaveRequest}/cancel', [LeaveController::class, 'cancel']);
-                Route::patch('/{leaveRequest}/approve', [LeaveController::class, 'approve']);
-                Route::patch('/{leaveRequest}/reject', [LeaveController::class, 'reject']);
+            Route::middleware('subscription.module:leave')->group(function () {
+                Route::apiResource('leave-types', LeaveTypeController::class)->except(['create', 'edit']);
+                Route::prefix('leave-requests')->group(function () {
+                    Route::get('/options', [LeaveController::class, 'options']);
+                    Route::get('', [LeaveController::class, 'index']);
+                    Route::post('', [LeaveController::class, 'store']);
+                    Route::get('/{leaveRequest}', [LeaveController::class, 'show']);
+                    Route::patch('/{leaveRequest}/cancel', [LeaveController::class, 'cancel']);
+                    Route::patch('/{leaveRequest}/approve', [LeaveController::class, 'approve']);
+                    Route::patch('/{leaveRequest}/reject', [LeaveController::class, 'reject']);
+                });
             });
             Route::middleware('subscription.module:attendance')->prefix('timesheets')->group(function () {
                 Route::get('/today', [TimesheetController::class, 'today']);
@@ -266,14 +275,54 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('platform')->middleware('platform.role:platform_super_admin,platform_security_admin,platform_support,platform_auditor')->group(function () {
             Route::get('/context', [PlatformController::class, 'context']);
+            Route::get('/analytics', [PlatformController::class, 'analytics']);
+            Route::get('/users/options/organizations', [PlatformController::class, 'organizations']);
+            Route::get('/users/options/roles', [PlatformController::class, 'roles']);
+            Route::get('/users/options/employees', [PlatformController::class, 'employees']);
             Route::get('/users', [PlatformController::class, 'users']);
+            Route::post('/users', [PlatformController::class, 'storeUser']);
+            Route::get('/users/{user}', [PlatformController::class, 'showUser']);
+            Route::put('/users/{user}', [PlatformController::class, 'updateUser']);
+            Route::patch('/users/{user}/activate', [PlatformController::class, 'activateUser']);
+            Route::patch('/users/{user}/deactivate', [PlatformController::class, 'deactivateUser']);
+            Route::patch('/users/{user}/suspend', [PlatformController::class, 'suspendUser']);
+            Route::post('/users/{user}/resend-invitation', [PlatformController::class, 'resendUserInvitation']);
             Route::get('/organizations', [PlatformController::class, 'organizations']);
+            Route::post('/organizations', [PlatformController::class, 'storeOrganization']);
+            Route::get('/organizations/{organization}', [PlatformController::class, 'showOrganization']);
+            Route::put('/organizations/{organization}', [PlatformController::class, 'updateOrganization']);
+            Route::patch('/organizations/{organization}/activate', [PlatformController::class, 'activateOrganization']);
+            Route::patch('/organizations/{organization}/suspend', [PlatformController::class, 'suspendOrganization']);
+            Route::delete('/organizations/{organization}', [PlatformController::class, 'deleteOrganization']);
+            Route::get('/tenants', [PlatformController::class, 'organizations']);
+            Route::post('/tenants', [PlatformController::class, 'storeOrganization']);
+            Route::get('/tenants/{organization}', [PlatformController::class, 'showOrganization']);
+            Route::put('/tenants/{organization}', [PlatformController::class, 'updateOrganization']);
+            Route::patch('/tenants/{organization}/activate', [PlatformController::class, 'activateOrganization']);
+            Route::patch('/tenants/{organization}/suspend', [PlatformController::class, 'suspendOrganization']);
+            Route::delete('/tenants/{organization}', [PlatformController::class, 'deleteOrganization']);
             Route::get('/security/audit', [PlatformController::class, 'audit']);
             Route::post('/impersonations', [PlatformController::class, 'startImpersonation']);
             Route::post('/impersonations/{id}/end', [PlatformController::class, 'endImpersonation']);
             Route::post('/security/break-glass', [PlatformController::class, 'startBreakGlass']);
             Route::post('/security/break-glass/{id}/end', [PlatformController::class, 'endBreakGlass']);
             Route::post('/security/break-glass/{id}/review', [PlatformController::class, 'reviewBreakGlass']);
+
+            // Inquiries & Notifications
+            Route::get('/inquiries', [PlatformController::class, 'inquiries']);
+            Route::get('/inquiries/{inquiry}', [PlatformController::class, 'showInquiry']);
+            Route::patch('/inquiries/{inquiry}/status', [PlatformController::class, 'updateInquiryStatus']);
+            Route::delete('/inquiries/{inquiry}', [PlatformController::class, 'deleteInquiry']);
+            Route::get('/notifications', [PlatformController::class, 'notifications']);
+            Route::get('/notifications/unread-count', [PlatformController::class, 'unreadNotificationsCount']);
+            Route::patch('/notifications/{notification}/read', [PlatformController::class, 'markNotificationRead']);
+            Route::patch('/notifications/read-all', [PlatformController::class, 'markAllNotificationsRead']);
+
+            // Platform Settings & Health
+            Route::get('/settings', [PlatformController::class, 'getSettings']);
+            Route::put('/settings', [PlatformController::class, 'updateSettings']);
+            Route::post('/settings/cache-clear', [PlatformController::class, 'clearSystemCache']);
+            Route::get('/settings/health', [PlatformController::class, 'systemHealth']);
         });
     });
 });

@@ -1,5 +1,5 @@
-function encodeSegment(value: string) {
-  return encodeURIComponent(value.trim());
+function encodeSegment(value: string | number | null | undefined) {
+  return encodeURIComponent(String(value ?? "").trim());
 }
 
 function joinPath(base: string, path = "") {

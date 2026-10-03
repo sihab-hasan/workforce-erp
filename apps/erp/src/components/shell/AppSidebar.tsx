@@ -29,6 +29,7 @@ import {
 } from "@workforce-erp/ui/components/sidebar";
 import { Avatar, AvatarFallback } from "@workforce-erp/ui/components/avatar";
 import { Badge } from "@workforce-erp/ui/components/badge";
+import { LogoIcon } from "@workforce-erp/ui/components/logo";
 import { useAuth } from "@workforce-erp/auth";
 import { useAuthorization } from "@workforce-erp/authorization";
 import { ERP_PATHS, companyRoutes, tenantRoutes } from "#routes/paths";
@@ -57,62 +58,83 @@ export function AppSidebar() {
   const tenantBase = tenantKey ? tenantRoutes.root(tenantKey) : "";
   const companyBase = tenantKey && companyKey ? companyRoutes.root(tenantKey, companyKey) : "";
 
+  const isManager = authorization.canAny(["employee.manage", "leave.approve"]);
+
+  const ownerCompanyItems: NavItem[] = [
+    {
+      label: "Dashboard",
+      path: companyRoutes.dashboard(validTenantKey, validCompanyKey),
+      icon: LayoutDashboard,
+    },
+    {
+      label: "Departments",
+      path: companyRoutes.departments(validTenantKey, validCompanyKey),
+      icon: Building2,
+    },
+    {
+      label: "Employees",
+      path: companyRoutes.employees(validTenantKey, validCompanyKey),
+      icon: Users,
+    },
+    {
+      label: "Approvals",
+      path: companyRoutes.approvals(validTenantKey, validCompanyKey),
+      icon: CheckCircle2,
+    },
+    {
+      label: "Documents",
+      path: companyRoutes.documents(validTenantKey, validCompanyKey),
+      icon: FileText,
+    },
+    {
+      label: "Reports",
+      path: companyRoutes.reports(validTenantKey, validCompanyKey),
+      icon: Workflow,
+    },
+    {
+      label: "Notifications",
+      path: companyRoutes.notifications(validTenantKey, validCompanyKey),
+      icon: Bell,
+    },
+  ];
+
+  const employeeCompanyItems: NavItem[] = [
+    {
+      label: "Dashboard",
+      path: companyRoutes.dashboard(validTenantKey, validCompanyKey),
+      icon: LayoutDashboard,
+    },
+    {
+      label: "Leave request",
+      path: companyRoutes.leave(validTenantKey, validCompanyKey),
+      icon: ClipboardList,
+    },
+    {
+      label: "Timesheet",
+      path: companyRoutes.timesheets(validTenantKey, validCompanyKey),
+      icon: Timer,
+    },
+    {
+      label: "Documents",
+      path: companyRoutes.documents(validTenantKey, validCompanyKey),
+      icon: FileText,
+    },
+    {
+      label: "Reports",
+      path: companyRoutes.reports(validTenantKey, validCompanyKey),
+      icon: Workflow,
+    },
+    {
+      label: "Notifications",
+      path: companyRoutes.notifications(validTenantKey, validCompanyKey),
+      icon: Bell,
+    },
+  ];
+
   const companyItems: NavItem[] = companyBase
-    ? [
-        {
-          label: "Dashboard",
-          path: companyRoutes.dashboard(validTenantKey, validCompanyKey),
-          icon: LayoutDashboard,
-        },
-        {
-          label: "Departments",
-          path: companyRoutes.departments(validTenantKey, validCompanyKey),
-          icon: Building2,
-          permissions: ["department.manage"],
-        },
-        {
-          label: "Employees",
-          path: companyRoutes.employees(validTenantKey, validCompanyKey),
-          icon: Users,
-          permissions: ["employee.read"],
-        },
-        {
-          label: "Leave",
-          path: companyRoutes.leave(validTenantKey, validCompanyKey),
-          icon: ClipboardList,
-          permissions: ["leave.manage", "leave.approve"],
-        },
-        {
-          label: "Timesheets",
-          path: companyRoutes.timesheets(validTenantKey, validCompanyKey),
-          icon: Timer,
-          permissions: ["timesheet.manage", "timesheet.manage"],
-        },
-        {
-          label: "Approvals",
-          path: companyRoutes.approvals(validTenantKey, validCompanyKey),
-          icon: CheckCircle2,
-          permissions: ["approval.approve"],
-        },
-        {
-          label: "Documents",
-          path: companyRoutes.documents(validTenantKey, validCompanyKey),
-          icon: FileText,
-          permissions: ["document.manage"],
-        },
-        {
-          label: "Reports",
-          path: companyRoutes.reports(validTenantKey, validCompanyKey),
-          icon: Workflow,
-          permissions: ["report.view"],
-        },
-        {
-          label: "Notifications",
-          path: companyRoutes.notifications(validTenantKey, validCompanyKey),
-          icon: Bell,
-          permissions: ["notification.view"],
-        },
-      ]
+    ? isManager
+      ? ownerCompanyItems
+      : employeeCompanyItems
     : [];
 
   const organizationItems: NavItem[] = tenantBase
@@ -169,7 +191,7 @@ export function AppSidebar() {
           onClick={() => isMobile && setOpenMobile(false)}
         >
           <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
-            <LayoutDashboard className="size-4" aria-hidden="true" />
+            <LogoIcon className="size-5" aria-hidden="true" />
           </span>
           <span className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
             <span className="text-[10px] font-bold tracking-[0.18em] text-sidebar-primary uppercase">
