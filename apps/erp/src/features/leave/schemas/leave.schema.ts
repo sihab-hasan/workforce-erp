@@ -56,9 +56,17 @@ export function createLeaveFormSchema(remainingDays: number | null) {
         });
         return;
       }
-      if (remainingDays !== null) {
-        const totalDays = countWorkingDays(values.start_date, values.end_date);
+      const totalDays = countWorkingDays(values.start_date, values.end_date);
+      if (totalDays === 0) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["end_date"],
+          message: "The selected date range does not contain any working days (Monday–Friday).",
+        });
+        return;
+      }
 
+      if (remainingDays !== null) {
         if (totalDays > remainingDays) {
           ctx.addIssue({
             code: "custom",

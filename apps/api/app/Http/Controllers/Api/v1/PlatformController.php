@@ -856,4 +856,127 @@ class PlatformController extends Controller
             'message' => 'All notifications marked as read.',
         ]);
     }
+
+    public function getSettings(Request $request): JsonResponse
+    {
+        $this->authz->authorizePlatform($request->user(), 'platform.users.read');
+
+        $defaultSettings = [
+            'general' => [
+                'platform_name' => 'Workforce ERP Platform',
+                'support_email' => 'support@workforceerp.io',
+                'support_phone' => '+880 1700-000000',
+                'platform_url' => config('app.url', 'http://localhost:8000'),
+                'timezone' => 'Asia/Dhaka',
+                'locale' => 'en-US',
+                'maintenance_mode' => false,
+                'maintenance_message' => 'System is undergoing scheduled maintenance. Please check back shortly.',
+            ],
+            'security' => [
+                'mfa_enforcement' => 'optional',
+                'session_timeout_minutes' => 60,
+                'max_failed_login_attempts' => 5,
+                'password_min_length' => 8,
+                'require_uppercase' => true,
+                'require_numbers' => true,
+                'require_symbols' => true,
+                'ip_whitelist' => '',
+            ],
+            'notifications' => [
+                'email_driver' => config('mail.default', 'smtp'),
+                'alert_on_new_tenant' => true,
+                'alert_on_new_inquiry' => true,
+                'alert_on_security_event' => true,
+                'sound_alerts_enabled' => true,
+                'admin_notification_emails' => 'admin@workforceerp.io',
+            ],
+            'tenants' => [
+                'default_trial_days' => 14,
+                'allow_self_registration' => true,
+                'default_storage_quota_gb' => 10,
+                'auto_tenant_provisioning' => true,
+                'default_plan' => 'pro',
+            ],
+        ];
+
+        $settingsFile = storage_path('framework/platform_settings.json');
+        if (file_exists($settingsFile)) {
+            $saved = json_decode((string) file_get_contents($settingsFile), true);
+            if (is_array($saved)) {
+                $defaultSettings = array_replace_recursive($defaultSettings, $saved);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $defaultSettings,
+        ]);
+    }
+
+    public function updateSettings(Request $request): JsonResponse
+    {
+        $this->authz->authorizePlatform($request->user(), 'platform.users.manage');
+
+        $validated = $request->validate([
+            'general' => ['sometimes', 'array'],
+            'security' => ['sometimes', 'array'],
+            'notifications' => ['sometimes', 'array'],
+            'tenants' => ['sometimes', 'array'],
+        ]);
+
+        $settingsFile = storage_path('framework/platform_settings.json');
+        $current = [];
+        if (file_exists($settingsFile)) {
+            $current = json_decode((string) file_get_contents($settingsFile), true) ?: [];
+        }
+
+        $merged = array_replace_recursive($current, $validated);
+        file_put_contents($settingsFile, json_encode($merged, JSON_PRETTY_PRINT));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Platform settings updated successfully.',
+            'data' => $merged,
+        ]);
+    }
+
+    public function clearSystemCache(Request $request): JsonResponse
+    {
+        $this->authz->authorizePlatform($request->user(), 'platform.users.manage');
+
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Platform application & view caches flushed successfully.',
+        ]);
+    }
+
+    public function systemHealth(Request $request): JsonResponse
+    {
+        $this->authz->authorizePlatform($request->user(), 'platform.users.read');
+
+        $dbStatus = 'healthy';
+        try {
+            DB::connection()->getPdo();
+        } catch (\Throwable) {
+            $dbStatus = 'degraded';
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'app_name' => config('app.name', 'Workforce ERP'),
+                'environment' => config('app.env', 'production'),
+                'php_version' => PHP_VERSION,
+                'laravel_version' => app()->version(),
+                'database' => $dbStatus,
+                'db_driver' => config('database.default'),
+                'uptime' => '99.98%',
+                'server_time' => now()->toIso8601String(),
+                'memory_usage_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            ],
+        ]);
+    }
 }

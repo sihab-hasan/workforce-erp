@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { scopedHttpClient } from "#lib/api";
 import { createLeaveApi } from "./leave.api";
 import { leaveKeys } from "../query-keys";
-import type { CreateLeavePayload } from "../types/leave.types";
+import type { CreateLeavePayload, ReviewLeavePayload } from "../types/leave.types";
 
 // ---------------------------------------------------------------------------
 // Shared API helper
@@ -61,7 +61,7 @@ export function useApproveLeaveMutation(id: string) {
   const api = getLeaveApi();
 
   return useMutation({
-    mutationFn: () => api.approve(id),
+    mutationFn: (payload?: ReviewLeavePayload) => api.approve(id, payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: leaveKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: leaveKeys.detail(id) });
@@ -79,7 +79,7 @@ export function useRejectLeaveMutation(id: string) {
   const api = getLeaveApi();
 
   return useMutation({
-    mutationFn: () => api.reject(id),
+    mutationFn: (payload?: ReviewLeavePayload) => api.reject(id, payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: leaveKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: leaveKeys.detail(id) });

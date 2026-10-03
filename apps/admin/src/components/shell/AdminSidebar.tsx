@@ -3,7 +3,6 @@ import {
   LayoutDashboard,
   MessageSquare,
   Settings,
-  ShieldCheck,
   Users,
   Waypoints,
 } from "lucide-react";
@@ -24,6 +23,7 @@ import {
   useSidebar,
 } from "@workforce-erp/ui/components/sidebar";
 import { Avatar, AvatarFallback } from "@workforce-erp/ui/components/avatar";
+import { LogoIcon } from "@workforce-erp/ui/components/logo";
 import { useAuth } from "@workforce-erp/auth";
 import { ADMIN_PATHS } from "#routes/paths";
 import { useAdminNotifications } from "#features/notifications/hooks/use-admin-notifications";
@@ -34,7 +34,6 @@ const items = [
   { label: "Organizations", to: ADMIN_PATHS.organizations, icon: Building2 },
   { label: "Inquiries", to: ADMIN_PATHS.inquiries, icon: MessageSquare, badge: true },
   { label: "Users", to: ADMIN_PATHS.users, icon: Users },
-  { label: "Roles", to: ADMIN_PATHS.roles, icon: ShieldCheck },
   { label: "Settings", to: ADMIN_PATHS.settings, icon: Settings },
 ];
 
@@ -53,7 +52,7 @@ export function AdminSidebar() {
           className="flex items-center gap-2.5 rounded-lg px-2 py-1.5"
         >
           <span className="flex size-9 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-sm">
-            <ShieldCheck className="size-4" />
+            <LogoIcon className="size-5" aria-hidden="true" />
           </span>
           <span className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
             <span className="text-[10px] font-bold tracking-[0.18em] text-sidebar-primary uppercase">

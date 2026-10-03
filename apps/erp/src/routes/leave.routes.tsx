@@ -1,15 +1,17 @@
 import type { RouteObject } from "react-router-dom";
 import { AuthorizedRoute } from "#features/authentication/route-guards";
-import LeaveRequestsPage from "#pages/leave/LeaveRequestsPage";
-import LeaveRequestCreatePage from "#pages/leave/LeaveRequestCreatePage";
 import LeaveHistoryPage from "#pages/leave/LeaveHistoryPage";
+import LeaveRequestCreatePage from "#pages/leave/LeaveRequestCreatePage";
 import LeaveRequestDetailsPage from "#pages/leave/LeaveRequestDetailsPage";
+import LeaveRequestsPage from "#pages/leave/LeaveRequestsPage";
 
 export const leaveRoutes: RouteObject[] = [
   {
     path: "leave",
     element: (
-      <AuthorizedRoute capability="leave.view">
+      <AuthorizedRoute
+        anyOf={["leave.view", "leave.create", "leave.request", "leave.approve", "leave.manage"]}
+      >
         <LeaveRequestsPage />
       </AuthorizedRoute>
     ),
@@ -17,7 +19,7 @@ export const leaveRoutes: RouteObject[] = [
   {
     path: "leave/new",
     element: (
-      <AuthorizedRoute capability="leave.view">
+      <AuthorizedRoute anyOf={["leave.create", "leave.request", "leave.manage"]}>
         <LeaveRequestCreatePage />
       </AuthorizedRoute>
     ),
@@ -25,7 +27,9 @@ export const leaveRoutes: RouteObject[] = [
   {
     path: "leave/history",
     element: (
-      <AuthorizedRoute capability="leave.view">
+      <AuthorizedRoute
+        anyOf={["leave.view", "leave.create", "leave.request", "leave.approve", "leave.manage"]}
+      >
         <LeaveHistoryPage />
       </AuthorizedRoute>
     ),
@@ -33,7 +37,9 @@ export const leaveRoutes: RouteObject[] = [
   {
     path: "leave/:leaveRequestId",
     element: (
-      <AuthorizedRoute capability="leave.view">
+      <AuthorizedRoute
+        anyOf={["leave.view", "leave.create", "leave.request", "leave.approve", "leave.manage"]}
+      >
         <LeaveRequestDetailsPage />
       </AuthorizedRoute>
     ),

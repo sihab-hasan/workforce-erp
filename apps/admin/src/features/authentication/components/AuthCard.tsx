@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Building2, CheckCircle2, LockKeyhole, ShieldCheck } from "lucide-react";
 
+import { Logo, LogoIcon } from "@workforce-erp/ui/components/logo";
 import { cn } from "@workforce-erp/ui/lib/utils";
 
 interface AuthCardProps {
@@ -50,10 +51,9 @@ export function AuthCard({
           className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:32px_32px] opacity-70"
         />
 
-        {/* Top Logo & Title */}
-        <div className="relative flex items-center gap-3.5">
-          <div className="flex size-11 items-center justify-center rounded-xl bg-white/15 backdrop-blur-md ring-1 ring-white/25 shadow-lg">
-            <ShieldCheck className="size-6 text-white" />
+        <div className="relative flex items-center gap-3">
+          <div className="flex size-11 items-center justify-center rounded bg-primary-foreground/12 ring-1 ring-primary-foreground/20">
+            <LogoIcon className="size-6 text-primary-foreground" />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -106,19 +106,8 @@ export function AuthCard({
       {/* ── Right Form Container ─────────────────────────────────────────── */}
       <section className="relative flex min-h-svh items-center justify-center px-4 py-12 sm:px-8 lg:px-12 xl:px-16">
         <div className="w-full max-w-md">
-          {/* Mobile Top Brand */}
-          <div className="mb-6 flex flex-col items-center justify-center gap-2 lg:hidden">
-            <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20 shadow-sm">
-              <ShieldCheck className="size-6" />
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-heading font-bold tracking-tight text-foreground">
-                Workforce ERP
-              </span>
-              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary uppercase">
-                Admin
-              </span>
-            </div>
+          <div className="mb-6 flex items-center justify-center lg:hidden">
+            <Logo size="md" />
           </div>
 
           {/* Glassmorphic Auth Card */}
