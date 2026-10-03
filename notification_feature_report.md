@@ -75,12 +75,12 @@
 
 রুট ফাইল: `apps/api/routes/api.php:215-220` · কন্ট্রোলার: `apps/api/app/Http/Controllers/Api/v1/NotificationController.php`
 
-| Method  | URI                                  | Controller method | ব্যবহারকারী                                      |
-| ------- | ------------------------------------ | ----------------- | ------------------------------------------------ |
-| `GET`   | `/api/v1/notifications`              | `index()`         | `NotificationsPage` (inbox list, `?status=unread | read`, pagination) |
-| `GET`   | `/api/v1/notifications/unread-count` | `unreadCount()`   | **নতুন: হেডারের লাল badge**                      |
-| `PATCH` | `/api/v1/notifications/{id}/read`    | `markRead()`      | `NotificationsPage`                              |
-| `PATCH` | `/api/v1/notifications/read-all`     | `markAllRead()`   | `NotificationsPage`                              |
+| Method  | URI                                  | Controller method | ব্যবহারকারী                                                                      |
+| ------- | ------------------------------------ | ----------------- | -------------------------------------------------------------------------------- |
+| `GET`   | `/api/v1/notifications`              | `index()`         | `NotificationsPage` (inbox list, `?status=unread` বা `?status=read`, pagination) |
+| `GET`   | `/api/v1/notifications/unread-count` | `unreadCount()`   | **নতুন: হেডারের লাল badge**                                                      |
+| `PATCH` | `/api/v1/notifications/{id}/read`    | `markRead()`      | `NotificationsPage`                                                              |
+| `PATCH` | `/api/v1/notifications/read-all`     | `markAllRead()`   | `NotificationsPage`                                                              |
 
 সব রুট `tenant.required` মিডলওয়্যারের ভেতরে, এবং response envelope আগের মতোই `{ success, message, data, meta }` (`ApiResponseTrait`)।
 
@@ -274,7 +274,7 @@ VITE_REVERB_SCHEME=http
 
 ---
 
-## ১০. পরিবর্তনের সম্পূর্ণ তালিকা (`git status`)
+## ১০. Issue #120 PR-এর সম্পূর্ণ ফাইল তালিকা (২টি কমিট)
 
 ```
  modified:   .env.example
@@ -298,6 +298,7 @@ VITE_REVERB_SCHEME=http
  new file:   apps/erp/src/features/notifications/components/NotificationBell.tsx
  new file:   apps/erp/src/features/notifications/hooks/use-unread-notification-count.ts
  new file:   apps/erp/src/lib/realtime.ts
+ new file:   notification_feature_report.md
 ```
 
 ---
