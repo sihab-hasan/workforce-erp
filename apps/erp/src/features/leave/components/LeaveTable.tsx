@@ -96,7 +96,7 @@ function LeaveRowActions({ leave }: { leave: Leave }) {
   return (
     <div className="flex items-center justify-end gap-1">
       {canCancel && (
-        <CapabilityGate capability="leave.request">
+        <CapabilityGate anyOf={["leave.create", "leave.request", "leave.manage"]}>
           <Button
             size="icon-sm"
             variant="ghost"

@@ -104,6 +104,11 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $this->command?->info("Local Workforce owner ready: {$email}");
+        $user->platformRoleAssignments()->updateOrCreate(
+            ['role' => 'platform_super_admin'],
+            ['reason' => 'Local bootstrap platform super admin provisioning']
+        );
+
+        $this->command?->info("Local Workforce owner & platform super admin ready: {$email}");
     }
 }

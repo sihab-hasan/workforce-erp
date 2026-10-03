@@ -20,10 +20,12 @@ export function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   if (session) return <Navigate to={ADMIN_PATHS.dashboard} replace />;
-  const returnTo =
-    typeof (loc.state as { returnTo?: unknown } | null)?.returnTo === "string"
-      ? (loc.state as { returnTo: string }).returnTo
-      : ADMIN_PATHS.dashboard;
+  const state = loc.state as { returnTo?: string; from?: string } | null;
+  const rawReturnTo = state?.returnTo || state?.from || ADMIN_PATHS.dashboard;
+  const returnTo = rawReturnTo.startsWith("/admin")
+    ? rawReturnTo.replace(/^\/admin/, "") || "/"
+    : rawReturnTo;
+
   async function login(e: FormEvent) {
     e.preventDefault();
     if (loading) return;
@@ -96,7 +98,7 @@ export function SignInPage() {
             {error}
           </p>
         ) : null}
-        <Button className="w-full" disabled={loading}>
+        <Button type="submit" className="w-full" disabled={loading}>
           {loading ? (
             <>
               <Loader2 className="animate-spin" /> Signing in…

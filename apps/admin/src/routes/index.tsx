@@ -14,7 +14,7 @@ import { dashboardRoutes } from "#routes/dashboard.routes";
 import { tenantRoutes } from "#routes/tenants.routes";
 import { organizationRoutes } from "#routes/organizations.routes";
 import { userRoutes } from "#routes/users.routes";
-import { roleRoutes } from "#routes/roles.routes";
+import { inquiriesRoutes } from "#routes/inquiries.routes";
 import { settingsRoutes } from "#routes/settings.routes";
 import { ADMIN_PATHS } from "#routes/paths";
 import { RouteMetadata } from "#components/metadata/RouteMetadata";
@@ -48,22 +48,20 @@ function AdminNotFound({ insideShell = false }: { insideShell?: boolean }) {
 
 export const router = createBrowserRouter(
   [
-    { path: "/", element: <Navigate to={ADMIN_PATHS.dashboard} replace /> },
     ...authRoutes,
     {
-      path: "admin",
       element: (
         <AdminProtectedRoute>
           <AdminLayout />
         </AdminProtectedRoute>
       ),
       children: [
-        { index: true, element: <Navigate to="dashboard" replace /> },
+        { path: "/", element: <Navigate to={ADMIN_PATHS.dashboard} replace /> },
         ...dashboardRoutes,
         ...tenantRoutes,
         ...organizationRoutes,
         ...userRoutes,
-        ...roleRoutes,
+        ...inquiriesRoutes,
         ...settingsRoutes,
         { path: "*", element: <AdminNotFound insideShell /> },
       ],

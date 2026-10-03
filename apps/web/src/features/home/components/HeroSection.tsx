@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 import { siteRoutes } from "#config/site-map";
 import { Container } from "#layouts/Container";
 import { buttonVariants } from "@workforce-erp/ui/components/button";
+import { LogoIcon } from "@workforce-erp/ui/components/logo";
 import { cn } from "@workforce-erp/ui/lib/utils";
 import { bindScrollAnimation, gsap, prefersReducedMotion, useGSAP } from "@workforce-erp/ui/motion";
 
@@ -256,9 +257,7 @@ function WorkforcePreview() {
         <div className="grid min-h-[510px] grid-cols-[7.25rem_minmax(0,1fr)] sm:grid-cols-[8.5rem_minmax(0,1fr)]">
           <aside className="border-r border-border bg-muted/25 p-3 sm:p-4">
             <div className="flex items-center gap-2 text-[10px] font-bold sm:text-xs">
-              <span className="font-heading text-xl leading-none font-extrabold text-primary">
-                W
-              </span>
+              <LogoIcon className="size-4 shrink-0 text-primary dark:text-emerald-400" />
               <span className="hidden sm:inline">Workforce ERP</span>
             </div>
             <nav aria-label="Product preview" className="mt-6 space-y-1">

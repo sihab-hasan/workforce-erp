@@ -17,6 +17,7 @@ import { useTheme } from "@workforce-erp/ui/hooks/use-theme";
 import { useAuth } from "@workforce-erp/auth";
 import { apiClient } from "#lib/api";
 import { AdminBreadcrumbs } from "#components/shell/AdminBreadcrumbs";
+import { AdminNotificationBell } from "#components/shell/AdminNotificationBell";
 import { ADMIN_PATHS } from "#routes/paths";
 
 const labels: Record<string, string> = {
@@ -24,6 +25,7 @@ const labels: Record<string, string> = {
   tenants: "Tenants",
   organizations: "Organizations",
   users: "Users",
+  inquiries: "Contact Inquiries",
   roles: "Roles & capabilities",
   settings: "Settings",
   new: "Create",
@@ -59,7 +61,8 @@ export function AdminHeader() {
             <h1 className="mt-0.5 truncate text-sm font-bold md:text-base">{title}</h1>
           </div>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
+          <AdminNotificationBell />
           <Button
             variant="ghost"
             size="icon-sm"

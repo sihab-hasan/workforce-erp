@@ -87,7 +87,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('attempt_count')->default(0);
             $table->unsignedTinyInteger('max_attempts')->default(5);
             $table->timestamp('resend_available_at')->nullable();
-            $table->timestamp('expires_at')->index();
+            $table->dateTime('expires_at')->index();
             $table->timestamp('consumed_at')->nullable();
             $table->string('client', 32)->default('erp');
             $table->string('ip_address', 45)->nullable();
@@ -106,7 +106,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('attempt_count')->default(0);
             $table->unsignedTinyInteger('max_attempts')->default(5);
             $table->timestamp('resend_available_at')->nullable();
-            $table->timestamp('expires_at')->index();
+            $table->dateTime('expires_at')->index();
             $table->timestamp('consumed_at')->nullable();
             $table->string('client', 32)->default('erp');
             $table->json('risk_metadata')->nullable();
@@ -136,7 +136,7 @@ return new class extends Migration
             $table->json('role_ids');
             $table->string('data_scope', 32)->default('OWN');
             $table->json('scope_data')->nullable();
-            $table->timestamp('expires_at')->index();
+            $table->dateTime('expires_at')->index();
             $table->timestamp('accepted_at')->nullable();
             $table->timestamp('revoked_at')->nullable();
             $table->timestamps();
@@ -264,7 +264,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('service_account_id')->constrained()->cascadeOnDelete();
             $table->char('token_hash', 64)->unique();
-            $table->timestamp('expires_at');
+            $table->dateTime('expires_at');
             $table->timestamp('last_used_at')->nullable();
             $table->string('last_ip', 45)->nullable();
             $table->timestamp('revoked_at')->nullable();
@@ -276,8 +276,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('organization_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('reason', 1000);
-            $table->timestamp('starts_at');
-            $table->timestamp('expires_at')->index();
+            $table->dateTime('starts_at');
+            $table->dateTime('expires_at')->index();
             $table->timestamp('ended_at')->nullable();
             $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('reviewed_at')->nullable();
@@ -291,7 +291,7 @@ return new class extends Migration
             $table->foreignId('organization_id')->constrained()->cascadeOnDelete();
             $table->string('support_ticket', 191);
             $table->string('reason', 1000);
-            $table->timestamp('expires_at')->index();
+            $table->dateTime('expires_at')->index();
             $table->timestamp('ended_at')->nullable();
             $table->json('restricted_actions')->nullable();
             $table->timestamps();

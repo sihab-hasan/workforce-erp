@@ -1,3 +1,4 @@
+import type { PlatformAnalytics } from "#features/dashboard/types/dashboard.types";
 import { createCookieApiClient } from "@workforce-erp/api-client/compat";
 import type { Permission } from "@workforce-erp/contracts";
 import { env } from "#config/env";
@@ -55,11 +56,12 @@ export function handleUnauthorized() {
   if (typeof window !== "undefined") window.dispatchEvent(new Event(ADMIN_AUTH_UNAUTHORIZED_EVENT));
 }
 
-const client = createCookieApiClient({
+export const cookieApiClient = createCookieApiClient({
   baseUrl: env.apiBaseUrl,
   onUnauthorized: handleUnauthorized,
   onStepUpRequired: handleAdminStepUpRequired,
 });
+const client = cookieApiClient;
 export const apiClient = {
   getHealth: () => client.getHealth(),
   login: (email: string, password: string) =>
@@ -90,5 +92,10 @@ export const apiClient = {
       `/api/v1/auth/challenges/${encodeURIComponent(id)}/verify`,
       { purpose: "step_up", code },
     ),
+  analytics: (range: string = "30d") =>
+    client.get<{
+      success: true;
+      data: PlatformAnalytics;
+    }>(`/api/v1/platform/analytics?range=${encodeURIComponent(range)}`),
   logout: () => client.post<{ success: boolean; message?: string }>("/api/v1/auth/logout"),
 };

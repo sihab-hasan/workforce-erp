@@ -180,6 +180,7 @@ class RegistrationService
             'employee' => [
                 'organization.view', 'company.view', 'department.view', 'employee.read',
                 'leave.view', 'timesheet.view', 'document.view', 'notification.view',
+                'report.view',
             ],
             'auditor' => [
                 'organization.view', 'company.view', 'department.view', 'employee.read',

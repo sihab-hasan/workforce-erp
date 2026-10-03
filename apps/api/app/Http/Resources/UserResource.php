@@ -64,7 +64,7 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'role' => $role,
-            'status' => $organization?->pivot?->status ?? 'inactive',
+            'status' => $organization?->pivot?->status ?? ($this->status ?: 'active'),
             'organization' => $organizationLink,
             'employee' => $employeeLink,
             'organization_id' => $organizationLink['id'] ?? null,

@@ -18,6 +18,7 @@ export function safeReturnTo(value: string | null | undefined): string {
   const publicAuthPrefixes = [
     ERP_PATHS.signIn,
     ERP_PATHS.signUp,
+    ERP_PATHS.signOut,
     ERP_PATHS.verifyEmail,
     ERP_PATHS.forgotPassword,
     ERP_PATHS.resetPassword,

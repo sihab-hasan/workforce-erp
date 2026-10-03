@@ -1,7 +1,12 @@
 import type { createHttpClient } from "@workforce-erp/api-client";
 import type { ApiResponse, PaginatedResponse, PaginationMeta } from "@workforce-erp/contracts";
 import type { LeaveFilters } from "../types/leave-filters.types";
-import type { CreateLeavePayload, Leave, LeaveOptions } from "../types/leave.types";
+import type {
+  CreateLeavePayload,
+  Leave,
+  LeaveOptions,
+  ReviewLeavePayload,
+} from "../types/leave.types";
 
 /** Snake-case pagination meta emitted by the Laravel paginator. */
 interface LaravelPaginationMeta {
@@ -92,16 +97,16 @@ export function createLeaveApi(http: ReturnType<typeof createHttpClient>) {
      * `PATCH /api/v1/leave-requests/{id}/approve`
      * Approves a pending leave request. Requires the `leave.approve` capability.
      */
-    approve(id: string): Promise<ApiResponse<Leave>> {
-      return http.patch<ApiResponse<Leave>>(`/api/v1/leave-requests/${id}/approve`, {});
+    approve(id: string, payload?: ReviewLeavePayload): Promise<ApiResponse<Leave>> {
+      return http.patch<ApiResponse<Leave>>(`/api/v1/leave-requests/${id}/approve`, payload ?? {});
     },
 
     /**
      * `PATCH /api/v1/leave-requests/{id}/reject`
      * Rejects a pending leave request. Requires the `leave.approve` capability.
      */
-    reject(id: string): Promise<ApiResponse<Leave>> {
-      return http.patch<ApiResponse<Leave>>(`/api/v1/leave-requests/${id}/reject`, {});
+    reject(id: string, payload?: ReviewLeavePayload): Promise<ApiResponse<Leave>> {
+      return http.patch<ApiResponse<Leave>>(`/api/v1/leave-requests/${id}/reject`, payload ?? {});
     },
   };
 }

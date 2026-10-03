@@ -18,6 +18,7 @@ import {
   useRejectLeaveMutation,
 } from "#features/leave/api/leave.mutations";
 import { useLeaveDetailsQuery } from "#features/leave/api/leave.queries";
+import { LeaveApprovalPanel } from "#features/leave/components/LeaveApprovalPanel";
 import { useCurrentEmployeeId } from "#features/leave/hooks/use-leave";
 
 export default function LeaveRequestDetailsPage() {
@@ -47,16 +48,16 @@ export default function LeaveRequestDetailsPage() {
     });
   }
 
-  function approveRequest() {
-    approveLeave.mutate(undefined, {
+  function handleApprove(remarks?: string) {
+    approveLeave.mutate(remarks ? { review_note: remarks } : undefined, {
       onSuccess: () => toast.success("Leave request approved"),
       onError: (error) =>
         toast.error("Unable to approve leave request", { description: errorMessage(error) }),
     });
   }
 
-  function rejectRequest() {
-    rejectLeave.mutate(undefined, {
+  function handleReject(remarks?: string) {
+    rejectLeave.mutate(remarks ? { review_note: remarks } : undefined, {
       onSuccess: () => toast.success("Leave request rejected"),
       onError: (error) =>
         toast.error("Unable to reject leave request", { description: errorMessage(error) }),
@@ -75,10 +76,10 @@ export default function LeaveRequestDetailsPage() {
                 <Button
                   variant="outline"
                   disabled={approveLeave.isPending || rejectLeave.isPending}
-                  onClick={approveRequest}
+                  onClick={() => handleApprove()}
                 >
                   <Check />
-                  Approve
+                  Quick Approve
                 </Button>
               </CapabilityGate>
             )}
@@ -87,7 +88,7 @@ export default function LeaveRequestDetailsPage() {
                 <Button
                   variant="destructive"
                   disabled={approveLeave.isPending || rejectLeave.isPending}
-                  onClick={rejectRequest}
+                  onClick={() => handleReject()}
                 >
                   <X />
                   Reject
@@ -95,7 +96,7 @@ export default function LeaveRequestDetailsPage() {
               </CapabilityGate>
             )}
             {canCancel && (
-              <CapabilityGate capability="leave.request">
+              <CapabilityGate anyOf={["leave.create", "leave.request"]}>
                 <Button variant="ghost" disabled={cancelLeave.isPending} onClick={cancelRequest}>
                   Cancel request
                 </Button>
@@ -113,33 +114,59 @@ export default function LeaveRequestDetailsPage() {
           value={<span className="text-base">{formatDate(leave.created_at)}</span>}
         />
       </div>
-      <SectionCard title="Request details">
-        <dl className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          <Info label="Employee" value={leave.employee?.name} />
-          <Info label="Employee ID" value={leave.employee?.employee_id} />
-          <Info label="Department" value={leave.employee?.department} />
-          <Info label="Leave type" value={leave.leave_type?.name} />
-          <Info label="Start date" value={formatDate(leave.start_date)} />
-          <Info label="End date" value={formatDate(leave.end_date)} />
-        </dl>
-        {leave.reason ? (
-          <div className="mt-6">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Reason</p>
-            <p className="mt-2 whitespace-pre-wrap text-sm">{leave.reason}</p>
-          </div>
-        ) : null}
-      </SectionCard>
-      {leave.reviewed_at || leave.review_note ? (
-        <SectionCard title="Review">
-          <InfoGrid
-            items={[
-              ["Reviewed by", leave.reviewer?.name],
-              ["Reviewed at", formatDateTime(leave.reviewed_at)],
-              ["Note", leave.review_note],
-            ]}
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          <SectionCard title="Request details">
+            <dl className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <Info label="Employee" value={leave.employee?.name} />
+              <Info label="Employee ID" value={leave.employee?.employee_id} />
+              <Info label="Department" value={leave.employee?.department} />
+              <Info label="Leave type" value={leave.leave_type?.name} />
+              <Info label="Start date" value={formatDate(leave.start_date)} />
+              <Info label="End date" value={formatDate(leave.end_date)} />
+            </dl>
+            {leave.reason ? (
+              <div className="mt-6 border-t pt-4">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Reason</p>
+                <p className="mt-2 whitespace-pre-wrap text-sm">{leave.reason}</p>
+              </div>
+            ) : null}
+          </SectionCard>
+
+          {leave.reviewed_at || leave.review_note ? (
+            <SectionCard title="Review details">
+              <InfoGrid
+                items={[
+                  ["Reviewed by", leave.reviewer?.name],
+                  ["Reviewed at", formatDateTime(leave.reviewed_at)],
+                  ["Review remarks", leave.review_note],
+                ]}
+              />
+            </SectionCard>
+          ) : null}
+        </div>
+
+        <div>
+          <LeaveApprovalPanel
+            requestId={leave.id}
+            applicantName={leave.employee?.name || "Employee"}
+            leaveType={leave.leave_type?.name || "Leave"}
+            startDate={formatDate(leave.start_date)}
+            endDate={formatDate(leave.end_date)}
+            totalDays={days}
+            reason={leave.reason || ""}
+            status={leave.status}
+            isPending={approveLeave.isPending || rejectLeave.isPending}
+            {...(canReview
+              ? {
+                  onApprove: (remarks: string) => handleApprove(remarks),
+                  onReject: (remarks: string) => handleReject(remarks),
+                }
+              : {})}
           />
-        </SectionCard>
-      ) : null}
+        </div>
+      </div>
     </ErpPage>
   );
 }

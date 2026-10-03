@@ -98,11 +98,7 @@ export default function InvitationPage() {
             <p className="font-medium">{preview.organization.name}</p>
             <p className="text-muted-foreground">{preview.email}</p>
           </div>
-          {!preview.identity_setup_required && !isAuthenticated ? (
-            <div className="rounded-md bg-muted p-3 text-sm">
-              Sign in with the invited email address first, then return to this invitation.
-            </div>
-          ) : null}
+
           {preview.identity_setup_required ? (
             <>
               <div className="space-y-1.5">
@@ -153,19 +149,30 @@ export default function InvitationPage() {
               {error}
             </p>
           ) : null}
-          <Button
-            className="w-full"
-            type="submit"
-            disabled={loading || (!preview.identity_setup_required && !isAuthenticated)}
-          >
-            {loading ? (
-              <>
-                <Loader2 className="animate-spin" /> Accepting…
-              </>
-            ) : (
-              "Accept invitation"
-            )}
-          </Button>
+          {!preview.identity_setup_required && !isAuthenticated ? (
+            <Button
+              className="w-full"
+              type="button"
+              disabled={loading}
+              onClick={() => {
+                navigate(
+                  `${AUTH_PATHS.login}?returnTo=${encodeURIComponent(`/accept-invitation/${token}`)}`,
+                );
+              }}
+            >
+              Sign in to accept
+            </Button>
+          ) : (
+            <Button className="w-full" type="submit" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin" /> Accepting…
+                </>
+              ) : (
+                "Accept invitation"
+              )}
+            </Button>
+          )}
         </form>
       ) : null}
     </AuthCard>

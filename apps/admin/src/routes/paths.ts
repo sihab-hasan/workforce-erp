@@ -1,45 +1,40 @@
-function encodeSegment(value: string) {
-  return encodeURIComponent(value.trim());
+function encodeSegment(value: string | number | null | undefined) {
+  return encodeURIComponent(String(value ?? "").trim());
 }
 
 export const ADMIN_PATHS = {
-  root: "/admin",
-  dashboard: "/admin/dashboard",
+  root: "/",
+  dashboard: "/dashboard",
   signIn: "/sign-in",
-  tenants: "/admin/tenants",
-  tenantCreate: "/admin/tenants/new",
-  organizations: "/admin/organizations",
-  users: "/admin/users",
-  userCreate: "/admin/users/new",
-  roles: "/admin/roles",
-  capabilityMatrix: "/admin/roles/capabilities",
-  settings: "/admin/settings",
+  tenants: "/tenants",
+  tenantCreate: "/tenants/new",
+  organizations: "/organizations",
+  users: "/users",
+  userCreate: "/users/new",
+  inquiries: "/inquiries",
+  settings: "/settings",
 } as const;
 
-export function adminTenantDetailsPath(tenantId: string) {
+export function adminTenantDetailsPath(tenantId: string | number) {
   return `${ADMIN_PATHS.tenants}/${encodeSegment(tenantId)}`;
 }
 
-export function adminTenantEditPath(tenantId: string) {
+export function adminTenantEditPath(tenantId: string | number) {
   return `${adminTenantDetailsPath(tenantId)}/edit`;
 }
 
-export function adminOrganizationDetailsPath(organizationId: string) {
+export function adminOrganizationDetailsPath(organizationId: string | number) {
   return `${ADMIN_PATHS.organizations}/${encodeSegment(organizationId)}`;
 }
 
-export function adminOrganizationEditPath(organizationId: string) {
+export function adminOrganizationEditPath(organizationId: string | number) {
   return `${adminOrganizationDetailsPath(organizationId)}/edit`;
 }
 
-export function adminUserDetailsPath(userId: string) {
+export function adminUserDetailsPath(userId: string | number) {
   return `${ADMIN_PATHS.users}/${encodeSegment(userId)}`;
 }
 
-export function adminUserEditPath(userId: string) {
+export function adminUserEditPath(userId: string | number) {
   return `${adminUserDetailsPath(userId)}/edit`;
-}
-
-export function adminRoleDetailsPath(roleId: string) {
-  return `${ADMIN_PATHS.roles}/${encodeSegment(roleId)}`;
 }
