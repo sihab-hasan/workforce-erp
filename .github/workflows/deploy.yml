@@ -2,17 +2,17 @@ name: Build
 
 on:
   push:
-    branches: ['main', 'develop']
+    branches: ["main", "develop"]
     paths-ignore:
-      - '**.md'
-      - '**.yml'
-      - '**.yaml'
+      - "**.md"
+      - "**.yml"
+      - "**.yaml"
   pull_request:
-    branches: ['main', 'develop']
+    branches: ["main", "develop"]
     paths-ignore:
-      - '**.md'
-      - '**.yml'
-      - '**.yaml'
+      - "**.md"
+      - "**.yml"
+      - "**.yaml"
   workflow_dispatch:
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
       - name: Set up PHP 8.4
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: "8.4"
           extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, bcmath
           coverage: none
 
@@ -68,7 +68,7 @@ jobs:
       - name: Set up PHP 8.4
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: "8.4"
           extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, bcmath
           coverage: none
 
