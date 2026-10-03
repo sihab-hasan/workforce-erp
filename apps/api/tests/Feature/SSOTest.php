@@ -212,9 +212,18 @@ class SSOTest extends TestCase
             'private_key_bits' => 2048,
             'private_key_type' => OPENSSL_KEYTYPE_RSA,
         ];
-        $cnf = dirname(PHP_BINARY).'/extras/ssl/openssl.cnf';
-        if (file_exists($cnf)) {
-            $options['config'] = $cnf;
+        $candidatePaths = [
+            getenv('OPENSSL_CONF') ?: null,
+            dirname(PHP_BINARY).'/extras/ssl/openssl.cnf',
+            dirname(PHP_BINARY).'/openssl.cnf',
+            'C:/Program Files/Git/usr/ssl/openssl.cnf',
+            'C:/Program Files/OpenSSL/bin/openssl.cnf',
+        ];
+        foreach ($candidatePaths as $candidate) {
+            if ($candidate && file_exists($candidate)) {
+                $options['config'] = $candidate;
+                break;
+            }
         }
         $resource = openssl_pkey_new($options);
         $this->assertNotFalse($resource);

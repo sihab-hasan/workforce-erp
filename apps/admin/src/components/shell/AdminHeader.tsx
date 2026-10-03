@@ -107,6 +107,7 @@ export function AdminHeader() {
                   } catch {
                     // Ignore network failure on sign out
                   }
+                  document.cookie = "XSRF-TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                   signOut();
                   navigate(ADMIN_PATHS.signIn, { replace: true });
                 }}
