@@ -68,10 +68,17 @@ export function EmployeeStatistics({
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-base font-bold tracking-tight">Workforce Status & Distribution</CardTitle>
-              <CardDescription className="text-xs">Live organizational indicators for active members</CardDescription>
+              <CardTitle className="text-base font-bold tracking-tight">
+                Workforce Status & Distribution
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Live organizational indicators for active members
+              </CardDescription>
             </div>
-            <Badge variant="outline" className="border-border/80 bg-background/60 text-xs font-semibold">
+            <Badge
+              variant="outline"
+              className="border-border/80 bg-background/60 text-xs font-semibold"
+            >
               {total} Total Records
             </Badge>
           </div>
@@ -109,7 +116,9 @@ export function EmployeeStatistics({
                 className="group flex items-center justify-between gap-3 rounded-xl p-2.5 transition-colors hover:bg-muted/40"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <span className={`size-2.5 rounded-full ${row.color} shrink-0 ring-2 ring-background`} />
+                  <span
+                    className={`size-2.5 rounded-full ${row.color} shrink-0 ring-2 ring-background`}
+                  />
                   <span className="truncate text-xs font-semibold text-foreground sm:text-sm">
                     {row.name}
                   </span>
@@ -123,7 +132,10 @@ export function EmployeeStatistics({
                       <span className="font-mono text-xs font-bold text-foreground sm:text-sm tabular-nums">
                         {row.count}
                       </span>
-                      <Badge variant="outline" className={`text-[11px] font-semibold ${row.badgeBg}`}>
+                      <Badge
+                        variant="outline"
+                        className={`text-[11px] font-semibold ${row.badgeBg}`}
+                      >
                         {percent}%
                       </Badge>
                     </>

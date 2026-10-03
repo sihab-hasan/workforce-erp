@@ -27,7 +27,12 @@ export function AuthCard({
   className,
 }: AuthCardProps) {
   return (
-    <main className={cn("relative min-h-svh overflow-hidden bg-background lg:grid lg:grid-cols-2", className)}>
+    <main
+      className={cn(
+        "relative min-h-svh overflow-hidden bg-background lg:grid lg:grid-cols-2",
+        className,
+      )}
+    >
       {/* Dynamic ambient radial glows */}
       <div className="pointer-events-none absolute -top-40 -left-40 size-[32rem] rounded-full bg-primary/10 blur-[120px] dark:bg-primary/15" />
       <div className="pointer-events-none absolute -bottom-40 -right-40 size-[32rem] rounded-full bg-teal-500/10 blur-[120px] dark:bg-teal-500/15" />
@@ -57,7 +62,9 @@ export function AuthCard({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <p className="font-heading text-lg font-bold tracking-tight text-white">Workforce ERP</p>
+              <p className="font-heading text-lg font-bold tracking-tight text-white">
+                Workforce ERP
+              </p>
               <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-semibold tracking-wider text-white uppercase backdrop-blur-xs">
                 Platform
               </span>
@@ -77,7 +84,8 @@ export function AuthCard({
             Unified governance across all your enterprise tenants.
           </h2>
           <p className="mt-5 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">
-            Provision organizations, audit tenant lifecycle operations, enforce security policies, and manage global platform access with full audit traceability.
+            Provision organizations, audit tenant lifecycle operations, enforce security policies,
+            and manage global platform access with full audit traceability.
           </p>
 
           <div className="mt-8 grid gap-3.5 text-xs text-white/90 sm:grid-cols-2 sm:text-sm">

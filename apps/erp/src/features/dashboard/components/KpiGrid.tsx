@@ -30,7 +30,8 @@ export function KpiGrid({ summary, loading = false, className }: KpiGridProps) {
       icon: Users,
       trend: "Total roster",
       gradient: "from-emerald-500 to-teal-400",
-      iconBg: "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border-emerald-500/20",
+      iconBg:
+        "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border-emerald-500/20",
     },
     {
       label: "Active on Duty",
@@ -39,7 +40,8 @@ export function KpiGrid({ summary, loading = false, className }: KpiGridProps) {
       icon: ShieldCheck,
       trend: `${activeRate}% active`,
       gradient: "from-blue-500 to-cyan-400",
-      iconBg: "bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 border-blue-500/20",
+      iconBg:
+        "bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 border-blue-500/20",
     },
     {
       label: "On Approved Leave",
@@ -48,7 +50,8 @@ export function KpiGrid({ summary, loading = false, className }: KpiGridProps) {
       icon: CalendarOff,
       trend: "Leaves today",
       gradient: "from-amber-500 to-orange-400",
-      iconBg: "bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 border-amber-500/20",
+      iconBg:
+        "bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 border-amber-500/20",
     },
     {
       label: "Probation & Onboarding",
@@ -57,7 +60,8 @@ export function KpiGrid({ summary, loading = false, className }: KpiGridProps) {
       icon: Clock3,
       trend: "In review",
       gradient: "from-purple-500 to-pink-400",
-      iconBg: "bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400 border-purple-500/20",
+      iconBg:
+        "bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400 border-purple-500/20",
     },
   ] as const;
 

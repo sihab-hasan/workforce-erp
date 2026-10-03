@@ -57,7 +57,9 @@ export function QuickActions({ className }: QuickActionsProps) {
       <Card className="h-full overflow-hidden rounded-2xl border border-border/70 bg-card/75 shadow-xs backdrop-blur-sm dark:bg-card/45">
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-bold tracking-tight">Quick Actions</CardTitle>
-          <CardDescription className="text-xs">Direct shortcuts to daily operational workflows</CardDescription>
+          <CardDescription className="text-xs">
+            Direct shortcuts to daily operational workflows
+          </CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-2.5">
           {actions.map((action) => {
@@ -78,7 +80,9 @@ export function QuickActions({ className }: QuickActionsProps) {
                     <p className="truncate text-xs font-semibold text-foreground group-hover:text-primary transition-colors sm:text-sm">
                       {action.label}
                     </p>
-                    <p className="truncate text-[11px] text-muted-foreground">{action.description}</p>
+                    <p className="truncate text-[11px] text-muted-foreground">
+                      {action.description}
+                    </p>
                   </div>
                 </div>
 
