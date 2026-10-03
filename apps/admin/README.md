@@ -85,5 +85,5 @@ Environment variables are inherited from the root `.env`:
 | `ADMIN_PREVIEW_PORT`    | `4175`                       | Local Vite preview port                    |
 | `VITE_API_PROXY_TARGET` | `http://127.0.0.1:8000`      | Backend API target for Vite proxy          |
 | `VITE_API_URL`          | `/api`                       | Base path for API client calls             |
-| `VITE_ERP_URL`          | `http://localhost:5173/erp/` | Cross-app URL for ERP customer application |
-| `VITE_WEB_URL`          | `http://localhost:5173`      | Cross-app URL for public marketing website |
+| `VITE_ERP_URL`          | Origin-relative `/erp` (or `http://localhost:5173/erp/`) | Cross-app URL for ERP customer application |
+| `VITE_WEB_URL`          | Dynamic origin (or `http://localhost:5173` locally) | Cross-app URL for public marketing website |
