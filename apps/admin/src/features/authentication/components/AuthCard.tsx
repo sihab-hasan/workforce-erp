@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Building2, CheckCircle2, LockKeyhole, ShieldCheck } from "lucide-react";
+import { CheckCircle2, LockKeyhole, ShieldCheck } from "lucide-react";
 
 import { Logo, LogoIcon } from "@workforce-erp/ui/components/logo";
 import { cn } from "@workforce-erp/ui/lib/utils";

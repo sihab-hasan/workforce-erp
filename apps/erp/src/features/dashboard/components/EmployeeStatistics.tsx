@@ -6,7 +6,6 @@ import {
   CardTitle,
 } from "@workforce-erp/ui/components/card";
 import { Badge } from "@workforce-erp/ui/components/badge";
-import { Separator } from "@workforce-erp/ui/components/separator";
 import { Skeleton } from "@workforce-erp/ui/components/skeleton";
 import type { EmployeeDirectorySummary } from "#features/employees/types/employees-filters.types";
 

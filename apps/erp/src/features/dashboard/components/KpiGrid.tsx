@@ -1,11 +1,8 @@
-import { ArrowUpRight, CalendarOff, Clock3, ShieldCheck, Users } from "lucide-react";
+import { CalendarOff, Clock3, ShieldCheck, Users } from "lucide-react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
-  CardAction,
 } from "@workforce-erp/ui/components/card";
 import { Badge } from "@workforce-erp/ui/components/badge";
 import { Skeleton } from "@workforce-erp/ui/components/skeleton";

@@ -2,7 +2,7 @@ import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@workforce-erp/auth";
 import { Badge } from "@workforce-erp/ui/components/badge";
 import { Button } from "@workforce-erp/ui/components/button";
-import { AlertCircle, CalendarDays, RefreshCw, Sparkles } from "lucide-react";
+import { AlertCircle, CalendarDays, RefreshCw } from "lucide-react";
 import { EmployeeStatistics } from "#features/dashboard/components/EmployeeStatistics";
 import { KpiGrid } from "#features/dashboard/components/KpiGrid";
 import { QuickActions } from "#features/dashboard/components/QuickActions";
