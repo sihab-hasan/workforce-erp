@@ -1,12 +1,5 @@
 import { useRef } from "react";
-import {
-  BarChart3,
-  Building2,
-  FileCheck2,
-  ShieldCheck,
-  TrendingUp,
-  Users,
-} from "lucide-react";
+import { BarChart3, Building2, FileCheck2, ShieldCheck, TrendingUp, Users } from "lucide-react";
 import { Container } from "#layouts/Container";
 import { cn } from "@workforce-erp/ui/lib/utils";
 import { bindScrollAnimation, gsap, prefersReducedMotion, useGSAP } from "@workforce-erp/ui/motion";
@@ -20,7 +13,8 @@ const metrics = [
     icon: Users,
     value: "250K+",
     label: "Active Employees",
-    description: "Managed across global organizations in 45+ countries with full multi-tenant isolation.",
+    description:
+      "Managed across global organizations in 45+ countries with full multi-tenant isolation.",
     accent: "from-sky-500/20 to-blue-500/20 text-sky-500",
   },
   {
@@ -34,28 +28,32 @@ const metrics = [
     icon: FileCheck2,
     value: "14M+",
     label: "Timesheets Processed",
-    description: "Server-authoritative clock-in/out with real-time overlap prevention and correction workflows.",
+    description:
+      "Server-authoritative clock-in/out with real-time overlap prevention and correction workflows.",
     accent: "from-amber-500/20 to-orange-500/20 text-amber-500",
   },
   {
     icon: ShieldCheck,
     value: "99.99%",
     label: "Uptime SLA",
-    description: "Zero-trust security, SOC 2 Type II compliance, and immutable cryptographic audit trails.",
+    description:
+      "Zero-trust security, SOC 2 Type II compliance, and immutable cryptographic audit trails.",
     accent: "from-violet-500/20 to-purple-500/20 text-violet-500",
   },
   {
     icon: BarChart3,
     value: "$1.2B+",
     label: "Payroll Processed",
-    description: "Accurate multi-currency payroll with zero compliance breaches across all deployments.",
+    description:
+      "Accurate multi-currency payroll with zero compliance breaches across all deployments.",
     accent: "from-rose-500/20 to-pink-500/20 text-rose-500",
   },
   {
     icon: TrendingUp,
     value: "42%",
     label: "Faster Operations",
-    description: "Average reduction in administrative overhead after migrating from legacy point solutions.",
+    description:
+      "Average reduction in administrative overhead after migrating from legacy point solutions.",
     accent: "from-cyan-500/20 to-sky-500/20 text-cyan-500",
   },
 ];
@@ -67,8 +65,11 @@ export function BusinessOverviewSection({ className }: BusinessOverviewSectionPr
     () => {
       if (prefersReducedMotion()) return;
       const tl = gsap.timeline({ paused: true });
-      tl.from("[data-biz-heading]", { autoAlpha: 0, y: 30, duration: 0.7 })
-        .from("[data-biz-card]", { autoAlpha: 0, y: 40, stagger: 0.1, duration: 0.6 }, "-=0.3");
+      tl.from("[data-biz-heading]", { autoAlpha: 0, y: 30, duration: 0.7 }).from(
+        "[data-biz-card]",
+        { autoAlpha: 0, y: 40, stagger: 0.1, duration: 0.6 },
+        "-=0.3",
+      );
       if (sectionRef.current) {
         bindScrollAnimation(tl, { trigger: sectionRef.current, start: "top 85%" });
       }
@@ -90,7 +91,8 @@ export function BusinessOverviewSection({ className }: BusinessOverviewSectionPr
             Enterprise-Grade Metrics That Speak for Themselves
           </h2>
           <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-            Numbers backed by a multi-tenant architecture engineered for reliability, security, and scale from day one.
+            Numbers backed by a multi-tenant architecture engineered for reliability, security, and
+            scale from day one.
           </p>
         </div>
 
@@ -118,7 +120,9 @@ export function BusinessOverviewSection({ className }: BusinessOverviewSectionPr
                     {m.value}
                   </p>
                   <p className="mt-1 text-sm font-semibold text-foreground">{m.label}</p>
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{m.description}</p>
+                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                    {m.description}
+                  </p>
                 </div>
               </div>
             );

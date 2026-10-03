@@ -40,12 +40,8 @@ export function CompanyStatsSection({ stats, className }: CompanyStatsSectionPro
                   <p className="font-heading text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
                     {stat.value}
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-foreground">
-                    {stat.label}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {stat.subtext}
-                  </p>
+                  <p className="mt-1 text-sm font-semibold text-foreground">{stat.label}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{stat.subtext}</p>
                 </div>
 
                 {/* Subtle gradient highlight line */}

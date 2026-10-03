@@ -106,8 +106,11 @@ export function ModuleShowcaseSection({ className }: ModuleShowcaseSectionProps)
     () => {
       if (prefersReducedMotion()) return;
       const tl = gsap.timeline({ paused: true });
-      tl.from("[data-mod-heading]", { autoAlpha: 0, y: 30, duration: 0.7 })
-        .from("[data-mod-card]", { autoAlpha: 0, y: 40, stagger: 0.08, duration: 0.55 }, "-=0.3");
+      tl.from("[data-mod-heading]", { autoAlpha: 0, y: 30, duration: 0.7 }).from(
+        "[data-mod-card]",
+        { autoAlpha: 0, y: 40, stagger: 0.08, duration: 0.55 },
+        "-=0.3",
+      );
       if (sectionRef.current) {
         bindScrollAnimation(tl, { trigger: sectionRef.current, start: "top 85%" });
       }
@@ -116,10 +119,7 @@ export function ModuleShowcaseSection({ className }: ModuleShowcaseSectionProps)
   );
 
   return (
-    <section
-      ref={sectionRef}
-      className={cn("py-20 lg:py-28 border-b border-border/60", className)}
-    >
+    <section ref={sectionRef} className={cn("py-20 lg:py-28 border-b border-border/60", className)}>
       <Container>
         <div data-mod-heading className="mx-auto max-w-2xl text-center">
           <span className="inline-block rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary">
@@ -129,7 +129,8 @@ export function ModuleShowcaseSection({ className }: ModuleShowcaseSectionProps)
             Six Unified Modules, One Operating System
           </h2>
           <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-            Every module is deeply integrated—no fragile connectors, no data silos. Changes propagate instantly across the entire platform.
+            Every module is deeply integrated—no fragile connectors, no data silos. Changes
+            propagate instantly across the entire platform.
           </p>
         </div>
 
@@ -149,12 +150,8 @@ export function ModuleShowcaseSection({ className }: ModuleShowcaseSectionProps)
                   <Icon className="size-6" />
                 </div>
 
-                <h3 className="mt-5 font-heading text-xl font-bold text-foreground">
-                  {mod.title}
-                </h3>
-                <p className="mt-1 text-xs font-semibold text-primary italic">
-                  {mod.tagline}
-                </p>
+                <h3 className="mt-5 font-heading text-xl font-bold text-foreground">{mod.title}</h3>
+                <p className="mt-1 text-xs font-semibold text-primary italic">{mod.tagline}</p>
 
                 <ul className="mt-4 space-y-2">
                   {mod.bullets.map((b) => (

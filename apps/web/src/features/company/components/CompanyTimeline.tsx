@@ -15,9 +15,7 @@ export function CompanyTimeline({ timeline, className }: CompanyTimelineProps) {
   const years = ["All", ...Array.from(new Set(timeline.map((m) => m.year)))];
 
   const filtered =
-    selectedYear === "All"
-      ? timeline
-      : timeline.filter((m) => m.year === selectedYear);
+    selectedYear === "All" ? timeline : timeline.filter((m) => m.year === selectedYear);
 
   return (
     <section id="timeline" className={cn("py-20 lg:py-28 border-b border-border/60", className)}>
@@ -30,7 +28,8 @@ export function CompanyTimeline({ timeline, className }: CompanyTimelineProps) {
             Our Journey & Architectural Evolution
           </h2>
           <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-            From an ambitious architectural prototype to an enterprise-grade multi-tenant operating system.
+            From an ambitious architectural prototype to an enterprise-grade multi-tenant operating
+            system.
           </p>
 
           {/* Year Filter Buttons */}

@@ -27,7 +27,10 @@ const valueIcons: Record<string, LucideIcon> = {
 
 export function ValuesSection({ values, className }: ValuesSectionProps) {
   return (
-    <section id="values" className={cn("py-20 lg:py-28 bg-muted/15 border-b border-border/60", className)}>
+    <section
+      id="values"
+      className={cn("py-20 lg:py-28 bg-muted/15 border-b border-border/60", className)}
+    >
       <Container>
         <div className="mx-auto max-w-2xl text-center">
           <span className="inline-block rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary">
@@ -37,7 +40,8 @@ export function ValuesSection({ values, className }: ValuesSectionProps) {
             Values That Drive Everything We Build
           </h2>
           <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-            These core principles guide our engineering architecture, product design, and how we treat our customers and each other every day.
+            These core principles guide our engineering architecture, product design, and how we
+            treat our customers and each other every day.
           </p>
         </div>
 
@@ -65,9 +69,7 @@ export function ValuesSection({ values, className }: ValuesSectionProps) {
                   <h3 className="mt-5 font-heading text-xl font-bold text-foreground">
                     {val.title}
                   </h3>
-                  <p className="mt-1 text-xs font-semibold text-primary">
-                    {val.tagline}
-                  </p>
+                  <p className="mt-1 text-xs font-semibold text-primary">{val.tagline}</p>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                     {val.description}
                   </p>

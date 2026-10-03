@@ -155,17 +155,15 @@ export default function InvitationPage() {
               type="button"
               disabled={loading}
               onClick={() => {
-                navigate(`${AUTH_PATHS.login}?returnTo=${encodeURIComponent(`/accept-invitation/${token}`)}`);
+                navigate(
+                  `${AUTH_PATHS.login}?returnTo=${encodeURIComponent(`/accept-invitation/${token}`)}`,
+                );
               }}
             >
               Sign in to accept
             </Button>
           ) : (
-            <Button
-              className="w-full"
-              type="submit"
-              disabled={loading}
-            >
+            <Button className="w-full" type="submit" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="animate-spin" /> Accepting…

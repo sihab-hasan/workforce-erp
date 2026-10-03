@@ -11,18 +11,16 @@ export interface LeadershipSectionProps {
 export function LeadershipSection({ leadership, className }: LeadershipSectionProps) {
   const [activeDept, setActiveDept] = useState<string>("All");
 
-  const departments = [
-    "All",
-    ...Array.from(new Set(leadership.map((l) => l.department))),
-  ];
+  const departments = ["All", ...Array.from(new Set(leadership.map((l) => l.department)))];
 
   const filtered =
-    activeDept === "All"
-      ? leadership
-      : leadership.filter((l) => l.department === activeDept);
+    activeDept === "All" ? leadership : leadership.filter((l) => l.department === activeDept);
 
   return (
-    <section id="leadership" className={cn("py-20 lg:py-28 bg-muted/15 border-b border-border/60", className)}>
+    <section
+      id="leadership"
+      className={cn("py-20 lg:py-28 bg-muted/15 border-b border-border/60", className)}
+    >
       <Container>
         <div className="mx-auto max-w-2xl text-center">
           <span className="inline-block rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary">
@@ -32,7 +30,8 @@ export function LeadershipSection({ leadership, className }: LeadershipSectionPr
             Led by Systems Builders & People Advocates
           </h2>
           <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-            Our team brings together deep expertise in cloud architectures, enterprise security, product design, and global workforce operations.
+            Our team brings together deep expertise in cloud architectures, enterprise security,
+            product design, and global workforce operations.
           </p>
 
           {/* Department Filter Tabs */}
@@ -74,9 +73,7 @@ export function LeadershipSection({ leadership, className }: LeadershipSectionPr
                   <h3 className="truncate font-heading text-lg font-bold text-foreground">
                     {member.name}
                   </h3>
-                  <p className="truncate text-xs font-medium text-primary">
-                    {member.role}
-                  </p>
+                  <p className="truncate text-xs font-medium text-primary">{member.role}</p>
                   <span className="mt-1 inline-block rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
                     {member.department}
                   </span>
@@ -84,9 +81,7 @@ export function LeadershipSection({ leadership, className }: LeadershipSectionPr
               </div>
 
               {/* Bio */}
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                {member.bio}
-              </p>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{member.bio}</p>
 
               {/* Social Links */}
               <div className="mt-6 flex items-center gap-3 pt-4 border-t border-border/40 text-muted-foreground">

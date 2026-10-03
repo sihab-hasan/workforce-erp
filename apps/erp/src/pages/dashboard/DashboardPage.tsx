@@ -124,7 +124,11 @@ function OwnerDashboard({
         <div className="mb-5 grid gap-4 sm:grid-cols-3">
           <Metric icon={<Users />} label="Clocked in" value={d.attendance.present} />
           <Metric icon={<Clock3 />} label="Clocked out" value={d.attendance.completed} />
-          <Metric icon={<CalendarDays />} label="Recorded hours" value={d.attendance.hours.toFixed(2)} />
+          <Metric
+            icon={<CalendarDays />}
+            label="Recorded hours"
+            value={d.attendance.hours.toFixed(2)}
+          />
         </div>
         {!d.today_attendance.length ? (
           <p className="text-sm text-muted-foreground">No one has clocked in yet.</p>
@@ -147,10 +151,26 @@ function OwnerDashboard({
       </SectionCard>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Quick href={companyRoutes.employeeCreate(tenantKey, companyKey)} icon={<UserPlus />} title="Add employee" />
-        <Quick href={tenantRoutes.companyCreate(tenantKey)} icon={<Building2 />} title="Add branch" />
-        <Quick href={companyRoutes.approvals(tenantKey, companyKey)} icon={<CheckCircle2 />} title="Approvals" />
-        <Quick href={companyRoutes.documents(tenantKey, companyKey)} icon={<FileText />} title="Documents" />
+        <Quick
+          href={companyRoutes.employeeCreate(tenantKey, companyKey)}
+          icon={<UserPlus />}
+          title="Add employee"
+        />
+        <Quick
+          href={tenantRoutes.companyCreate(tenantKey)}
+          icon={<Building2 />}
+          title="Add branch"
+        />
+        <Quick
+          href={companyRoutes.approvals(tenantKey, companyKey)}
+          icon={<CheckCircle2 />}
+          title="Approvals"
+        />
+        <Quick
+          href={companyRoutes.documents(tenantKey, companyKey)}
+          icon={<FileText />}
+          title="Documents"
+        />
       </div>
     </ErpPage>
   );
@@ -205,10 +225,26 @@ function EmployeeDashboard({
       </SectionCard>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Quick href={companyRoutes.leaveCreate(tenantKey, companyKey)} icon={<CalendarDays />} title="Request leave" />
-        <Quick href={companyRoutes.timesheets(tenantKey, companyKey)} icon={<Clock3 />} title="My timesheet" />
-        <Quick href={companyRoutes.documents(tenantKey, companyKey)} icon={<FileText />} title="Documents" />
-        <Quick href={companyRoutes.reports(tenantKey, companyKey)} icon={<Workflow />} title="Reports" />
+        <Quick
+          href={companyRoutes.leaveCreate(tenantKey, companyKey)}
+          icon={<CalendarDays />}
+          title="Request leave"
+        />
+        <Quick
+          href={companyRoutes.timesheets(tenantKey, companyKey)}
+          icon={<Clock3 />}
+          title="My timesheet"
+        />
+        <Quick
+          href={companyRoutes.documents(tenantKey, companyKey)}
+          icon={<FileText />}
+          title="Documents"
+        />
+        <Quick
+          href={companyRoutes.reports(tenantKey, companyKey)}
+          icon={<Workflow />}
+          title="Reports"
+        />
       </div>
     </ErpPage>
   );
@@ -247,7 +283,15 @@ function LeaveList({
   );
 }
 
-function Metric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
+function Metric({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+}) {
   return (
     <div className="rounded-3xl bg-muted/40 p-4">
       <div className="mb-3 text-muted-foreground">{icon}</div>

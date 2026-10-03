@@ -58,7 +58,8 @@ export function GlobalOfficesSection({ offices, className }: GlobalOfficesSectio
             Global Engineering & Operations Hubs
           </h2>
           <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-            Strategically located across four timezones to deliver 24/7 reliability, fast customer onboarding, and continuous development velocity.
+            Strategically located across four timezones to deliver 24/7 reliability, fast customer
+            onboarding, and continuous development velocity.
           </p>
         </div>
 
@@ -79,15 +80,9 @@ export function GlobalOfficesSection({ offices, className }: GlobalOfficesSectio
                 </div>
 
                 <div className="mt-5">
-                  <h3 className="font-heading text-xl font-bold text-foreground">
-                    {office.city}
-                  </h3>
-                  <p className="text-xs font-semibold text-primary">
-                    {office.country}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {office.type}
-                  </p>
+                  <h3 className="font-heading text-xl font-bold text-foreground">{office.city}</h3>
+                  <p className="text-xs font-semibold text-primary">{office.country}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{office.type}</p>
                 </div>
 
                 <div className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">

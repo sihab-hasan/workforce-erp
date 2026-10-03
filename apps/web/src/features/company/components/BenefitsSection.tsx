@@ -31,7 +31,10 @@ const benefitIcons: Record<string, LucideIcon> = {
 
 export function BenefitsSection({ benefits, className }: BenefitsSectionProps) {
   return (
-    <section id="benefits" className={cn("py-20 lg:py-28 bg-muted/15 border-b border-border/60", className)}>
+    <section
+      id="benefits"
+      className={cn("py-20 lg:py-28 bg-muted/15 border-b border-border/60", className)}
+    >
       <Container>
         <div className="mx-auto max-w-2xl text-center">
           <span className="inline-block rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary">
@@ -41,7 +44,8 @@ export function BenefitsSection({ benefits, className }: BenefitsSectionProps) {
             Built for Autonomy, Wellness & Growth
           </h2>
           <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-            We practice what we preach. We give our team members the tools, trust, and flexibility they need to do the best work of their lives.
+            We practice what we preach. We give our team members the tools, trust, and flexibility
+            they need to do the best work of their lives.
           </p>
         </div>
 
@@ -75,16 +79,14 @@ export function BenefitsSection({ benefits, className }: BenefitsSectionProps) {
               Ready to shape the future of enterprise software?
             </h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              We are expanding our distributed teams across backend engineering, cloud systems, product design, and customer success.
+              We are expanding our distributed teams across backend engineering, cloud systems,
+              product design, and customer success.
             </p>
           </div>
           <div className="mt-6 shrink-0 lg:mt-0">
             <Link
               to={WEB_PATHS.contact}
-              className={cn(
-                buttonVariants({ size: "lg" }),
-                "h-12 px-6 font-semibold shadow-xs",
-              )}
+              className={cn(buttonVariants({ size: "lg" }), "h-12 px-6 font-semibold shadow-xs")}
             >
               <span>Get in Touch With Us</span>
               <ArrowRight className="ml-2 size-4" />

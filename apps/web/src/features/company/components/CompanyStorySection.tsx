@@ -38,9 +38,7 @@ export function CompanyStorySection({ story, className }: CompanyStorySectionPro
           <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
             {story.title}
           </h2>
-          <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-            {story.summary}
-          </p>
+          <p className="mt-4 text-base text-muted-foreground sm:text-lg">{story.summary}</p>
         </div>
 
         <div className="mt-14 grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">

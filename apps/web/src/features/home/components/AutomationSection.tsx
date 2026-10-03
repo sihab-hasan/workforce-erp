@@ -12,22 +12,26 @@ const automations = [
   {
     icon: Workflow,
     title: "Multi-Level Approval Chains",
-    description: "Leave requests, timesheets, and document submissions route through configurable approval hierarchies automatically.",
+    description:
+      "Leave requests, timesheets, and document submissions route through configurable approval hierarchies automatically.",
   },
   {
     icon: RefreshCcw,
     title: "Real-Time Sync Engine",
-    description: "Employee data, attendance records, and organizational changes propagate instantly across every connected module.",
+    description:
+      "Employee data, attendance records, and organizational changes propagate instantly across every connected module.",
   },
   {
     icon: GitBranch,
     title: "Conditional Policy Enforcement",
-    description: "Business rules like SoD, data scoping, and entitlement checks run server-side before every sensitive operation.",
+    description:
+      "Business rules like SoD, data scoping, and entitlement checks run server-side before every sensitive operation.",
   },
   {
     icon: Zap,
     title: "Event-Driven Notifications",
-    description: "Clock-in confirmations, approval alerts, and deadline reminders dispatch automatically via the notification engine.",
+    description:
+      "Clock-in confirmations, approval alerts, and deadline reminders dispatch automatically via the notification engine.",
   },
 ];
 
@@ -69,7 +73,8 @@ export function AutomationSection({ className }: AutomationSectionProps) {
             Eliminate Manual Busywork, Permanently
           </h2>
           <p className="mt-4 text-base text-muted-foreground sm:text-lg">
-            Every workflow runs through a server-authoritative validation engine—no client-side hacks, no data inconsistencies.
+            Every workflow runs through a server-authoritative validation engine—no client-side
+            hacks, no data inconsistencies.
           </p>
         </div>
 
@@ -106,7 +111,9 @@ export function AutomationSection({ className }: AutomationSectionProps) {
                 </div>
                 <div>
                   <h3 className="font-heading text-base font-bold text-foreground">{a.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{a.description}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                    {a.description}
+                  </p>
                 </div>
               </div>
             );
@@ -115,7 +122,12 @@ export function AutomationSection({ className }: AutomationSectionProps) {
 
         {/* Bottom trust strip */}
         <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-muted-foreground">
-          {["Zero manual reconciliation", "Sub-second validation", "Full audit trail", "No cron dependencies"].map((t) => (
+          {[
+            "Zero manual reconciliation",
+            "Sub-second validation",
+            "Full audit trail",
+            "No cron dependencies",
+          ].map((t) => (
             <span key={t} className="flex items-center gap-1.5 font-medium">
               <CheckCircle2 className="size-3.5 text-emerald-500" />
               {t}

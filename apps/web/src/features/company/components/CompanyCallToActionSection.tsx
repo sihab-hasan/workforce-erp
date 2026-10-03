@@ -11,7 +11,9 @@ interface CompanyCallToActionSectionProps {
 
 export function CompanyCallToActionSection({ className }: CompanyCallToActionSectionProps) {
   return (
-    <section className={cn("relative isolate overflow-hidden py-20 lg:py-28 bg-background", className)}>
+    <section
+      className={cn("relative isolate overflow-hidden py-20 lg:py-28 bg-background", className)}
+    >
       <Container>
         <div className="relative overflow-hidden rounded-3xl border border-primary/30 bg-gradient-to-br from-card via-card to-primary/10 p-8 shadow-xl sm:p-12 lg:p-16">
           {/* Subtle background glow */}
@@ -31,7 +33,9 @@ export function CompanyCallToActionSection({ className }: CompanyCallToActionSec
             </h2>
 
             <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Say goodbye to disconnected spreadsheets, fractured attendance, and manual reconciliation. Bring all your people, time, and payroll together in one unified operating system.
+              Say goodbye to disconnected spreadsheets, fractured attendance, and manual
+              reconciliation. Bring all your people, time, and payroll together in one unified
+              operating system.
             </p>
 
             <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">

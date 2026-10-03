@@ -297,8 +297,7 @@ export const fallbackAboutData: AboutPageData = {
     },
     {
       title: "Parental & Family Leave",
-      description:
-        "16 weeks of fully paid parental leave for primary and secondary caregivers.",
+      description: "16 weeks of fully paid parental leave for primary and secondary caregivers.",
       icon: "Smile",
     },
     {
@@ -319,7 +318,9 @@ export const fallbackAboutData: AboutPageData = {
 export async function fetchAboutData(): Promise<AboutPageData> {
   try {
     const client = createAppApiClient();
-    const response = await client.get<{ success: boolean; data: AboutPageData }>("/v1/public/about");
+    const response = await client.get<{ success: boolean; data: AboutPageData }>(
+      "/v1/public/about",
+    );
     if (response?.data) {
       return response.data;
     }
