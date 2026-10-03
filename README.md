@@ -99,6 +99,42 @@ pnpm docker:down
 
 Open Web at `http://localhost:8080`, ERP at `http://localhost:8080/erp/`, Admin at `http://localhost:8080/admin/`, and API at `http://localhost:8080/api`.
 
+## Production Deployment (Live)
+
+Workforce ERP is deployed live on Ubuntu VPS with automated CI/CD:
+
+- **Live Application:** [http://workforce.austattendance.online](http://workforce.austattendance.online)
+- **ERP Workspace:** [http://workforce.austattendance.online/erp/](http://workforce.austattendance.online/erp/)
+- **Admin Console:** [http://workforce.austattendance.online/admin/](http://workforce.austattendance.online/admin/)
+- **API Health Check:** [http://workforce.austattendance.online/api/healthz](http://workforce.austattendance.online/api/healthz)
+
+### Hosting Architecture
+
+- **Host Web Server:** Nginx 1.24+ reverse proxy serving static SPAs with same-origin routing to PHP-FPM.
+- **PHP Engine:** PHP 8.4-FPM running via dedicated Unix domain socket (`/run/php/php8.4-fpm-s20230204060.sock`).
+- **Database:** MySQL 8.4 hosted in shared container `cse3100-db` on the VPS host.
+- **CI/CD Pipeline:** Fully automated GitHub Actions workflow (`.github/workflows/deploy.yml`) triggered on push to `main`.
+
+### CI/CD Workflow (`.github/workflows/deploy.yml`)
+
+The pipeline implements an automated 4-stage deployment architecture:
+
+1. **`test` Stage:** Runs repository-wide TypeScript typechecking and Laravel API feature tests.
+2. **`build` Stage:** Installs production PHP dependencies, compiles all 3 React SPAs (`web`, `erp`, `admin`) via Nx, packages the release archive `release.tar.gz` with zero secrets, and uploads the deployment artifact.
+3. **`deploy` Stage:** Authenticates using dedicated deploy SSH keys, transfers the bundle via SCP, extracts to `~/laravel`, executes `php artisan migrate --force`, and rebuilds Laravel caches via `php artisan optimize`.
+4. **`release` Stage:** Automatically tags the commit and publishes a GitHub Release with changelog notes.
+
+### Required GitHub Repository Secrets
+
+Configure the following secrets in GitHub Repository Settings (`Settings -> Secrets and variables -> Actions`):
+
+| Secret Name       | Description                            |
+| :---------------- | :------------------------------------- |
+| `SSH_PRIVATE_KEY` | Dedicated SSH private deploy key       |
+| `DEPLOY_USER`     | VPS username (`s20230204060`)          |
+| `DEPLOY_HOST`     | VPS host IP address (`187.52.122.100`) |
+| `DEPLOY_PORT`     | SSH port (default: `22`)               |
+
 ## Nx commands
 
 ```bash
@@ -137,31 +173,8 @@ The Nx default base is `develop`.
 - Shared workspace packages must be declared explicitly with `workspace:*` in the consuming package.
 - GitHub Actions uses `nx affected` so unchanged Node projects are not rebuilt unnecessarily.
 
-## GitHub CI
-
-`.github/workflows/ci.yml` runs two reusable validation jobs:
-
-1. **Node workspace** — formatting checks and Nx affected `typecheck`, `lint`, and `build` tasks.
-2. **Laravel API** — Composer metadata validation, dependency installation, and the API test suite.
-
-Nx affected CI works without Nx Cloud. Nx Cloud can be connected later if remote caching or distributed task execution is needed.
-
-## GitHub push
-
-The distributable ZIP intentionally does not contain another repository's `.git` directory. To publish it as a clean repository:
-
-```bash
-git init -b develop
-git add .
-git commit -m "chore: initialize Nx workforce ERP workspace"
-git remote add origin <your-github-repository-url>
-git push -u origin develop
-```
-
-If you are copying these files into an existing Git repository, keep that repository's own `.git` directory and commit the changes normally instead.
-
 ## Project references
 
-- `infra/README.md` — local Docker Desktop stack; production deployment is not configured yet
+- `infra/README.md` — local Docker Desktop stack and production VPS hosting architecture
 - `apps/api/README.md` — Laravel 13 API backend architecture and configuration
 - `.github/GITHUB-CONFIG.md` — GitHub automation and repository configuration

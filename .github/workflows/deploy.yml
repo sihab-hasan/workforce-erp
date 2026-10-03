@@ -87,6 +87,11 @@ jobs:
           pnpm install --frozen-lockfile
 
       - name: Build frontend applications
+        env:
+          VITE_WEB_URL: http://workforce.austattendance.online
+          VITE_ERP_URL: http://workforce.austattendance.online/erp
+          VITE_ADMIN_URL: http://workforce.austattendance.online/admin
+          VITE_API_URL: /api
         run: |
           VITE_BASE_PATH=/ pnpm nx build @workforce-erp/web
           VITE_BASE_PATH=/erp/ pnpm nx build @workforce-erp/erp

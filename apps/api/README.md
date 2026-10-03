@@ -54,11 +54,17 @@ Optional token lifetime and browser CORS origins are environment-driven:
 ```dotenv
 SANCTUM_TOKEN_EXPIRATION=480
 SANCTUM_TOKEN_PREFIX=workforce_
-CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173
-TRUSTED_HOSTS=localhost,127.0.0.1
+CORS_ALLOWED_ORIGINS=http://workforce.austattendance.online,http://localhost:5173
+SANCTUM_STATEFUL_DOMAINS=workforce.austattendance.online,localhost:5173
+TRUSTED_HOSTS=workforce.austattendance.online,localhost,127.0.0.1
 ```
 
-The example uses an eight-hour (`480` minute) token lifetime. Set `SANCTUM_TOKEN_EXPIRATION` to the session lifetime required by the deployment; leaving it blank opts back into Sanctum's non-expiring personal-access-token behavior. Issued token rows also receive a concrete `expires_at`, so the Sessions page reports the real expiry. Set `TRUSTED_HOSTS` to the API hostnames accepted by the deployment; the local example permits only `localhost` and `127.0.0.1`.
+The example uses an eight-hour (`480` minute) token lifetime. Set `SANCTUM_TOKEN_EXPIRATION` to the session lifetime required by the deployment; leaving it blank opts back into Sanctum's non-expiring personal-access-token behavior. Issued token rows also receive a concrete `expires_at`, so the Sessions page reports the real expiry. Set `TRUSTED_HOSTS` to the API hostnames accepted by the deployment; in production on the VPS, this is configured for `workforce.austattendance.online`.
+
+### Health & Status Endpoints
+
+- `GET /api/healthz` — returns `{ "status": "ok", "service": "workforce-erp-api" }` for monitoring and deployment verification.
+- `GET /api` — root API service identification.
 
 ### Service-account authentication
 
