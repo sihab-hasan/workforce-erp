@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\WorkforceNotification;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +20,18 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+Artisan::command('notifications:prune {--days=30 : The number of days to retain read notifications}', function () {
+    $days = (int) $this->option('days');
+    $count = WorkforceNotification::query()
+        ->whereNotNull('read_at')
+        ->where('read_at', '<', now()->subDays($days))
+        ->delete();
+
+    $this->info("Pruned {$count} read notification(s) older than {$days} days.");
+})->purpose('Prune read notifications older than a given number of days');
+
+Schedule::command('notifications:prune')->daily();
+
 Artisan::command('workforce:create-admin {--name=Admin} {--email=} {--password=}', function () {
     $email = strtolower(trim((string) $this->option('email')));
     $password = (string) $this->option('password');
@@ -25,6 +39,7 @@ Artisan::command('workforce:create-admin {--name=Admin} {--email=} {--password=}
 
     if ($email === '' || $password === '') {
         $this->error('Both --email and --password are required.');
+
         return 1;
     }
 
@@ -66,6 +81,7 @@ Artisan::command('workforce:create-admin {--name=Admin} {--email=} {--password=}
     }
 
     $this->info("Platform Super Admin successfully created/updated: {$email}");
+
     return 0;
 })->purpose('Create or reset a platform super admin user');
 

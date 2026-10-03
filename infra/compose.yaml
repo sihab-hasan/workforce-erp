@@ -91,6 +91,14 @@ services:
       api-migrate:
         condition: service_completed_successfully
 
+  reverb:
+    <<: *api-app
+    restart: unless-stopped
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
+    depends_on:
+      api-migrate:
+        condition: service_completed_successfully
+
   nginx:
     build:
       context: ..

@@ -75,6 +75,12 @@ class DocumentController extends Controller
         ])->load('uploader');
 
         foreach ($this->audience->usersWithPermission((int) $org->id, 'document.view', (int) $request->user()->id) as $member) {
+            if ($document->branch_id !== null) {
+                $allowedBranches = $this->dataScope->accessibleBranchIds($member, (int) $org->id);
+                if ($allowedBranches !== null && ! in_array($document->branch_id, $allowedBranches, true)) {
+                    continue;
+                }
+            }
             $member->notify(new DocumentShared($document));
         }
 

@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCheck } from "lucide-react";
+import { CheckCheck, ExternalLink } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@workforce-erp/ui/components/button";
 import { toast } from "sonner";
 import { apiGetPaginated, apiPatch, errorMessage, formatDateTime } from "#features/erp-core/api";
 import type { NotificationRecord } from "#features/erp-core/types";
+import { companyPath } from "#routes/paths";
 import {
   EmptyPanel,
   ErpPage,
@@ -11,7 +13,10 @@ import {
   LoadingState,
   SectionCard,
 } from "#components/erp/ErpPage";
+
 export default function NotificationCenterPage() {
+  const navigate = useNavigate();
+  const { tenantKey, companyKey } = useParams();
   const qc = useQueryClient();
   const q = useQuery({
     queryKey: ["notifications"],
@@ -30,6 +35,20 @@ export default function NotificationCenterPage() {
     },
     onError: (e) => toast.error(errorMessage(e)),
   });
+
+  const handleNotificationClick = (n: NotificationRecord) => {
+    if (!n.is_read) {
+      mark.mutate(n.id);
+    }
+    if (n.action_url) {
+      if (tenantKey && companyKey) {
+        navigate(companyPath(tenantKey, companyKey, n.action_url));
+      } else {
+        navigate(n.action_url);
+      }
+    }
+  };
+
   return (
     <ErpPage
       title="Notifications"
@@ -57,15 +76,15 @@ export default function NotificationCenterPage() {
               <button
                 key={n.id}
                 type="button"
-                onClick={() => !n.is_read && mark.mutate(n.id)}
-                className={`flex w-full gap-4 px-1 py-4 text-left transition hover:bg-muted/30 ${n.is_read ? "opacity-70" : ""}`}
+                onClick={() => handleNotificationClick(n)}
+                className={`flex w-full items-start gap-4 px-3 py-4 text-left transition rounded-md hover:bg-muted/40 cursor-pointer ${n.is_read ? "opacity-70" : ""}`}
               >
                 <span
-                  className={`mt-1 size-2 shrink-0 rounded-full ${n.is_read ? "bg-muted-foreground/30" : "bg-primary"}`}
+                  className={`mt-1.5 size-2 shrink-0 rounded-full ${n.is_read ? "bg-muted-foreground/30" : "bg-primary"}`}
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-start justify-between gap-2">
-                    <p className="font-medium">{n.title}</p>
+                    <p className="font-medium text-foreground">{n.title}</p>
                     <span className="text-xs text-muted-foreground">
                       {formatDateTime(n.created_at)}
                     </span>
@@ -73,9 +92,16 @@ export default function NotificationCenterPage() {
                   {n.message ? (
                     <p className="mt-1 text-sm text-muted-foreground">{n.message}</p>
                   ) : null}
-                  <p className="mt-2 text-xs capitalize text-muted-foreground">
-                    {n.type.replaceAll(".", " · ")}
-                  </p>
+                  <div className="mt-2 flex items-center justify-between gap-2">
+                    <p className="text-xs capitalize text-muted-foreground">
+                      {n.type.replaceAll(".", " · ")}
+                    </p>
+                    {n.action_url ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-primary font-medium">
+                        View details <ExternalLink className="size-3" />
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
               </button>
             ))}
