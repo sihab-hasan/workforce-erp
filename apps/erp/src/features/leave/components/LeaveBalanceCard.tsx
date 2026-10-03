@@ -23,7 +23,8 @@ function formatDays(value: number): string {
 
 function usageIndicator(type: LeaveTypeBalance): { width: number; className: string } {
   const allowance = Number(type.annual_allowance);
-  const usedPercent = allowance > 0 ? Math.min(100, (Number(type.used) / allowance) * 100) : 0;
+  const committed = Number(type.used) + Number(type.pending ?? 0);
+  const usedPercent = allowance > 0 ? Math.min(100, (committed / allowance) * 100) : 0;
 
   if (Number(type.remaining) <= 0) {
     return { width: usedPercent, className: "bg-rose-500" };
@@ -63,7 +64,7 @@ function BalanceTile({ type }: { type: LeaveTypeBalance }) {
 
       <p className="mt-2 text-xs text-muted-foreground">
         Used {formatDays(Number(type.used))} of {formatDays(Number(type.annual_allowance))} days
-        this year
+        {Number(type.pending) > 0 ? ` · ${formatDays(Number(type.pending))} pending` : ""}
       </p>
     </div>
   );

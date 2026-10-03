@@ -43,10 +43,13 @@ export interface LeaveTypeBalance {
   annual_allowance: number;
   is_paid: boolean;
   used: number;
+  pending?: number;
   remaining: number;
 }
 
 export interface LeaveOptions {
+  year?: number;
+  has_employee_profile?: boolean;
   types: LeaveTypeBalance[];
 }
 
@@ -55,4 +58,8 @@ export interface CreateLeavePayload {
   start_date: string;
   end_date: string;
   reason?: string;
+}
+
+export interface ReviewLeavePayload {
+  review_note?: string;
 }
