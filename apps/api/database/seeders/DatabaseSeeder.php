@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        if (! app()->environment('local') || ! config('workforce.local_bootstrap.enabled', false)) {
+        if (! config('workforce.local_bootstrap.enabled', false)) {
             return;
         }
 

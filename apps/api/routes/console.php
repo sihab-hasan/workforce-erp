@@ -68,3 +68,11 @@ Artisan::command('workforce:create-admin {--name=Admin} {--email=} {--password=}
     $this->info("Platform Super Admin successfully created/updated: {$email}");
     return 0;
 })->purpose('Create or reset a platform super admin user');
+
+Artisan::command('admin:create {--name=Admin} {--email=} {--password=}', function () {
+    return $this->call('workforce:create-admin', [
+        '--name' => $this->option('name') ?: config('workforce.local_bootstrap.owner_name', 'Admin'),
+        '--email' => $this->option('email') ?: config('workforce.local_bootstrap.owner_email', ''),
+        '--password' => $this->option('password') ?: config('workforce.local_bootstrap.owner_password', ''),
+    ]);
+})->purpose('Alias for workforce:create-admin');
