@@ -93,6 +93,32 @@ class AuthenticationSecurityTest extends TestCase
         $user = User::where('email', 'new-owner@example.com')->firstOrFail();
         $this->assertNotNull($user->email_verified_at);
         $this->assertAuthenticatedAs($user);
+
+        $orgSlug = $response->json('organization.slug');
+        $this->withHeader('X-Tenant-Key', $orgSlug)
+            ->getJson('/api/v1/onboarding')
+            ->assertOk();
+
+        $this->getJson('/api/v1/auth/me')
+            ->assertOk();
+    }
+
+    public function test_browser_logout_invalidates_session_and_subsequent_me_is_unauthorized(): void
+    {
+        [$user] = $this->member('employee', false);
+
+        $this->postJson('/api/v1/auth/login', [
+            'email' => $user->email,
+            'password' => 'a sufficiently long employee passphrase',
+            'client' => 'erp',
+        ])->assertOk();
+
+        $this->assertAuthenticatedAs($user);
+
+        $this->postJson('/api/v1/auth/logout')->assertOk();
+        $this->assertGuest();
+
+        $this->getJson('/api/v1/auth/me')->assertUnauthorized();
     }
 
     /** @return array{User, Organization, OrganizationMember} */

@@ -12,6 +12,13 @@ class RegisterRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'email' => strtolower(trim((string) $this->input('email'))),
+        ]);
+    }
+
     public function rules(): array
     {
         return [
@@ -23,10 +30,10 @@ class RegisterRequest extends FormRequest
             'password' => [
                 'required',
                 'confirmed',
-                app()->runningUnitTests() ? Password::min(8) : Password::min(12)->uncompromised(),
+                app()->isProduction() ? Password::min(12)->uncompromised() : Password::min(8),
             ],
             'terms_accepted' => ['accepted'],
-            'client' => ['nullable', 'in:erp,web'],
+            'client' => ['nullable', 'in:erp,web,portal,admin'],
         ];
     }
 }

@@ -25,18 +25,26 @@ class SessionSecurityService
     {
         if (! $request->hasSession()) {
             return;
-        } $s = $request->session();
+        }
+        $s = $request->session();
+        if (! $s->has('auth_version') || ! $s->has('absolute_expires_at')) {
+            $this->initialize($request, $user, (string) $s->get('authentication_method', 'session'));
+            return;
+        }
         if ((int) $s->get('auth_version', 0) !== (int) $user->auth_version || (int) $s->get('authz_version', 0) !== (int) $user->authz_version) {
             $this->invalidate($request);
             abort(401, 'Your session is no longer valid.');
-        } if ((int) $s->get('absolute_expires_at', 0) <= now()->timestamp) {
+        }
+        if ((int) $s->get('absolute_expires_at', 0) <= now()->timestamp) {
             $this->invalidate($request);
             abort(401, 'Your session has expired.');
-        } $idle = $this->isPrivileged($user) ? (int) config('security.session.privileged_idle_minutes', 30) : (int) config('security.session.standard_idle_minutes', 120);
+        }
+        $idle = $this->isPrivileged($user) ? (int) config('security.session.privileged_idle_minutes', 30) : (int) config('security.session.standard_idle_minutes', 120);
         if (now()->timestamp - (int) $s->get('last_security_activity', now()->timestamp) > $idle * 60) {
             $this->invalidate($request);
             abort(401, 'Your session has expired due to inactivity.');
-        } $s->put('last_security_activity', now()->timestamp);
+        }
+        $s->put('last_security_activity', now()->timestamp);
     }
 
     public function markStepUp(Request $request): void
