@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\v1\EmployeeController;
 use App\Http\Controllers\Api\v1\IdentityController;
 use App\Http\Controllers\Api\v1\InvitationController;
 use App\Http\Controllers\Api\v1\LeaveController;
+use App\Http\Controllers\Api\v1\LeaveTypeController;
 use App\Http\Controllers\Api\v1\NotificationController;
 use App\Http\Controllers\Api\v1\OnboardingController;
 use App\Http\Controllers\Api\v1\OrganizationController;
@@ -183,14 +184,17 @@ Route::prefix('v1')->group(function () {
                     Route::delete('/{employee}', [EmployeeController::class, 'destroy']);
                 });
             });
-            Route::middleware('subscription.module:leave')->prefix('leave-requests')->group(function () {
-                Route::get('/options', [LeaveController::class, 'options']);
-                Route::get('', [LeaveController::class, 'index']);
-                Route::post('', [LeaveController::class, 'store']);
-                Route::get('/{leaveRequest}', [LeaveController::class, 'show']);
-                Route::patch('/{leaveRequest}/cancel', [LeaveController::class, 'cancel']);
-                Route::patch('/{leaveRequest}/approve', [LeaveController::class, 'approve']);
-                Route::patch('/{leaveRequest}/reject', [LeaveController::class, 'reject']);
+            Route::middleware('subscription.module:leave')->group(function () {
+                Route::apiResource('leave-types', LeaveTypeController::class)->except(['create', 'edit']);
+                Route::prefix('leave-requests')->group(function () {
+                    Route::get('/options', [LeaveController::class, 'options']);
+                    Route::get('', [LeaveController::class, 'index']);
+                    Route::post('', [LeaveController::class, 'store']);
+                    Route::get('/{leaveRequest}', [LeaveController::class, 'show']);
+                    Route::patch('/{leaveRequest}/cancel', [LeaveController::class, 'cancel']);
+                    Route::patch('/{leaveRequest}/approve', [LeaveController::class, 'approve']);
+                    Route::patch('/{leaveRequest}/reject', [LeaveController::class, 'reject']);
+                });
             });
             Route::middleware('subscription.module:attendance')->prefix('timesheets')->group(function () {
                 Route::get('/today', [TimesheetController::class, 'today']);
