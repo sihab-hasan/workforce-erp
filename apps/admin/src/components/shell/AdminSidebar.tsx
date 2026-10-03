@@ -3,7 +3,6 @@ import {
   LayoutDashboard,
   MessageSquare,
   Settings,
-  ShieldCheck,
   Users,
   Waypoints,
 } from "lucide-react";
