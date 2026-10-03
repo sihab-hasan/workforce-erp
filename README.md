@@ -128,12 +128,12 @@ The pipeline implements an automated 4-stage deployment architecture:
 
 Configure the following secrets in GitHub Repository Settings (`Settings -> Secrets and variables -> Actions`):
 
-| Secret Name | Description |
-| :--- | :--- |
-| `SSH_PRIVATE_KEY` | Dedicated SSH private deploy key |
-| `DEPLOY_USER` | VPS username (`s20230204060`) |
-| `DEPLOY_HOST` | VPS host IP address (`187.52.122.100`) |
-| `DEPLOY_PORT` | SSH port (default: `22`) |
+| Secret Name       | Description                            |
+| :---------------- | :------------------------------------- |
+| `SSH_PRIVATE_KEY` | Dedicated SSH private deploy key       |
+| `DEPLOY_USER`     | VPS username (`s20230204060`)          |
+| `DEPLOY_HOST`     | VPS host IP address (`187.52.122.100`) |
+| `DEPLOY_PORT`     | SSH port (default: `22`)               |
 
 ## Nx commands
 
